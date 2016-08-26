@@ -117,7 +117,7 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
 //        return this.databaseConnection.update(tableName, map, whereId);
 //    }
 //
-    private static final class CacheKey implements Serializable {
+    public static final class CacheKey implements Serializable {
 
         private static final long serialVersionUID = -384732894789324L;
 
