@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 public interface Cache<K, V> {
     V getIfPresent(final Object var1);
 
-    V get(final K var1, final Callable<? extends V> var2) throws ExecutionException;
+    V get(final K var1, final Callable<? extends V> var2);
 
     Map<K, V> getAllPresent(final Iterable<?> var1);
 

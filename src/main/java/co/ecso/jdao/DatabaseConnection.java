@@ -31,7 +31,8 @@ public interface DatabaseConnection {
                                     }
                                     final Object rval = rs.getObject(column.toString(), column.valueClass());
                                     if (rval == null) {
-                                        throw new SQLException(String.format("No result for query %s", query.getQuery()));
+                                        throw new SQLException(String.format("Result for %s, %s was null",
+                                                column.toString(), query.getQuery()));
                                     } else {
                                         if ("String".equals(column.valueClass().getSimpleName())) {
                                             f.complete(rval.toString().trim());
@@ -132,12 +133,77 @@ public interface DatabaseConnection {
         return f;
     }
 
+
+//    static Class<?> toClass(int type) {
+//        Class<?> result = Object.class;
+//        switch (type) {
+//            case Types.CHAR:
+//            case Types.VARCHAR:
+//            case Types.LONGVARCHAR:
+//                result = String.class;
+//                break;
+//
+//            case Types.NUMERIC:
+//            case Types.DECIMAL:
+//                result = java.math.BigDecimal.class;
+//                break;
+//
+//            case Types.BIT:
+//                result = Boolean.class;
+//                break;
+//
+//            case Types.TINYINT:
+//                result = Byte.class;
+//                break;
+//
+//            case Types.SMALLINT:
+//                result = Short.class;
+//                break;
+//
+//            case Types.INTEGER:
+//                result = Integer.class;
+//                break;
+//
+//            case Types.BIGINT:
+//                result = Long.class;
+//                break;
+//
+//            case Types.REAL:
+//            case Types.FLOAT:
+//                result = Float.class;
+//                break;
+//
+//            case Types.DOUBLE:
+//                result = Double.class;
+//                break;
+//
+//            case Types.BINARY:
+//            case Types.VARBINARY:
+//            case Types.LONGVARBINARY:
+//                result = Byte[].class;
+//                break;
+//
+//            case Types.DATE:
+//                result = java.sql.Date.class;
+//                break;
+//
+//            case Types.TIME:
+//                result = java.sql.Time.class;
+//                break;
+//
+//            case Types.TIMESTAMP:
+//                result = java.sql.Timestamp.class;
+//                break;
+//        }
+//
+//        return result;
+//    }
+
 //    CompletableFuture<?> selectIdWithValues(final String tableName, final Map<DatabaseField<?>, ?> values);
 
 //    CompletableFuture<List<Long>> selectIdsWithValues(final String tableName, final Map<DatabaseField<?>, ?> values);
 
 //    CompletableFuture<Boolean> update(final String tableName, final Map<DatabaseField<?>, ? extends Comparable> map,
 //                                      final CompletableFuture<?> whereId);
-
 
 }

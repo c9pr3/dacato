@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
 
 /**
  * CachingConnectionWrapper.
@@ -45,14 +44,10 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
 
     @Override
     public CompletableFuture<?> findOne(final Query query, final CompletableFuture<?> whereId,
-                                        final DatabaseField<?> column) throws SQLException {
+                                           final DatabaseField<?> column) {
         final CacheKey cacheKey = new CacheKey(query.getQuery(), column, whereId);
-        final Cache<CacheKey, CompletableFuture<?>> cachedConnection = CACHE_MAP.get(databaseConnection.hashCode());
-        try {
-            return cachedConnection.get(cacheKey, () -> databaseConnection.findOne(query, cacheKey.whereId(), cacheKey.columnName()));
-        } catch (final Exception e) {
-            throw new SQLException(e);
-        }
+        return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
+                databaseConnection.findOne(query, cacheKey.whereId(), cacheKey.columnName()));
     }
 
     @Override
@@ -70,12 +65,8 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
     public CompletableFuture<ConcurrentLinkedQueue<Long>> findMany(final Query query) {
         final CacheKey cacheKey = new CacheKey(query.getQuery(), new DatabaseField<>("*", "", Types.VARCHAR),
                 CompletableFuture.completedFuture(-1L));
-        try {
-            return (CompletableFuture<ConcurrentLinkedQueue<Long>>) CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-                    this.databaseConnection.findMany(query));
-        } catch (final ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+        return (CompletableFuture<ConcurrentLinkedQueue<Long>>) CACHE_MAP.get(databaseConnection.hashCode())
+                .get(cacheKey, () -> this.databaseConnection.findMany(query));
     }
 
 //    @Override

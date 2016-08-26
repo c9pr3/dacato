@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * FakeCache.
@@ -13,7 +12,7 @@ import java.util.concurrent.ExecutionException;
  * @version $Id:$
  * @since 25.08.16
  */
-public final class FakeCache implements Cache<Object, CompletableFuture<?>> {
+final class FakeCache implements Cache<Object, CompletableFuture<?>> {
 
     private static final Map<Object, CompletableFuture<?>> CACHE = new HashMap<>();
 
@@ -23,12 +22,12 @@ public final class FakeCache implements Cache<Object, CompletableFuture<?>> {
     }
 
     @Override
-    public CompletableFuture<?> get(Object var1, Callable<? extends CompletableFuture<?>> var2) throws ExecutionException {
+    public CompletableFuture<?> get(Object var1, Callable<? extends CompletableFuture<?>> var2) {
         if (!CACHE.containsKey(var1)) {
             try {
                 CACHE.put(var1, var2.call());
             } catch (Exception e) {
-                throw new ExecutionException(e);
+                e.printStackTrace();
             }
         }
         return CACHE.get(var1);

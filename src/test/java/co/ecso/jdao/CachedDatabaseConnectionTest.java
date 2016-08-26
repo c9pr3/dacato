@@ -53,7 +53,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
         final CompletableFuture<?> result = connection.findOne(new Query("SELECT id FROM customer WHERE id = ?"),
                 newInsertID, new DatabaseField<>("id", -1L, Types.BIGINT));
         Assert.assertNotNull(result);
-        Long res = result.handle((r, ex) -> {
+        final Long res = result.handle((r, ex) -> {
             if (r == null) {
                 return null;
             }
