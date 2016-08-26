@@ -7,13 +7,14 @@ package co.ecso.jdao;
  * @version $Id:$
  * @since 08.08.16
  */
+@SuppressWarnings("WeakerAccess")
 public final class DatabaseField<T> {
 
     private final String name;
     private final T defaultValue;
     private final int sqlType;
 
-    DatabaseField(final String name, final T defaultValue, final int sqlType) {
+    public DatabaseField(final String name, final T defaultValue, final int sqlType) {
         this.name = name;
         this.defaultValue = defaultValue;
         this.sqlType = sqlType;
