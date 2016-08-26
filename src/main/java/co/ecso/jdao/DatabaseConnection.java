@@ -17,7 +17,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 public interface DatabaseConnection {
 
     default CompletableFuture<?> findOne(final Query query, final CompletableFuture<?> whereId,
-                                         final DatabaseField<?> column) throws SQLException {
+                                         final DatabaseField<?> column) {
         final CompletableFuture<Object> f = new CompletableFuture<>();
         whereId.handle((ok, ex) -> Long.valueOf(ok.toString().trim()))
                 .thenAccept(w -> {
