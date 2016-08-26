@@ -1,6 +1,6 @@
-package co.ecso.daobase;
+package co.ecso.jdao;
 
-import co.ecso.daobase.hsql.HsqlConnection;
+import co.ecso.jdao.hsql.HsqlConnection;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

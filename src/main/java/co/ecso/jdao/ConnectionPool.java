@@ -1,4 +1,4 @@
-package co.ecso.daobase;
+package co.ecso.jdao;
 
 import java.sql.Connection;
 import java.sql.SQLException;

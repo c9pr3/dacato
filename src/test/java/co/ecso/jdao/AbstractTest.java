@@ -1,8 +1,8 @@
-package co.ecso.daobase;
+package co.ecso.jdao;
 
-import co.ecso.daobase.helpers.CreateTableOnlyFilter;
-import co.ecso.daobase.helpers.MysqlToHsqlMap;
-import co.ecso.daobase.hsql.HsqlConnection;
+import co.ecso.jdao.helpers.CreateTableOnlyFilter;
+import co.ecso.jdao.helpers.MysqlToHsqlMap;
+import co.ecso.jdao.hsql.HsqlConnection;
 import org.hsqldb.jdbc.JDBCDataSource;
 
 import java.io.IOException;

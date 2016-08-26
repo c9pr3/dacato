@@ -1,4 +1,4 @@
-package co.ecso.daobase;
+package co.ecso.jdao;
 
 import org.junit.Assert;
 import org.junit.Test;

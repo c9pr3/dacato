@@ -19,8 +19,15 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <github.global.server>github</github.global.server>
     </properties>
-
+    <distributionManagement>
+        <repository>
+            <id>jdao.repo</id>
+            <name>jdao</name>
+            <url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>net.snaq</groupId>
@@ -57,17 +64,59 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.8.1</version>
+                    <configuration>
+                        <altDeploymentRepository>jdao.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>org.pitest</groupId>
                     <artifactId>pitest-maven</artifactId>
                     <version>1.1.10</version>
                     <configuration>
                         <targetClasses>
-                            <param>co.ecso.daobase.*</param>
+                            <param>co.ecso.jdao.*</param>
                         </targetClasses>
                         <excludedClasses>
                         </excludedClasses>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>com.github.github</groupId>
+                    <artifactId>site-maven-plugin</artifactId>
+                    <version>0.8</version>
+                    <configuration>
+                        <!-- git commit message -->
+                        <message>Maven artifacts for ${project.version}</message>
+                        <!-- disable webpage processing -->
+                        <noJekyll>true</noJekyll>
+                        <!-- matches distribution management repository url above -->
+                        <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+                        <!-- remote branch name -->
+                        <branch>refs/heads/mvn-repo</branch>
+                        <!-- If you remove this then the old artifact will be removed and new
+                         one will replace. But with the merge tag you can just release by changing
+                                                          the version -->
+                        <merge>true</merge>
+                        <includes>
+                            <include>**/*</include>
+                        </includes>
+                        <!-- github repo name -->
+                        <repositoryName>sw-protection-client</repositoryName>
+                        <!-- github username -->
+                        <repositoryOwner>Adar</repositoryOwner>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>site</goal>
+                            </goals>
+                            <phase>deploy</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+
             </plugins>
         </pluginManagement>
     </build>

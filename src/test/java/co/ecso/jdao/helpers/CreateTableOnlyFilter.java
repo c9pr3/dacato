@@ -1,4 +1,4 @@
-package co.ecso.daobase.helpers;
+package co.ecso.jdao.helpers;
 
 /**
  * CreateTableOnly Filter.
