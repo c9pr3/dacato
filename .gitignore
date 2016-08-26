@@ -63,7 +63,7 @@ buildNumber.properties
 .mvn/timing.properties
 
 .gitignore
-daobase.iml
+jdao.iml
 wpconfig.mem.log
 wpconfig.mem.properties
 wpconfig.mem.script

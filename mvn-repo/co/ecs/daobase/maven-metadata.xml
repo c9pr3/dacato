@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata>
   <groupId>co.ecs</groupId>
-  <artifactId>daobase</artifactId>
+  <artifactId>jdao</artifactId>
   <versioning>
     <versions>
       <version>1.0-SNAPSHOT</version>

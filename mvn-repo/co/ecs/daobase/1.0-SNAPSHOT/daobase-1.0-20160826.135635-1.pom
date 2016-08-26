@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>co.ecs</groupId>
-    <artifactId>daobase</artifactId>
+    <artifactId>jdao</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>daobase</name>
+    <name>jdao</name>
     <description>Basic DAO</description>
 
     <developers>
