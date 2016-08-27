@@ -71,34 +71,34 @@ public interface DatabaseConnection {
             return wheref;
         }
         wheref.thenAccept(whereId -> {
-                    try {
-                        final String finalQuery = String.format(query.getQuery(), column);
-                        try (Connection c = this.pooledConnection()) {
-                            try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                                stmt.setObject(1, whereId, column.sqlType());
-                                try (final ResultSet rs = stmt.executeQuery()) {
-                                    if (!rs.next()) {
-                                        throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
-                                    }
-                                    final Object rval = rs.getObject(column.toString(), column.valueClass());
-                                    if (rval == null) {
-                                        throw new SQLException(String.format("Result for %s, %s was null",
-                                                column.toString(), query.getQuery()));
-                                    } else {
-                                        if ("String".equals(column.valueClass().getSimpleName())) {
-                                            f.complete(rval.toString().trim());
-                                        } else {
-                                            f.complete(rval);
-                                        }
-                                    }
+            try {
+                final String finalQuery = String.format(query.getQuery(), column);
+                try (Connection c = this.pooledConnection()) {
+                    try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                        stmt.setObject(1, whereId, column.sqlType());
+                        try (final ResultSet rs = stmt.executeQuery()) {
+                            if (!rs.next()) {
+                                throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
+                            }
+                            final Object rval = rs.getObject(column.toString(), column.valueClass());
+                            if (rval == null) {
+                                throw new SQLException(String.format("Result for %s, %s was null",
+                                        column.toString(), query.getQuery()));
+                            } else {
+                                if ("String".equals(column.valueClass().getSimpleName())) {
+                                    f.complete(rval.toString().trim());
+                                } else {
+                                    f.complete(rval);
                                 }
                             }
                         }
-                    } catch (final Exception e) {
-                        e.printStackTrace();
-                        f.completeExceptionally(e);
                     }
-                });
+                }
+            } catch (final Exception e) {
+                e.printStackTrace();
+                f.completeExceptionally(e);
+            }
+        });
         return f;
     }
 
@@ -133,15 +133,15 @@ public interface DatabaseConnection {
 
     default CompletableFuture<Boolean> truncate(final Query query) {
         final CompletableFuture<Boolean> f = new CompletableFuture<>();
-            try (final Connection c = pooledConnection()) {
-                try (final PreparedStatement stmt = c.prepareStatement(query.getQuery())) {
-                    final boolean res = stmt.execute();
-                    f.complete(res);
-                }
-            } catch (final Exception e) {
-                e.printStackTrace();
-                f.completeExceptionally(e);
+        try (final Connection c = pooledConnection()) {
+            try (final PreparedStatement stmt = c.prepareStatement(query.getQuery())) {
+                final boolean res = stmt.execute();
+                f.complete(res);
             }
+        } catch (final Exception e) {
+            e.printStackTrace();
+            f.completeExceptionally(e);
+        }
         return f;
     }
 
@@ -166,33 +166,32 @@ public interface DatabaseConnection {
     default CompletableFuture<Long> insert(final Query query, final Map<DatabaseField<?>, ?> values) {
         final CompletableFuture<Long> f = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
-            synchronized (this) {
-                try {
-                    try (final Connection c = pooledConnection()) {
-                        try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(), Statement.RETURN_GENERATED_KEYS)) {
-                            int i = 1;
-                            for (final DatabaseField<?> databaseField : values.keySet()) {
-                                stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
-                                i++;
+            System.out.println("INSERT START - " + query.getQuery());
+            try {
+                try (final Connection c = pooledConnection()) {
+                    try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(), Statement.RETURN_GENERATED_KEYS)) {
+                        int i = 1;
+                        for (final DatabaseField<?> databaseField : values.keySet()) {
+                            stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
+                            i++;
+                        }
+                        stmt.executeUpdate();
+                        try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                            if (!generatedKeys.next()) {
+                                throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
                             }
-                            stmt.executeUpdate();
-                            try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                                if (!generatedKeys.next()) {
-                                    throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
-                                }
-                                f.complete(generatedKeys.getLong(1));
-                            }
+                            f.complete(generatedKeys.getLong(1));
                         }
                     }
-                } catch (final Exception e) {
-                    e.printStackTrace();
-                    f.completeExceptionally(e);
                 }
+            } catch (final Exception e) {
+                e.printStackTrace();
+                f.completeExceptionally(e);
             }
+            System.out.println("INSERT END - " + query.getQuery());
         }, getThreadPool());
         return f;
     }
-
 
 //    static Class<?> toClass(int type) {
 //        Class<?> result = Object.class;
