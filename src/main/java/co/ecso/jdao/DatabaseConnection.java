@@ -32,7 +32,22 @@ public interface DatabaseConnection {
                         final Object valueToSet = columns.values().toArray()[i - 1];
                         stmt.setObject(i, valueToSet, sqlType);
                     }
-                    getResult(query, column, f, stmt);
+                    try (final ResultSet rs = stmt.executeQuery()) {
+                        if (!rs.next()) {
+                            throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
+                        }
+                        final Object rval = rs.getObject(column.toString(), column.valueClass());
+                        if (rval == null) {
+                            throw new SQLException(String.format("Result for %s, %s was null",
+                                    column.toString(), query.getQuery()));
+                        } else {
+                            if ("String".equals(column.valueClass().getSimpleName())) {
+                                f.complete(rval.toString().trim());
+                            } else {
+                                f.complete(rval);
+                            }
+                        }
+                    }
                 }
             }
         } catch (final SQLException e) {
@@ -52,7 +67,22 @@ public interface DatabaseConnection {
                         try (Connection c = this.pooledConnection()) {
                             try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                                 stmt.setObject(1, whereId, column.sqlType());
-                                getResult(query, column, f, stmt);
+                                try (final ResultSet rs = stmt.executeQuery()) {
+                                    if (!rs.next()) {
+                                        throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
+                                    }
+                                    final Object rval = rs.getObject(column.toString(), column.valueClass());
+                                    if (rval == null) {
+                                        throw new SQLException(String.format("Result for %s, %s was null",
+                                                column.toString(), query.getQuery()));
+                                    } else {
+                                        if ("String".equals(column.valueClass().getSimpleName())) {
+                                            f.complete(rval.toString().trim());
+                                        } else {
+                                            f.complete(rval);
+                                        }
+                                    }
+                                }
                             }
                         }
                     } catch (final SQLException e) {
@@ -61,26 +91,6 @@ public interface DatabaseConnection {
                     }
                 });
         return f;
-    }
-
-    default void getResult(final Query query, final DatabaseField<?> column, final CompletableFuture<Object> f,
-                           final PreparedStatement stmt) throws SQLException {
-        try (final ResultSet rs = stmt.executeQuery()) {
-            if (!rs.next()) {
-                throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
-            }
-            final Object rval = rs.getObject(column.toString(), column.valueClass());
-            if (rval == null) {
-                throw new SQLException(String.format("Result for %s, %s was null",
-                        column.toString(), query.getQuery()));
-            } else {
-                if ("String".equals(column.valueClass().getSimpleName())) {
-                    f.complete(rval.toString().trim());
-                } else {
-                    f.complete(rval);
-                }
-            }
-        }
     }
 
     default CompletableFuture<LinkedList<?>> findMany(final Query query, final Map<DatabaseField<?>, ?> columns) {
