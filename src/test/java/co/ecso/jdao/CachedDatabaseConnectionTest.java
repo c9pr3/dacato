@@ -54,8 +54,8 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     public void findOneWithMap() throws Exception {
         final CompletableFuture<Long> newInsertID = insertOne();
         final DatabaseField<String> returnColumn = new DatabaseField<>("customer_first_name", "", Types.VARCHAR);
-        final Map<DatabaseField, Object> columns = new LinkedHashMap<>();
-        DatabaseField<Long> dbField = new DatabaseField<>("id", -1L, Types.BIGINT);
+        final Map<DatabaseField<?>, Object> columns = new LinkedHashMap<>();
+        DatabaseField<?> dbField = new DatabaseField<>("id", -1L, Types.BIGINT);
         columns.put(dbField, newInsertID.get());
         final Query query = new Query("SELECT %s FROM customer WHERE %s = ?");
         String res = (String)CONNECTION.findOne(query, columns, returnColumn).get();

@@ -20,7 +20,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 public interface DatabaseConnection {
 
     @SuppressWarnings("Duplicates")
-    default CompletableFuture<?> findOne(final Query query, final Map<DatabaseField, ?> columns, final DatabaseField<?> column) {
+    default CompletableFuture<?> findOne(final Query query, final Map<DatabaseField<?>, ?> columns, final DatabaseField<?> column) {
         final CompletableFuture<Object> f = new CompletableFuture<>();
         try {
             try (Connection c = this.pooledConnection()) {
