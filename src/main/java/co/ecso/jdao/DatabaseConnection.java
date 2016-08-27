@@ -18,7 +18,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 public interface DatabaseConnection {
 
     @SuppressWarnings("Duplicates")
-    default CompletableFuture<?> findOne(final Query query, final Map<DatabaseField<?>, ?> columns, final DatabaseField<?> column) {
+    default CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column, final Map<DatabaseField<?>, ?> columns) {
         final CompletableFuture<Object> f = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try (Connection c = this.pooledConnection()) {
@@ -57,8 +57,7 @@ public interface DatabaseConnection {
         return f;
     }
 
-    default CompletableFuture<?> findOne(final Query query, final CompletableFuture<?> whereIdFuture,
-                                         final DatabaseField<?> column) {
+    default CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column, final CompletableFuture<?> whereIdFuture) {
         final CompletableFuture<Object> f = new CompletableFuture<>();
         CompletableFuture<Long> wheref = whereIdFuture.handle((ok, ex) -> {
             if (ex != null) {

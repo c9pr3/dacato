@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.Types;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -65,7 +64,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
         DatabaseField<?> dbField = new DatabaseField<>("id", -1L, Types.BIGINT);
         columns.put(dbField, newInsertID.get());
         final Query query = new Query("SELECT %s FROM customer WHERE %s = ?");
-        String res = (String)CONNECTION.findOne(query, columns, returnColumn).get();
+        String res = (String)CONNECTION.findOne(query, returnColumn, columns).get();
         Assert.assertNotNull(res);
         Assert.assertEquals("foo", res);
     }
@@ -74,7 +73,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     public void findOne() throws Exception {
         final CompletableFuture<Long> newInsertID = insertOne();
         final CompletableFuture<?> result = CONNECTION.findOne(new Query("SELECT %s FROM customer WHERE id = ?"),
-                newInsertID, new DatabaseField<>("id", -1L, Types.BIGINT));
+                new DatabaseField<>("id", -1L, Types.BIGINT), newInsertID);
         Assert.assertNotNull(result);
         final Long res = result.handle((r, ex) -> {
             if (r == null) {
@@ -99,8 +98,8 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
             put(new DatabaseField<>("customer_login_password", null, Types.VARCHAR), "password");
             put(new DatabaseField<>("customer_number", 2L, Types.BIGINT), 1234L);
         }}).get();
-        CompletableFuture<?> fres = connection.findOne(new Query("SELECT id from customer where id = ?"), CompletableFuture.completedFuture(newInsertID),
-                new DatabaseField<>("id", -1L, Types.VARCHAR));
+        CompletableFuture<?> fres = connection.findOne(new Query("SELECT id from customer where id = ?"), new DatabaseField<>("id", -1L, Types.VARCHAR), CompletableFuture.completedFuture(newInsertID)
+        );
         Assert.assertNotNull(fres);
         Long res = fres.handle((f, ex) -> {
             if (ex != null) {
@@ -115,8 +114,8 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
 
         connection.truncate(new Query("TRUNCATE table customer AND COMMIT")).get();
 
-        fres = connection.findOne(new Query("SELECT id from customer where id = ?"), CompletableFuture.completedFuture(1L),
-                new DatabaseField<>("id", -1L, Types.VARCHAR));
+        fres = connection.findOne(new Query("SELECT id from customer where id = ?"), new DatabaseField<>("id", -1L, Types.VARCHAR), CompletableFuture.completedFuture(1L)
+        );
         Assert.assertNotNull(fres);
         fres.get();
     }

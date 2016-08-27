@@ -45,12 +45,11 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
     }
 
     @Override
-    public CompletableFuture<?> findOne(final Query query, final CompletableFuture<?> whereIdFuture,
-                                           final DatabaseField<?> column) {
+    public CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column, final CompletableFuture<?> whereIdFuture) {
         synchronized (CACHE_MAP) {
             final CacheKey cacheKey = new CacheKey(query.getQuery(), column, whereIdFuture);
             return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-                    databaseConnection.findOne(query, cacheKey.whereId(), cacheKey.columnName()));
+                    databaseConnection.findOne(query, cacheKey.columnName(), cacheKey.whereId()));
         }
     }
 
