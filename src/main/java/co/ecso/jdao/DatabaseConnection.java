@@ -1,6 +1,7 @@
 package co.ecso.jdao;
 
 import java.sql.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -164,6 +165,9 @@ public interface DatabaseConnection {
                         int i = 1;
                         for (final DatabaseField<?> databaseField : values.keySet()) {
                             System.out.println("SETTING " + values.get(databaseField) + " to type " + databaseField.sqlType());
+                            if (values.get(databaseField) == null) {
+                                throw new SQLException("values.get " + databaseField + " is null");
+                            }
                             stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
                             i++;
                         }
@@ -188,7 +192,7 @@ public interface DatabaseConnection {
                 }
             } catch (final Exception e) {
                 e.printStackTrace();
-                System.out.println("INSERT COMPLETED EXCEPTIONALLY");
+                System.out.println("INSERT COMPLETED EXCEPTIONALLY " + Arrays.toString(e.getStackTrace()));
                 f.completeExceptionally(e);
             }
             System.out.println("INSERT END");
