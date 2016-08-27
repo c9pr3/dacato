@@ -60,8 +60,18 @@ public interface DatabaseConnection {
     default CompletableFuture<?> findOne(final Query query, final CompletableFuture<?> whereIdFuture,
                                          final DatabaseField<?> column) {
         final CompletableFuture<Object> f = new CompletableFuture<>();
-        whereIdFuture.handle((ok, ex) -> Long.valueOf(ok.toString().trim()))
-                .thenAccept(whereId -> {
+        CompletableFuture<Long> wheref = whereIdFuture.handle((ok, ex) -> {
+            if (ex != null) {
+                f.completeExceptionally(ex);
+                return null;
+            } else {
+                return Long.valueOf(ok.toString().trim());
+            }
+        });
+        if (wheref.isCompletedExceptionally()) {
+            return wheref;
+        }
+        wheref.thenAccept(whereId -> {
                     try {
                         final String finalQuery = String.format(query.getQuery(), column);
                         try (Connection c = this.pooledConnection()) {
