@@ -47,5 +47,5 @@ public interface ApplicationConfig {
 
     ScheduledExecutorService getThreadPool();
 
-    ConnectionPool getConnectionPool() throws SQLException;
+    ConnectionPool getConnectionPool();
 }
