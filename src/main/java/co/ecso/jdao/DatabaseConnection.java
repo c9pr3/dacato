@@ -166,7 +166,7 @@ public interface DatabaseConnection {
     default CompletableFuture<Long> insert(final Query query, final Map<DatabaseField<?>, ?> values) {
         final CompletableFuture<Long> f = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
-            System.out.println("INSERT START - " + query.getQuery());
+            System.out.println("INSERT START");
             try {
                 try (final Connection c = pooledConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(), Statement.RETURN_GENERATED_KEYS)) {
@@ -180,15 +180,17 @@ public interface DatabaseConnection {
                             if (!generatedKeys.next()) {
                                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
                             }
+                            System.out.println("INSERT COMPLETED NORMAL");
                             f.complete(generatedKeys.getLong(1));
                         }
                     }
                 }
             } catch (final Exception e) {
                 e.printStackTrace();
+                System.out.println("INSERT COMPLETED EXCEPTIONALLY");
                 f.completeExceptionally(e);
             }
-            System.out.println("INSERT END - " + query.getQuery());
+            System.out.println("INSERT END");
         }, getThreadPool());
         return f;
     }
