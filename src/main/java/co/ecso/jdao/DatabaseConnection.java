@@ -166,26 +166,28 @@ public interface DatabaseConnection {
     default CompletableFuture<Long> insert(final Query query, final Map<DatabaseField<?>, ?> values) {
         final CompletableFuture<Long> f = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
-            try {
-                try (final Connection c = pooledConnection()) {
-                    try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(), Statement.RETURN_GENERATED_KEYS)) {
-                        int i = 1;
-                        for (final DatabaseField<?> databaseField : values.keySet()) {
-                            stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
-                            i++;
-                        }
-                        stmt.executeUpdate();
-                        try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                            if (!generatedKeys.next()) {
-                                throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
+            synchronized (this) {
+                try {
+                    try (final Connection c = pooledConnection()) {
+                        try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(), Statement.RETURN_GENERATED_KEYS)) {
+                            int i = 1;
+                            for (final DatabaseField<?> databaseField : values.keySet()) {
+                                stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
+                                i++;
                             }
-                            f.complete(generatedKeys.getLong(1));
+                            stmt.executeUpdate();
+                            try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                                if (!generatedKeys.next()) {
+                                    throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
+                                }
+                                f.complete(generatedKeys.getLong(1));
+                            }
                         }
                     }
+                } catch (final Exception e) {
+                    e.printStackTrace();
+                    f.completeExceptionally(e);
                 }
-            } catch (final Exception e) {
-                e.printStackTrace();
-                f.completeExceptionally(e);
             }
         }, getThreadPool());
         return f;
