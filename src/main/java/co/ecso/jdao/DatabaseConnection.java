@@ -167,15 +167,22 @@ public interface DatabaseConnection {
                             stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
                             i++;
                         }
+                        if (stmt == null) {
+                            throw new SQLException("Statement null");
+                        }
                         stmt.executeUpdate();
                         try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                            if (generatedKeys == null) {
+                                throw new SQLException("generatedKeys null");
+                            }
                             if (!generatedKeys.next()) {
                                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
                             }
                             int sleep = ThreadLocalRandom.current().nextInt(1000, 2000 + 1);
                             System.out.println("INSERT COMPLETED NORMAL - sleeping for " + sleep);
                             Thread.sleep(sleep);
-                            f.complete(generatedKeys.getLong(1));
+                            final Long rlong = generatedKeys.getLong(1);
+                            f.complete(rlong);
                         }
                     }
                 }
