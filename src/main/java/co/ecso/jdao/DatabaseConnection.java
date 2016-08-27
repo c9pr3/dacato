@@ -4,9 +4,11 @@ import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * DatabaseConnection.
@@ -180,7 +182,10 @@ public interface DatabaseConnection {
                             if (!generatedKeys.next()) {
                                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
                             }
-                            System.out.println("INSERT COMPLETED NORMAL");
+                            int sleep = ThreadLocalRandom.current().nextInt(1000, 5000 + 1);
+
+                            System.out.println("INSERT COMPLETED NORMAL - sleeping for " + sleep);
+                            Thread.sleep(sleep);
                             f.complete(generatedKeys.getLong(1));
                         }
                     }
