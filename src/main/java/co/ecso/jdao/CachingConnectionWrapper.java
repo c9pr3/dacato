@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -62,11 +64,11 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
     }
 
     @Override
-    public CompletableFuture<ConcurrentLinkedQueue<Long>> findMany(final Query query) {
+    public CompletableFuture<LinkedList<?>> findMany(final Query query, Map<DatabaseField<?>, ?> map) {
         final CacheKey cacheKey = new CacheKey(query.getQuery(), new DatabaseField<>("*", "", Types.VARCHAR),
                 CompletableFuture.completedFuture(-1L));
-        return (CompletableFuture<ConcurrentLinkedQueue<Long>>) CACHE_MAP.get(databaseConnection.hashCode())
-                .get(cacheKey, () -> this.databaseConnection.findMany(query));
+        return (CompletableFuture<LinkedList<?>>) CACHE_MAP.get(databaseConnection.hashCode())
+                .get(cacheKey, () -> this.databaseConnection.findMany(query, map));
     }
 
 //    @Override

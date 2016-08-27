@@ -4,9 +4,7 @@ import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -85,14 +83,20 @@ public interface DatabaseConnection {
         }
     }
 
-    default CompletableFuture<ConcurrentLinkedQueue<Long>> findMany(final Query query) {
-        final CompletableFuture<ConcurrentLinkedQueue<Long>> f = new CompletableFuture<>();
-        final ConcurrentLinkedQueue<Long> futureList = new ConcurrentLinkedQueue<>();
+    default CompletableFuture<LinkedList<?>> findMany(final Query query, final Map<DatabaseField<?>, ?> columns) {
+        final CompletableFuture<LinkedList<?>> f = new CompletableFuture<>();
+        final LinkedList<Long> futureList = new LinkedList<>();
         CompletableFuture.runAsync(() -> {
             try {
+                final String finalQuery = String.format(query.getQuery(), columns.keySet().toArray());
                 try (final Connection c = this.pooledConnection()) {
-                    try (final Statement stmt = c.createStatement()) {
-                        try (final ResultSet rs = stmt.executeQuery(query.getQuery())) {
+                    try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                        for (int i = 1; i <= columns.size(); i++) {
+                            final int sqlType = ((DatabaseField) columns.keySet().toArray()[i - 1]).sqlType();
+                            final Object valueToSet = columns.values().toArray()[i - 1];
+                            stmt.setObject(i, valueToSet, sqlType);
+                        }
+                        try (final ResultSet rs = stmt.executeQuery()) {
                             while (rs.next()) {
                                 futureList.add(rs.getLong("id"));
                             }

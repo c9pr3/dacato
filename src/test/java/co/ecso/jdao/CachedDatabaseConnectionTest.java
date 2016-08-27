@@ -46,8 +46,15 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
 
     @Test
     public void findMany() throws Exception {
-//        final CompletableFuture<Long> newInsertID = insertOne();
-//        CONNECTION.findMany()
+        final Long newInsertID = insertOne().get();
+        final Long newInsertID2 = insertOne().get();
+        final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
+        map.put(new DatabaseField<>("customer_first_name", "", Types.VARCHAR), "foo");
+        final LinkedList<?> result = CONNECTION.findMany(new Query("SELECT * FROM customer WHERE %s = ?"), map).get();
+        Assert.assertNotNull(result);
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(newInsertID, result.get(0));
+        Assert.assertEquals(newInsertID2, result.get(1));
     }
 
     @Test
