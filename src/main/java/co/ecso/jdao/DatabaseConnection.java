@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * DatabaseConnection.
@@ -171,9 +172,9 @@ public interface DatabaseConnection {
                             if (!generatedKeys.next()) {
                                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
                             }
-//                            int sleep = ThreadLocalRandom.current().nextInt(1000, 5000 + 1);
-//                            System.out.println("INSERT COMPLETED NORMAL - sleeping for " + sleep);
-//                            Thread.sleep(sleep);
+                            int sleep = ThreadLocalRandom.current().nextInt(1000, 2000 + 1);
+                            System.out.println("INSERT COMPLETED NORMAL - sleeping for " + sleep);
+                            Thread.sleep(sleep);
                             f.complete(generatedKeys.getLong(1));
                         }
                     }
