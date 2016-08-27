@@ -1,10 +1,7 @@
 package co.ecso.jdao;
 
 import java.sql.*;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -76,6 +73,10 @@ public interface DatabaseConnection {
 
     default void getResult(final Query query, final DatabaseField<?> column,
                            final CompletableFuture<Object> f, final PreparedStatement stmt) throws SQLException {
+        Objects.nonNull(query);
+        Objects.nonNull(column);
+        Objects.nonNull(f);
+        Objects.nonNull(stmt);
         try (final ResultSet rs = stmt.executeQuery()) {
             if (!rs.next()) {
                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));

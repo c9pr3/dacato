@@ -30,7 +30,11 @@ public final class MysqlConnection implements DatabaseConnection {
 
     @Override
     public Connection pooledConnection() throws SQLException {
-        return CONNECTION_POOL_MAP.get(config.hashCode()).getConnection();
+        final Connection connection = CONNECTION_POOL_MAP.get(config.hashCode()).getConnection();
+        if (connection == null) {
+            throw new SQLException("Could not get connection from pool " + getConfig().getMysqlPoolName());
+        }
+        return connection;
     }
 
     @Override
