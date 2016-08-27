@@ -11,7 +11,8 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 08.08.16
  */
-interface DatabaseEntity {
+@SuppressWarnings("WeakerAccess")
+public interface DatabaseEntity {
     CompletableFuture<?> id();
 
     CompletableFuture<? extends DatabaseEntity> save(final Map<DatabaseField<?>, ? extends Comparable> map);
