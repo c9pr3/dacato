@@ -20,7 +20,7 @@ public final class HsqlConnection implements DatabaseConnection {
     private static final Map<Integer, ConnectionPool> CONNECTION_POOL_MAP = new ConcurrentHashMap<>();
     private final ApplicationConfig config;
 
-    public HsqlConnection(final ApplicationConfig config) {
+    public HsqlConnection(final ApplicationConfig config) throws SQLException {
         this.config = config;
         if (!CONNECTION_POOL_MAP.containsKey(config.hashCode())) {
             CONNECTION_POOL_MAP.putIfAbsent(config.hashCode(), config.getConnectionPool());
@@ -31,7 +31,8 @@ public final class HsqlConnection implements DatabaseConnection {
     public Connection pooledConnection() throws SQLException {
         final Connection connection = CONNECTION_POOL_MAP.get(config.hashCode()).getConnection();
         if (connection == null) {
-            throw new SQLException("Could not get connection from pool " + getConfig().getHsqlPoolName());
+            throw new SQLException(String.format("Could not get connection from pool %s",
+                    getConfig().getHsqlPoolName()));
         }
         return connection;
     }

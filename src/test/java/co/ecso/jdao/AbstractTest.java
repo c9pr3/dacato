@@ -184,7 +184,7 @@ public abstract class AbstractTest {
     /**
      * Clean up Database.
      */
-    final void cleanupDatabase() {
+    final void cleanupDatabase() throws SQLException {
         HsqlConnection database = new HsqlConnection(APPLICATION_CONFIG);
         try (final Connection connection = database.pooledConnection()) {
             try (final Statement stmt = connection.createStatement()) {

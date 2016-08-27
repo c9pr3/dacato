@@ -22,11 +22,14 @@ import java.util.concurrent.ExecutionException;
  * @since 02.07.16
  */
 public final class CachedDatabaseConnectionTest extends AbstractTest {
-    private static final CachingConnectionWrapper CONNECTION = new CachingConnectionWrapper(
-            new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CACHE);
+    private static CachingConnectionWrapper CONNECTION;
 
     @Before
     public void setUp() throws Exception {
+        if (CONNECTION == null) {
+            CONNECTION = new CachingConnectionWrapper(
+                    new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CACHE);
+        }
         this.setUpDatabase();
     }
 

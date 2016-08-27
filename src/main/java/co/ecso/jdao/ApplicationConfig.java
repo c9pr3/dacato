@@ -1,5 +1,6 @@
 package co.ecso.jdao;
 
+import java.sql.SQLException;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -46,5 +47,5 @@ public interface ApplicationConfig {
 
     ScheduledExecutorService getThreadPool();
 
-    ConnectionPool getConnectionPool();
+    ConnectionPool getConnectionPool() throws SQLException;
 }
