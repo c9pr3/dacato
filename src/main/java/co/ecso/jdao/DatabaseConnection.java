@@ -16,6 +16,23 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  */
 public interface DatabaseConnection {
 
+    @SuppressWarnings("Duplicates")
+    default CompletableFuture<?> findOne(final Query query, final Map<DatabaseField, ?> columns, final DatabaseField<?> column) {
+        final CompletableFuture<Object> f = new CompletableFuture<>();
+        try {
+            try (Connection c = this.pooledConnection()) {
+                final String finalQuery = String.format(query.getQuery(), columns.keySet());
+                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                    getResult(query, column, f, stmt);
+                }
+            }
+        } catch (final SQLException e) {
+            e.printStackTrace();
+            f.completeExceptionally(e);
+        }
+        return f;
+    }
+
     default CompletableFuture<?> findOne(final Query query, final CompletableFuture<?> whereId,
                                          final DatabaseField<?> column) {
         final CompletableFuture<Object> f = new CompletableFuture<>();
@@ -25,22 +42,7 @@ public interface DatabaseConnection {
                         try (Connection c = this.pooledConnection()) {
                             try (final PreparedStatement stmt = c.prepareStatement(query.getQuery())) {
                                 stmt.setLong(1, w);
-                                try (final ResultSet rs = stmt.executeQuery()) {
-                                    if (!rs.next()) {
-                                        throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
-                                    }
-                                    final Object rval = rs.getObject(column.toString(), column.valueClass());
-                                    if (rval == null) {
-                                        throw new SQLException(String.format("Result for %s, %s was null",
-                                                column.toString(), query.getQuery()));
-                                    } else {
-                                        if ("String".equals(column.valueClass().getSimpleName())) {
-                                            f.complete(rval.toString().trim());
-                                        } else {
-                                            f.complete(rval);
-                                        }
-                                    }
-                                }
+                                getResult(query, column, f, stmt);
                             }
                         }
                     } catch (final SQLException e) {
@@ -49,6 +51,25 @@ public interface DatabaseConnection {
                     }
                 });
         return f;
+    }
+
+    default void getResult(Query query, DatabaseField<?> column, CompletableFuture<Object> f, PreparedStatement stmt) throws SQLException {
+        try (final ResultSet rs = stmt.executeQuery()) {
+            if (!rs.next()) {
+                throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
+            }
+            final Object rval = rs.getObject(column.toString(), column.valueClass());
+            if (rval == null) {
+                throw new SQLException(String.format("Result for %s, %s was null",
+                        column.toString(), query.getQuery()));
+            } else {
+                if ("String".equals(column.valueClass().getSimpleName())) {
+                    f.complete(rval.toString().trim());
+                } else {
+                    f.complete(rval);
+                }
+            }
+        }
     }
 
     default CompletableFuture<ConcurrentLinkedQueue<Long>> findMany(final Query query) {
@@ -109,9 +130,11 @@ public interface DatabaseConnection {
     default CompletableFuture<Long> insert(final Query query, final Map<DatabaseField<?>, ?> values) {
         final CompletableFuture<Long> f = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
+            final StringBuilder newQuery = new StringBuilder().append(query.getQuery());
+            values.forEach((k, v) -> newQuery.append(k).append(" = ?"));
             try {
                 try (final Connection c = pooledConnection()) {
-                    try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(), Statement.RETURN_GENERATED_KEYS)) {
+                    try (final PreparedStatement stmt = c.prepareStatement(newQuery.toString(), Statement.RETURN_GENERATED_KEYS)) {
                         int i = 1;
                         for (final DatabaseField<?> databaseField : values.keySet()) {
                             stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
