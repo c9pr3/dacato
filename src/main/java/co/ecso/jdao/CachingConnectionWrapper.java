@@ -5,12 +5,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * CachingConnectionWrapper.
@@ -19,7 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @version $Id:$
  * @since 02.07.16
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "WeakerAccess"})
 public final class CachingConnectionWrapper implements DatabaseConnection {
     private final DatabaseConnection databaseConnection;
     private static final Map<Integer, Cache<CacheKey, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();
@@ -27,7 +25,9 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
 
     public CachingConnectionWrapper(final DatabaseConnection databaseConnection, final Cache cache) {
         this.databaseConnection = databaseConnection;
-        CACHE_MAP.putIfAbsent(databaseConnection.hashCode(), cache);
+        synchronized (CACHE_MAP) {
+            CACHE_MAP.putIfAbsent(databaseConnection.hashCode(), cache);
+        }
         this.config = databaseConnection.getConfig();
     }
 
@@ -47,28 +47,34 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
     @Override
     public CompletableFuture<?> findOne(final Query query, final CompletableFuture<?> whereIdFuture,
                                            final DatabaseField<?> column) {
-        final CacheKey cacheKey = new CacheKey(query.getQuery(), column, whereIdFuture);
-        return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-                databaseConnection.findOne(query, cacheKey.whereId(), cacheKey.columnName()));
+        synchronized (CACHE_MAP) {
+            final CacheKey cacheKey = new CacheKey(query.getQuery(), column, whereIdFuture);
+            return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
+                    databaseConnection.findOne(query, cacheKey.whereId(), cacheKey.columnName()));
+        }
     }
 
     @Override
     public CompletableFuture<Boolean> truncate(final Query query) {
-        return this.databaseConnection.truncate(query).thenApply(rVal -> {
-            if (rVal) {
-                CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
-                CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
-            }
-            return rVal;
-        });
+        synchronized (CACHE_MAP) {
+            return this.databaseConnection.truncate(query).thenApply(rVal -> {
+                if (rVal) {
+                    CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
+                    CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
+                }
+                return rVal;
+            });
+        }
     }
 
     @Override
     public CompletableFuture<LinkedList<?>> findMany(final Query query, Map<DatabaseField<?>, ?> map) {
-        final CacheKey cacheKey = new CacheKey(query.getQuery(), new DatabaseField<>("*", "", Types.VARCHAR),
-                CompletableFuture.completedFuture(-1L));
-        return (CompletableFuture<LinkedList<?>>) CACHE_MAP.get(databaseConnection.hashCode())
-                .get(cacheKey, () -> this.databaseConnection.findMany(query, map));
+        synchronized (CACHE_MAP) {
+            final CacheKey cacheKey = new CacheKey(query.getQuery(), new DatabaseField<>("*", "", Types.VARCHAR),
+                    CompletableFuture.completedFuture(-1L));
+            return (CompletableFuture<LinkedList<?>>) CACHE_MAP.get(databaseConnection.hashCode())
+                    .get(cacheKey, () -> this.databaseConnection.findMany(query, map));
+        }
     }
 
 //    @Override
@@ -96,8 +102,10 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
 //
     @Override
     public CompletableFuture<Long> insert(final Query query, final Map<DatabaseField<?>, ?> map) {
-        CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
-        CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
+        synchronized (CACHE_MAP) {
+            CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
+            CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
+        }
         return this.databaseConnection.insert(query, map);
     }
 //
@@ -110,6 +118,7 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
 //        return this.databaseConnection.update(tableName, map, whereId);
 //    }
 //
+    @SuppressWarnings("WeakerAccess")
     public static final class CacheKey implements Serializable {
 
         private static final long serialVersionUID = -384732894789324L;
