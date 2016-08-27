@@ -20,7 +20,7 @@ public interface DatabaseConnection {
     @SuppressWarnings("Duplicates")
     default CompletableFuture<?> findOne(final Query query, final Map<DatabaseField<?>, ?> columns, final DatabaseField<?> column) {
         final CompletableFuture<Object> f = new CompletableFuture<>();
-        try {
+        CompletableFuture.runAsync(() -> {
             try (Connection c = this.pooledConnection()) {
                 final List<DatabaseField> newArr = new LinkedList<>();
                 newArr.add(column);
@@ -49,11 +49,11 @@ public interface DatabaseConnection {
                         }
                     }
                 }
+            } catch (final Exception e) {
+                e.printStackTrace();
+                f.completeExceptionally(e);
             }
-        } catch (final SQLException e) {
-//            e.printStackTrace();
-            f.completeExceptionally(e);
-        }
+        });
         return f;
     }
 
@@ -85,7 +85,7 @@ public interface DatabaseConnection {
                                 }
                             }
                         }
-                    } catch (final SQLException e) {
+                    } catch (final Exception e) {
                         e.printStackTrace();
                         f.completeExceptionally(e);
                     }
@@ -114,7 +114,7 @@ public interface DatabaseConnection {
                     }
                 }
                 f.complete(futureList);
-            } catch (final SQLException e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 f.completeExceptionally(e);
             }
@@ -129,7 +129,7 @@ public interface DatabaseConnection {
                     final boolean res = stmt.execute();
                     f.complete(res);
                 }
-            } catch (final SQLException e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 f.completeExceptionally(e);
             }
@@ -174,7 +174,8 @@ public interface DatabaseConnection {
                         }
                     }
                 }
-            } catch (final SQLException e) {
+            } catch (final Exception e) {
+                e.printStackTrace();
                 f.completeExceptionally(e);
             }
         }, getThreadPool());
