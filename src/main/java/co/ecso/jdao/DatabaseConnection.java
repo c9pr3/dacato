@@ -159,32 +159,23 @@ public interface DatabaseConnection {
     default CompletableFuture<Long> insert(final Query query, final Map<DatabaseField<?>, ?> values) {
         final CompletableFuture<Long> f = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
-            System.out.println("INSERT START ");
             try {
                 try (final Connection c = pooledConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(), Statement.RETURN_GENERATED_KEYS)) {
                         int i = 1;
                         for (final DatabaseField<?> databaseField : values.keySet()) {
-                            System.out.println("SETTING " + values.get(databaseField) + " to type " + databaseField.sqlType());
                             if (values.get(databaseField) == null) {
                                 throw new SQLException("values.get " + databaseField + " is null");
                             }
                             stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
                             i++;
                         }
-                        if (stmt == null) {
-                            throw new SQLException("Statement null");
-                        }
                         stmt.executeUpdate();
                         try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                            if (generatedKeys == null) {
-                                throw new SQLException("generatedKeys null");
-                            }
                             if (!generatedKeys.next()) {
                                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
                             }
                             int sleep = ThreadLocalRandom.current().nextInt(1000, 2000 + 1);
-                            System.out.println("INSERT COMPLETED NORMAL - sleeping for " + sleep);
                             Thread.sleep(sleep);
                             final Long rlong = generatedKeys.getLong(1);
                             f.complete(rlong);
@@ -193,10 +184,8 @@ public interface DatabaseConnection {
                 }
             } catch (final Exception e) {
                 e.printStackTrace();
-                System.out.println("INSERT COMPLETED EXCEPTIONALLY " + Arrays.toString(e.getStackTrace()));
                 f.completeExceptionally(e);
             }
-            System.out.println("INSERT END");
         }, getThreadPool());
         return f;
     }

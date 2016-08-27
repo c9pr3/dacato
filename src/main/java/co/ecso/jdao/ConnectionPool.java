@@ -10,6 +10,7 @@ import java.sql.SQLException;
  * @version $Id:$
  * @since 26.08.16
  */
+@FunctionalInterface
 public interface ConnectionPool {
     Connection getConnection() throws SQLException;
 }

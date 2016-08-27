@@ -27,9 +27,11 @@ public final class HsqlConnection implements DatabaseConnection {
         }
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public Connection pooledConnection() throws SQLException {
-        final Connection connection = CONNECTION_POOL_MAP.get(config.hashCode()).getConnection();
+        final ConnectionPool pool = CONNECTION_POOL_MAP.get(config.hashCode());
+        final Connection connection = pool.getConnection();
         if (connection == null) {
             throw new SQLException(String.format("Could not get connection from pool %s",
                     getConfig().getHsqlPoolName()));
