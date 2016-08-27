@@ -156,13 +156,13 @@ public interface DatabaseConnection {
     default CompletableFuture<Long> insert(final Query query, final Map<DatabaseField<?>, ?> values) {
         final CompletableFuture<Long> f = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
-//            System.out.println("INSERT START ");
+            System.out.println("INSERT START ");
             try {
                 try (final Connection c = pooledConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(), Statement.RETURN_GENERATED_KEYS)) {
                         int i = 1;
                         for (final DatabaseField<?> databaseField : values.keySet()) {
-//                            System.out.println("SETTING " + values.get(databaseField) + " to type " + databaseField.sqlType());
+                            System.out.println("SETTING " + values.get(databaseField) + " to type " + databaseField.sqlType());
                             stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
                             i++;
                         }
@@ -180,10 +180,10 @@ public interface DatabaseConnection {
                 }
             } catch (final Exception e) {
                 e.printStackTrace();
-//                System.out.println("INSERT COMPLETED EXCEPTIONALLY");
+                System.out.println("INSERT COMPLETED EXCEPTIONALLY");
                 f.completeExceptionally(e);
             }
-//            System.out.println("INSERT END");
+            System.out.println("INSERT END");
         }, getThreadPool());
         return f;
     }
