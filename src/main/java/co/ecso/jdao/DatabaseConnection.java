@@ -1,7 +1,10 @@
 package co.ecso.jdao;
 
 import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,27 +24,36 @@ public interface DatabaseConnection {
         final CompletableFuture<Object> f = new CompletableFuture<>();
         try {
             try (Connection c = this.pooledConnection()) {
-                final String finalQuery = String.format(query.getQuery(), columns.keySet());
+                final List<DatabaseField> newArr = new LinkedList<>();
+                newArr.add(column);
+                newArr.addAll(columns.keySet());
+                final String finalQuery = String.format(query.getQuery(), newArr.toArray());
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                    for (int i = 1; i <= columns.size(); i++) {
+                        final int sqlType = ((DatabaseField) columns.keySet().toArray()[i - 1]).sqlType();
+                        final Object valueToSet = columns.values().toArray()[i - 1];
+                        stmt.setObject(i, valueToSet, sqlType);
+                    }
                     getResult(query, column, f, stmt);
                 }
             }
         } catch (final SQLException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             f.completeExceptionally(e);
         }
         return f;
     }
 
-    default CompletableFuture<?> findOne(final Query query, final CompletableFuture<?> whereId,
+    default CompletableFuture<?> findOne(final Query query, final CompletableFuture<?> whereIdFuture,
                                          final DatabaseField<?> column) {
         final CompletableFuture<Object> f = new CompletableFuture<>();
-        whereId.handle((ok, ex) -> Long.valueOf(ok.toString().trim()))
-                .thenAccept(w -> {
+        whereIdFuture.handle((ok, ex) -> Long.valueOf(ok.toString().trim()))
+                .thenAccept(whereId -> {
                     try {
+                        final String finalQuery = String.format(query.getQuery(), column);
                         try (Connection c = this.pooledConnection()) {
-                            try (final PreparedStatement stmt = c.prepareStatement(query.getQuery())) {
-                                stmt.setLong(1, w);
+                            try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                                stmt.setObject(1, whereId, column.sqlType());
                                 getResult(query, column, f, stmt);
                             }
                         }
@@ -53,7 +65,8 @@ public interface DatabaseConnection {
         return f;
     }
 
-    default void getResult(Query query, DatabaseField<?> column, CompletableFuture<Object> f, PreparedStatement stmt) throws SQLException {
+    default void getResult(final Query query, final DatabaseField<?> column, final CompletableFuture<Object> f,
+                           final PreparedStatement stmt) throws SQLException {
         try (final ResultSet rs = stmt.executeQuery()) {
             if (!rs.next()) {
                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
@@ -130,11 +143,9 @@ public interface DatabaseConnection {
     default CompletableFuture<Long> insert(final Query query, final Map<DatabaseField<?>, ?> values) {
         final CompletableFuture<Long> f = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
-            final StringBuilder newQuery = new StringBuilder().append(query.getQuery());
-            values.forEach((k, v) -> newQuery.append(k).append(" = ?"));
             try {
                 try (final Connection c = pooledConnection()) {
-                    try (final PreparedStatement stmt = c.prepareStatement(newQuery.toString(), Statement.RETURN_GENERATED_KEYS)) {
+                    try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(), Statement.RETURN_GENERATED_KEYS)) {
                         int i = 1;
                         for (final DatabaseField<?> databaseField : values.keySet()) {
                             stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
