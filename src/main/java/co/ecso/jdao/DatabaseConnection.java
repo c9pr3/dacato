@@ -4,11 +4,9 @@ import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * DatabaseConnection.
@@ -34,22 +32,7 @@ public interface DatabaseConnection {
                         final Object valueToSet = columns.values().toArray()[i - 1];
                         stmt.setObject(i, valueToSet, sqlType);
                     }
-                    try (final ResultSet rs = stmt.executeQuery()) {
-                        if (!rs.next()) {
-                            throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
-                        }
-                        final Object rval = rs.getObject(column.toString(), column.valueClass());
-                        if (rval == null) {
-                            throw new SQLException(String.format("Result for %s, %s was null",
-                                    column.toString(), query.getQuery()));
-                        } else {
-                            if ("String".equals(column.valueClass().getSimpleName())) {
-                                f.complete(rval.toString().trim());
-                            } else {
-                                f.complete(rval);
-                            }
-                        }
-                    }
+                    getResult(query, column, f, stmt);
                 }
             } catch (final Exception e) {
                 e.printStackTrace();
@@ -78,22 +61,7 @@ public interface DatabaseConnection {
                 try (Connection c = this.pooledConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                         stmt.setObject(1, whereId, column.sqlType());
-                        try (final ResultSet rs = stmt.executeQuery()) {
-                            if (!rs.next()) {
-                                throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
-                            }
-                            final Object rval = rs.getObject(column.toString(), column.valueClass());
-                            if (rval == null) {
-                                throw new SQLException(String.format("Result for %s, %s was null",
-                                        column.toString(), query.getQuery()));
-                            } else {
-                                if ("String".equals(column.valueClass().getSimpleName())) {
-                                    f.complete(rval.toString().trim());
-                                } else {
-                                    f.complete(rval);
-                                }
-                            }
-                        }
+                        getResult(query, column, f, stmt);
                     }
                 }
             } catch (final Exception e) {
@@ -102,6 +70,26 @@ public interface DatabaseConnection {
             }
         });
         return f;
+    }
+
+    default void getResult(final Query query, final DatabaseField<?> column,
+                           final CompletableFuture<Object> f, final PreparedStatement stmt) throws SQLException {
+        try (final ResultSet rs = stmt.executeQuery()) {
+            if (!rs.next()) {
+                throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
+            }
+            final Object rval = rs.getObject(column.toString(), column.valueClass());
+            if (rval == null) {
+                throw new SQLException(String.format("Result for %s, %s was null",
+                        column.toString(), query.getQuery()));
+            } else {
+                if ("String".equals(column.valueClass().getSimpleName())) {
+                    f.complete(rval.toString().trim());
+                } else {
+                    f.complete(rval);
+                }
+            }
+        }
     }
 
     default CompletableFuture<LinkedList<?>> findMany(final Query query, final Map<DatabaseField<?>, ?> columns) {
@@ -168,13 +156,13 @@ public interface DatabaseConnection {
     default CompletableFuture<Long> insert(final Query query, final Map<DatabaseField<?>, ?> values) {
         final CompletableFuture<Long> f = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
-            System.out.println("INSERT START ");
+//            System.out.println("INSERT START ");
             try {
                 try (final Connection c = pooledConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(), Statement.RETURN_GENERATED_KEYS)) {
                         int i = 1;
                         for (final DatabaseField<?> databaseField : values.keySet()) {
-                            System.out.println("SETTING " + values.get(databaseField) + " to type " + databaseField.sqlType());
+//                            System.out.println("SETTING " + values.get(databaseField) + " to type " + databaseField.sqlType());
                             stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
                             i++;
                         }
@@ -183,20 +171,19 @@ public interface DatabaseConnection {
                             if (!generatedKeys.next()) {
                                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
                             }
-                            int sleep = ThreadLocalRandom.current().nextInt(1000, 5000 + 1);
-
-                            System.out.println("INSERT COMPLETED NORMAL - sleeping for " + sleep);
-                            Thread.sleep(sleep);
+//                            int sleep = ThreadLocalRandom.current().nextInt(1000, 5000 + 1);
+//                            System.out.println("INSERT COMPLETED NORMAL - sleeping for " + sleep);
+//                            Thread.sleep(sleep);
                             f.complete(generatedKeys.getLong(1));
                         }
                     }
                 }
             } catch (final Exception e) {
                 e.printStackTrace();
-                System.out.println("INSERT COMPLETED EXCEPTIONALLY");
+//                System.out.println("INSERT COMPLETED EXCEPTIONALLY");
                 f.completeExceptionally(e);
             }
-            System.out.println("INSERT END");
+//            System.out.println("INSERT END");
         }, getThreadPool());
         return f;
     }
