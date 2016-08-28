@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * Finder.
@@ -17,7 +15,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * @version $Id:$
  * @since 28.08.16
  */
-public interface Finder<R> extends ConfigFinder {
+public interface Finder<R> extends ConfigGetter {
 
     default CompletableFuture<R> findOne(final Query query, final DatabaseField<R> columnToReturn,
                                          final CompletableFuture<?> whereFuture) {
@@ -32,7 +30,6 @@ public interface Finder<R> extends ConfigFinder {
                     }
                 }
             } catch (final Exception e) {
-                e.printStackTrace();
                 returnValueFuture.completeExceptionally(e);
             }
         });
@@ -55,7 +52,7 @@ public interface Finder<R> extends ConfigFinder {
             } catch (final Exception e) {
                 f.completeExceptionally(e);
             }
-        }, getThreadPool());
+        }, config().getThreadPool());
         return f;
     }
 
@@ -92,7 +89,7 @@ public interface Finder<R> extends ConfigFinder {
                                 R rval = (R) rs.getObject(1, selector.valueClass());
                                 if (selector.valueClass() == String.class) {
                                     //noinspection unchecked
-                                    futureList.add((R)rval.toString().trim());
+                                    futureList.add((R) rval.toString().trim());
                                 } else if (selector.valueClass() == Boolean.class) {
                                     final Boolean boolVal = rval.toString().trim().equals("1");
                                     //noinspection unchecked
@@ -106,19 +103,10 @@ public interface Finder<R> extends ConfigFinder {
                 }
                 returnFuture.complete(futureList);
             } catch (final Exception e) {
-                e.printStackTrace();
                 returnFuture.completeExceptionally(e);
             }
-        }, getThreadPool());
+        }, config().getThreadPool());
         return returnFuture;
-    }
-
-    default ScheduledExecutorService getThreadPool() {
-        ScheduledExecutorService threadPool = config().getThreadPool();
-        if (config().getThreadPool() == null) {
-            threadPool = new ScheduledThreadPoolExecutor(config().getMaxPoolSize());
-        }
-        return threadPool;
     }
 
     default void getResult(final Query query, final DatabaseField<R> selector,
@@ -141,7 +129,7 @@ public interface Finder<R> extends ConfigFinder {
                 R retVal = (R) rs.getObject(1, selector.valueClass());
                 if (selector.valueClass() == String.class) {
                     //noinspection unchecked
-                    rvalFuture.complete((R)retVal.toString().trim());
+                    rvalFuture.complete((R) retVal.toString().trim());
                 } else if (selector.valueClass() == Boolean.class) {
                     final Boolean boolVal = retVal.toString().trim().equals("1");
                     //noinspection unchecked
@@ -149,11 +137,6 @@ public interface Finder<R> extends ConfigFinder {
                 } else {
                     rvalFuture.complete(retVal);
                 }
-//                if ("String".equals(column.valueClass().getSimpleName())) {
-//                    returnValue.complete(rval.toString().trim());
-//                } else {
-//                    returnValue.complete(rval);
-//                }
             }
         }
     }

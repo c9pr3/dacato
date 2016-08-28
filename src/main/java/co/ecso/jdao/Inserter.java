@@ -12,14 +12,15 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 28.08.16
  */
-public interface Inserter<T> extends ConfigFinder {
+public interface Inserter<T> extends ConfigGetter {
 
     default CompletableFuture<T> insert(final Query query, final Map<DatabaseField<?>, ?> values) {
         final CompletableFuture<T> returnValue = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {
                 try (Connection c = config().getConnectionPool().getConnection()) {
-                    try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(), Statement.RETURN_GENERATED_KEYS)) {
+                    try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(),
+                            Statement.RETURN_GENERATED_KEYS)) {
                         int i = 1;
                         for (final DatabaseField<?> databaseField : values.keySet()) {
                             try {
@@ -37,7 +38,8 @@ public interface Inserter<T> extends ConfigFinder {
                         stmt.executeUpdate();
                         try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                             if (!generatedKeys.next()) {
-                                throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
+                                throw new SQLException(String.format("Query %s failed, resultset empty",
+                                        query.getQuery()));
                             }
                             //noinspection unchecked
                             returnValue.complete((T) generatedKeys.getObject(1));
@@ -45,10 +47,9 @@ public interface Inserter<T> extends ConfigFinder {
                     }
                 }
             } catch (final Exception e) {
-                e.printStackTrace();
                 returnValue.completeExceptionally(e);
             }
-        });
+        }, config().getThreadPool());
         return returnValue;
     }
 
