@@ -1,11 +1,13 @@
 package co.ecso.jdao;
 
 import java.sql.*;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * DatabaseConnection.
@@ -180,8 +182,8 @@ public interface DatabaseConnection {
                             if (!generatedKeys.next()) {
                                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
                             }
-                            int sleep = ThreadLocalRandom.current().nextInt(1000, 4000 + 1);
-                            Thread.sleep(sleep);
+//                            int sleep = ThreadLocalRandom.current().nextInt(1000, 4000 + 1);
+//                            Thread.sleep(sleep);
                             final Long rlong = generatedKeys.getLong(1);
                             f.complete(rlong);
                         }
