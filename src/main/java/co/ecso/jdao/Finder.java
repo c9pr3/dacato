@@ -49,15 +49,7 @@ public interface Finder<R> extends ConfigFinder {
                 newArr.addAll(columnsToSelect.keySet());
                 final String finalQuery = String.format(query.getQuery(), newArr.toArray());
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    for (int i = 1; i <= columnsToSelect.size(); i++) {
-                        final int sqlType = ((DatabaseField) columnsToSelect.keySet().toArray()[i - 1]).sqlType();
-                        final Object valueToSet = columnsToSelect.values().toArray()[i - 1];
-                        try {
-                            stmt.setObject(i, valueToSet, sqlType);
-                        } catch (final SQLDataException e) {
-                            throw new SQLException(String.format("Could not set %s to %d: %s", valueToSet, sqlType, e));
-                        }
-                    }
+                    fillStatement(columnsToSelect, stmt);
                     getResult(query, columnToReturn, f, stmt);
                 }
             } catch (final Exception e) {
@@ -65,6 +57,19 @@ public interface Finder<R> extends ConfigFinder {
             }
         }, getThreadPool());
         return f;
+    }
+
+    default void fillStatement(final Map<DatabaseField<?>, ?> columnsToSelect, final PreparedStatement stmt)
+            throws SQLException {
+        for (int i = 1; i <= columnsToSelect.size(); i++) {
+            final int sqlType = ((DatabaseField) columnsToSelect.keySet().toArray()[i - 1]).sqlType();
+            final Object valueToSet = columnsToSelect.values().toArray()[i - 1];
+            try {
+                stmt.setObject(i, valueToSet, sqlType);
+            } catch (final SQLDataException | SQLSyntaxErrorException e) {
+                throw new SQLException(String.format("Could not set %s to %d: %s", valueToSet, sqlType, e));
+            }
+        }
     }
 
     default CompletableFuture<LinkedList<R>> findMany(final Query query, DatabaseField<?> selector,
@@ -80,15 +85,7 @@ public interface Finder<R> extends ConfigFinder {
                 final String finalQuery = String.format(query.getQuery(), newColumns.toArray());
                 try (Connection c = config().getConnectionPool().getConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                        for (int i = 1; i <= columns.size(); i++) {
-                            final int sqlType = ((DatabaseField) columns.keySet().toArray()[i - 1]).sqlType();
-                            final Object valueToSet = columns.values().toArray()[i - 1];
-                            try {
-                                stmt.setObject(i, valueToSet, sqlType);
-                            } catch (final SQLDataException e) {
-                                throw new SQLException(String.format("Could not set %s to %d: %s", valueToSet, sqlType, e));
-                            }
-                        }
+                        fillStatement(columns, stmt);
                         try (final ResultSet rs = stmt.executeQuery()) {
                             while (rs.next()) {
                                 //noinspection unchecked
