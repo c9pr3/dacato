@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 25.04.16
  */
 @SuppressWarnings("unused")
-public final class HsqlConnection implements DatabaseConnection {
+public class HsqlConnection implements DatabaseConnection {
     private static final Map<Integer, ConnectionPool<Connection>> CONNECTION_POOL_MAP = new ConcurrentHashMap<>();
     private final ApplicationConfig config;
 

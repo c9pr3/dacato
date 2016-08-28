@@ -3,7 +3,6 @@ package co.ecso.jdao;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
@@ -18,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 02.07.16
  */
 @SuppressWarnings({"unchecked", "WeakerAccess"})
-public final class CachingConnectionWrapper implements DatabaseConnection {
+public class CachingConnectionWrapper implements DatabaseConnection {
     private static final Map<Integer, Cache<CacheKey, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();
     private final DatabaseConnection databaseConnection;
     private final ApplicationConfig config;

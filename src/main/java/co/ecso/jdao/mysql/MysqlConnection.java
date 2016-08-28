@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 16.03.16
  */
 @SuppressWarnings("unused")
-public final class MysqlConnection implements DatabaseConnection {
+public class MysqlConnection implements DatabaseConnection {
     private static final Map<Integer, ConnectionPool<Connection>> CONNECTION_POOL_MAP = new ConcurrentHashMap<>();
     private ApplicationConfig config;
 
