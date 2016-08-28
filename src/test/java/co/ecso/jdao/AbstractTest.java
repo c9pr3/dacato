@@ -2,7 +2,6 @@ package co.ecso.jdao;
 
 import co.ecso.jdao.helpers.CreateTableOnlyFilter;
 import co.ecso.jdao.helpers.MysqlToHsqlMap;
-import co.ecso.jdao.hsql.HsqlConnection;
 import org.hsqldb.jdbc.JDBCDataSource;
 
 import java.io.IOException;
@@ -119,7 +118,7 @@ public abstract class AbstractTest {
         }
 
         @Override
-        public ConnectionPool getConnectionPool() {
+        public ConnectionPool<Connection> getConnectionPool() {
             return () -> new snaq.db.ConnectionPool(getHsqlPoolName(), getHsqlMinPoolSize(),
                     getHsqlMaxPoolSize(), getHsqLPoolMaxSize(), getHsqlPoolIdleTimeout(),
                     getHsqlConnectString(), null).getConnection();
@@ -185,7 +184,7 @@ public abstract class AbstractTest {
      * Clean up Database.
      */
     protected final void cleanupDatabase() throws SQLException {
-        HsqlConnection database = new HsqlConnection(APPLICATION_CONFIG);
+        DatabaseConnection database = new DatabaseConnection(APPLICATION_CONFIG);
         try (final Connection connection = database.pooledConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("TRUNCATE SCHEMA PUBLIC RESTART IDENTITY AND COMMIT NO CHECK");

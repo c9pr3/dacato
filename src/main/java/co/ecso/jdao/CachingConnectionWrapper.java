@@ -18,13 +18,14 @@ import java.util.concurrent.ExecutionException;
  * @since 02.07.16
  */
 @SuppressWarnings({"unchecked", "WeakerAccess"})
-public class CachingConnectionWrapper implements DatabaseConnection {
+public class CachingConnectionWrapper extends DatabaseConnection {
     private static final Map<Integer, Cache<CacheKey, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();
     private final DatabaseConnection databaseConnection;
     private final ApplicationConfig config;
 
     public CachingConnectionWrapper(final DatabaseConnection databaseConnection, final ApplicationConfig config,
-                                    final Cache cache) {
+                                    final Cache cache) throws SQLException {
+        super(config);
         this.databaseConnection = databaseConnection;
         synchronized (CACHE_MAP) {
             CACHE_MAP.putIfAbsent(databaseConnection.hashCode(), cache);

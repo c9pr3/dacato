@@ -1,6 +1,5 @@
 package co.ecso.jdao;
 
-import co.ecso.jdao.hsql.HsqlConnection;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -28,7 +27,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     public void setUp() throws Exception {
         if (CONNECTION == null) {
             CONNECTION = new CachingConnectionWrapper(
-                    new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
+                    new DatabaseConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
         }
         this.setUpDatabase();
     }
@@ -41,7 +40,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     @Test
     public void testGetConnection() throws Exception {
         final CachingConnectionWrapper cachedDBConnection = new CachingConnectionWrapper(
-                new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
+                new DatabaseConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
         final Connection connection = cachedDBConnection.pooledConnection();
         Assert.assertNotNull(connection);
     }
@@ -110,7 +109,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     @Test
     public void removeAll() throws Exception {
         final CachingConnectionWrapper connection = new CachingConnectionWrapper(
-                new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
+                new DatabaseConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
 
         connection.truncate(new Query("TRUNCATE TABLE customer")).get();
 
@@ -159,7 +158,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     @Test
     public void selectIdWithValues() throws Exception {
         final CachingConnectionWrapper connection = new CachingConnectionWrapper(
-                new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
+                new DatabaseConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
         Assert.assertNotNull(connection);
 
     }
@@ -167,7 +166,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     @Test
     public void selectString() throws Exception {
         final CachingConnectionWrapper connection = new CachingConnectionWrapper(
-                new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
+                new DatabaseConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
         Assert.assertNotNull(connection);
 
     }
