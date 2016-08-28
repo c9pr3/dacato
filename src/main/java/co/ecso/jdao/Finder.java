@@ -118,34 +118,35 @@ public interface Finder<R> extends ConfigFinder {
     }
 
     default void getResult(final Query query, final DatabaseField<R> column,
-                           final CompletableFuture<R> returnValue, final PreparedStatement stmt) throws SQLException {
+                           final CompletableFuture<R> rvalFuture, final PreparedStatement stmt) throws SQLException {
         Objects.nonNull(query);
         Objects.nonNull(column);
-        Objects.nonNull(returnValue);
+        Objects.nonNull(rvalFuture);
         Objects.nonNull(stmt);
         try (final ResultSet rs = stmt.executeQuery()) {
             if (!rs.next()) {
                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
             }
             final R rval = (R) rs.getObject(column.toString().trim(), column.valueClass());
-//            if (rval == null) {
+            if (rval == null) {
 //                throw new SQLException(String.format("Result for %s, %s was null",
 //                        column.toString(), query.getQuery()));
-//            } else {
+                rvalFuture.complete(null);
+            } else {
                 //noinspection unchecked
                 R retVal = (R) rs.getObject(1, column.valueClass());
                 if (rval.getClass() == String.class) {
                     //noinspection unchecked
-                    returnValue.complete((R)retVal.toString().trim());
+                    rvalFuture.complete((R)retVal.toString().trim());
                 } else {
-                    returnValue.complete(retVal);
+                    rvalFuture.complete(retVal);
                 }
 //                if ("String".equals(column.valueClass().getSimpleName())) {
 //                    returnValue.complete(rval.toString().trim());
 //                } else {
 //                    returnValue.complete(rval);
 //                }
-//            }
+            }
         }
     }
 }
