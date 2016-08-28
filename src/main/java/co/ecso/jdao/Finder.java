@@ -90,7 +90,6 @@ public interface Finder<R> extends ConfigFinder {
                             while (rs.next()) {
                                 //noinspection unchecked
                                 R rval = (R) rs.getObject(1, selector.valueClass());
-                                System.out.println("RETVAL IS OF TYPE " + rval.getClass().getSimpleName());
                                 if (rval.getClass() == String.class) {
                                     //noinspection unchecked
                                     futureList.add((R)rval.toString().trim());
@@ -129,10 +128,10 @@ public interface Finder<R> extends ConfigFinder {
                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
             }
             final R rval = (R) rs.getObject(column.toString().trim(), column.valueClass());
-            if (rval == null) {
-                throw new SQLException(String.format("Result for %s, %s was null",
-                        column.toString(), query.getQuery()));
-            } else {
+//            if (rval == null) {
+//                throw new SQLException(String.format("Result for %s, %s was null",
+//                        column.toString(), query.getQuery()));
+//            } else {
                 //noinspection unchecked
                 R retVal = (R) rs.getObject(1, column.valueClass());
                 if (rval.getClass() == String.class) {
@@ -146,7 +145,7 @@ public interface Finder<R> extends ConfigFinder {
 //                } else {
 //                    returnValue.complete(rval);
 //                }
-            }
+//            }
         }
     }
 }
