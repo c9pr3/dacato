@@ -3,7 +3,6 @@ package co.ecso.jdao;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
@@ -44,12 +43,14 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
         return this.config;
     }
 
-    @Override
-    public CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column, final CompletableFuture<?> whereIdFuture) {
+    public CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column,
+                                           final CompletableFuture<Long> whereIdFuture) {
         synchronized (CACHE_MAP) {
-            final CacheKey cacheKey = new CacheKey(query.getQuery(), column, whereIdFuture);
+            final CacheKey cacheKey = new CacheKey<>(query.getQuery(), column, whereIdFuture);
+
             return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-                    databaseConnection.findOne(query, cacheKey.columnName(), cacheKey.whereId()));
+                    ((Finder<CompletableFuture<Long>, Long>) databaseConnection::getConfig)
+                            .findOne(query, cacheKey.columnName(), cacheKey.whereId()));
         }
     }
 
@@ -66,14 +67,15 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
         }
     }
 
-    @Override
-    public CompletableFuture<LinkedList<?>> findMany(final Query query, Map<DatabaseField<?>, ?> map) {
-        synchronized (CACHE_MAP) {
-            final CacheKey cacheKey = new CacheKey(query.getQuery(), new DatabaseField<>("*", "", Types.VARCHAR),
-                    CompletableFuture.completedFuture(-1L));
-            return (CompletableFuture<LinkedList<?>>) CACHE_MAP.get(databaseConnection.hashCode())
-                    .get(cacheKey, () -> this.databaseConnection.findMany(query, map));
-        }
+    public CompletableFuture<LinkedList<Long>> findMany(final Query query, Map<DatabaseField<?>, ?> map) throws SQLException {
+        return ((Finder<Long, Long>) databaseConnection::getConfig).findMany(query, map);
+
+//        synchronized (CACHE_MAP) {
+//            final CacheKey cacheKey = new CacheKey(query.getQuery(), new DatabaseField<>("*", "", Types.VARCHAR),
+//                    CompletableFuture.completedFuture(-1L));
+//            return (CompletableFuture<LinkedList<?>>) CACHE_MAP.get(databaseConnection.hashCode())
+//                    .get(cacheKey, () -> this.databaseConnection.findMany(query, map));
+//        }
     }
 
 //    @Override
@@ -118,16 +120,16 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
 //    }
 //
     @SuppressWarnings("WeakerAccess")
-    public static final class CacheKey implements Serializable {
+    public static final class CacheKey<T> implements Serializable {
 
         private static final long serialVersionUID = -384732894789324L;
 
         private final String tableName;
         private final DatabaseField<?> columnName;
-        private final CompletableFuture<?> whereId;
+        private final CompletableFuture<T> whereId;
         private final Map<DatabaseField<?>, ?> values;
 
-        CacheKey(final String tableName, final DatabaseField<?> columnName, final CompletableFuture<?> whereId) {
+        CacheKey(final String tableName, final DatabaseField<?> columnName, final CompletableFuture<T> whereId) {
             this.tableName = tableName;
             this.columnName = columnName;
             this.whereId = whereId;
@@ -149,7 +151,7 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
             return columnName;
         }
 
-        CompletableFuture<?> whereId() {
+        CompletableFuture<T> whereId() {
             return whereId;
         }
 

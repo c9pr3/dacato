@@ -1,14 +1,12 @@
 package co.ecso.jdao.hsql;
 
-import co.ecso.jdao.AbstractTest;
-import co.ecso.jdao.DatabaseConnection;
-import co.ecso.jdao.DatabaseField;
-import co.ecso.jdao.Query;
+import co.ecso.jdao.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -82,10 +80,10 @@ public final class HsqlConnectionTest extends AbstractTest {
                         CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map)
                 ).get();
 
-                final LinkedList<?> res = CONNECTION.findMany(new Query("SELECT id FROM customer"),
-                        new HashMap<>()).get();
-                Assert.assertEquals(20, res.size());
-            } catch (final InterruptedException | ExecutionException e) {
+                CompletableFuture<LinkedList<Long>> res = ((Finder<Long, Long>) () -> APPLICATION_CONFIG)
+                        .findMany(new Query("SELECT id FROM customer"), new HashMap<>());
+                Assert.assertEquals(20, res.get().size());
+            } catch (final InterruptedException | ExecutionException | SQLException e) {
                 e.printStackTrace();
             }
         });
