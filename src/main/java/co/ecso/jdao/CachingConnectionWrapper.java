@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 /**
  * CachingConnectionWrapper.
@@ -44,7 +45,7 @@ public class CachingConnectionWrapper implements DatabaseConnection {
 //    }
 
     public CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column,
-                                        final CompletableFuture<Long> whereIdFuture) {
+                                        final CompletableFuture<Long> whereIdFuture) throws ExecutionException {
         synchronized (CACHE_MAP) {
             final CacheKey cacheKey = new CacheKey<>(query.getQuery(), column, whereIdFuture);
             return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
@@ -67,7 +68,8 @@ public class CachingConnectionWrapper implements DatabaseConnection {
     }
 
     public CompletableFuture<LinkedList<?>> findMany(final Query query, DatabaseField<?> selector,
-                                                        Map<DatabaseField<?>, ?> map) throws SQLException {
+                                                        Map<DatabaseField<?>, ?> map) throws SQLException,
+            ExecutionException {
         synchronized (CACHE_MAP) {
 //            final CacheKey cacheKey = new CacheKey(query.getQuery(), new DatabaseField<>("id", -1L, Types.BIGINT),
 //                    CompletableFuture.completedFuture(-1L));

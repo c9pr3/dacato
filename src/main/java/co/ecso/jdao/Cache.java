@@ -2,6 +2,7 @@ package co.ecso.jdao;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Cache interface.
@@ -14,7 +15,7 @@ import java.util.concurrent.Callable;
 public interface Cache<K, V> {
     V getIfPresent(final Object var1);
 
-    V get(final K var1, final Callable<? extends V> var2);
+    V get(final K var1, final Callable<? extends V> var2) throws ExecutionException;
 
     Map<K, V> getAllPresent(final Iterable<?> var1);
 
