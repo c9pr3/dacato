@@ -167,7 +167,12 @@ public interface DatabaseConnection {
                             if (values.get(databaseField) == null) {
                                 throw new SQLException("values.get " + databaseField + " is null");
                             }
-                            stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
+                            try {
+                                stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
+                            } catch (final SQLSyntaxErrorException e) {
+                                throw new SQLException(String.format("%s. Tried %s to %d", e.getMessage(),
+                                        values.get(databaseField), databaseField.sqlType()), e);
+                            }
                             i++;
                         }
                         stmt.executeUpdate();
