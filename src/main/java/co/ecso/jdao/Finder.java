@@ -93,6 +93,10 @@ public interface Finder<R> extends ConfigFinder {
                                 if (rval.getClass() == String.class) {
                                     //noinspection unchecked
                                     futureList.add((R)rval.toString().trim());
+                                } else if (rval.getClass() == Boolean.class) {
+                                    final Boolean boolVal = rval.toString().trim().equals("1");
+                                    //noinspection unchecked
+                                    futureList.add((R) boolVal);
                                 } else {
                                     futureList.add(rval);
                                 }
