@@ -116,7 +116,7 @@ public interface Finder<R> extends ConfigFinder {
     default ScheduledExecutorService getThreadPool() {
         ScheduledExecutorService threadPool = config().getThreadPool();
         if (config().getThreadPool() == null) {
-            threadPool = new ScheduledThreadPoolExecutor(config().getMysqlMaxPool());
+            threadPool = new ScheduledThreadPoolExecutor(config().getMaxPoolSize());
         }
         return threadPool;
     }

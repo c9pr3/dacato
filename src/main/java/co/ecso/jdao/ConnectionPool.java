@@ -9,6 +9,7 @@ import java.sql.SQLException;
  * @version $Id:$
  * @since 26.08.16
  */
+@SuppressWarnings("WeakerAccess")
 @FunctionalInterface
 public interface ConnectionPool<T> {
     T getConnection() throws SQLException;

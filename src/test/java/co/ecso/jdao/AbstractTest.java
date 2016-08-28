@@ -27,30 +27,6 @@ public abstract class AbstractTest {
     static final Cache<Object, CompletableFuture<?>> APPLICATION_CACHE = new FakeCache();
 
     protected static final ApplicationConfig APPLICATION_CONFIG = new ApplicationConfig() {
-        @Override
-        public String getMysqlPoolName() {
-            return "mysqlpool";
-        }
-
-        @Override
-        public int getMysqlMinPool() {
-            return 1;
-        }
-
-        @Override
-        public int getMysqlMaxPool() {
-            return 10;
-        }
-
-        @Override
-        public int getMysqlMaxSize() {
-            return 10;
-        }
-
-        @Override
-        public long getMysqlPoolIdleTimeout() {
-            return 1000;
-        }
 
         @Override
         public String getMysqlHost() {
@@ -63,65 +39,50 @@ public abstract class AbstractTest {
         }
 
         @Override
-        public String getMysqlDatabase() {
-            return null;
-        }
-
-        @Override
-        public int getMysqlMaxConnections() {
+        public int getMaxConnections() {
             return 10;
         }
 
         @Override
-        public String getMysqlUser() {
-            return null;
+        public String getPoolName() {
+            return "dbpool";
         }
 
         @Override
-        public String getMysqlPassword() {
-            return null;
-        }
-
-        @Override
-        public String getHsqlPoolName() {
-            return "hsqldbpool";
-        }
-
-        @Override
-        public int getHsqlMinPoolSize() {
+        public int getMinPoolSize() {
             return 1;
         }
 
         @Override
-        public int getHsqlMaxPoolSize() {
+        public int getMaxPoolSize() {
             return 10;
         }
 
         @Override
-        public int getHsqLPoolMaxSize() {
-            return 10;
+        public int getPoolMaxSize() {
+            return 100;
         }
 
         @Override
-        public long getHsqlPoolIdleTimeout() {
+        public long getPoolIdleTimeout() {
             return 1000;
         }
 
         @Override
-        public String getHsqlConnectString() {
+        public String getConnectString() {
             return "jdbc:hsqldb:wpconfig.mem";
         }
 
         @Override
         public ScheduledExecutorService getThreadPool() {
-            return new ScheduledThreadPoolExecutor(this.getMysqlMaxPool());
+            return new ScheduledThreadPoolExecutor(this.getMaxPoolSize());
         }
 
         @Override
         public ConnectionPool<Connection> getConnectionPool() {
-            return () -> new snaq.db.ConnectionPool(getHsqlPoolName(), getHsqlMinPoolSize(),
-                    getHsqlMaxPoolSize(), getHsqLPoolMaxSize(), getHsqlPoolIdleTimeout(),
-                    getHsqlConnectString(), null).getConnection();
+            return () -> new snaq.db.ConnectionPool(getPoolName(), getMinPoolSize(),
+                    getMaxPoolSize(), getPoolMaxSize(), getPoolIdleTimeout(),
+                    getConnectString(), null).getConnection();
         }
     };
 

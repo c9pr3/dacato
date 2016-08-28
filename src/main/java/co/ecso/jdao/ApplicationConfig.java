@@ -10,41 +10,26 @@ import java.util.concurrent.ScheduledExecutorService;
  * @version $Id:$
  * @since 25.08.16
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public interface ApplicationConfig {
-    String getMysqlPoolName();
-
-    int getMysqlMinPool();
-
-    int getMysqlMaxPool();
-
-    int getMysqlMaxSize();
-
-    long getMysqlPoolIdleTimeout();
 
     String getMysqlHost();
 
     int getMysqlPort();
 
-    String getMysqlDatabase();
+    int getMaxConnections();
 
-    int getMysqlMaxConnections();
+    String getPoolName();
 
-    String getMysqlUser();
+    int getMinPoolSize();
 
-    String getMysqlPassword();
+    int getMaxPoolSize();
 
-    String getHsqlPoolName();
+    int getPoolMaxSize();
 
-    int getHsqlMinPoolSize();
+    long getPoolIdleTimeout();
 
-    int getHsqlMaxPoolSize();
-
-    int getHsqLPoolMaxSize();
-
-    long getHsqlPoolIdleTimeout();
-
-    String getHsqlConnectString();
+    String getConnectString();
 
     ScheduledExecutorService getThreadPool();
 
