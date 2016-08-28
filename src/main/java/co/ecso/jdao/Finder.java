@@ -51,7 +51,7 @@ public interface Finder<R, T> {
         return (R)f;
     }
 
-    default R findOne(final Query query, final DatabaseField<T> column, final Map<DatabaseField<?>, ?> columns) throws SQLException {
+    default R findOne(final Query query, final DatabaseField<T> column, final Map<DatabaseField<?>, ?> columns) {
         final CompletableFuture<Object> f = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try (Connection c = this.getConfig().getConnectionPool().getConnection()) {
@@ -75,7 +75,7 @@ public interface Finder<R, T> {
         return (R)f;
     }
 
-    default CompletableFuture<LinkedList<R>> findMany(final Query query, final Map<DatabaseField<?>, ?> columns) throws SQLException {
+    default CompletableFuture<LinkedList<R>> findMany(final Query query, final Map<DatabaseField<?>, ?> columns) {
         final CompletableFuture<LinkedList<R>> f = new CompletableFuture<>();
         final LinkedList<R> futureList = new LinkedList<>();
         CompletableFuture.runAsync(() -> {
@@ -106,7 +106,7 @@ public interface Finder<R, T> {
 
     ApplicationConfig getConfig();
 
-    default ScheduledExecutorService getThreadPool() throws SQLException {
+    default ScheduledExecutorService getThreadPool() {
         ScheduledExecutorService threadPool = this.getConfig().getThreadPool();
         if (this.getConfig().getThreadPool() == null) {
             threadPool = new ScheduledThreadPoolExecutor(getConfig().getMysqlMaxPool());

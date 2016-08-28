@@ -6,7 +6,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -83,7 +82,7 @@ public final class HsqlConnectionTest extends AbstractTest {
                 CompletableFuture<LinkedList<Long>> res = ((Finder<Long, Long>) () -> APPLICATION_CONFIG)
                         .findMany(new Query("SELECT id FROM customer"), new HashMap<>());
                 Assert.assertEquals(20, res.get().size());
-            } catch (final InterruptedException | ExecutionException | SQLException e) {
+            } catch (final InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         });
