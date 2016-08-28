@@ -88,9 +88,14 @@ public interface Finder<R> extends ConfigFinder {
                         try (final ResultSet rs = stmt.executeQuery()) {
                             while (rs.next()) {
                                 //noinspection unchecked
-                                R retVal = (R) rs.getObject(1, selector.valueClass());
+                                R rval = (R) rs.getObject(1, selector.valueClass());
                                 //System.out.println("RETVAL IS OF TYPE " + retVal.getClass().getSimpleName());
-                                futureList.add(retVal);
+                                if (rval.getClass() == String.class) {
+                                    //noinspection unchecked
+                                    futureList.add((R)rval.toString().trim());
+                                } else {
+                                    futureList.add(rval);
+                                }
                             }
                         }
                     }
@@ -128,7 +133,13 @@ public interface Finder<R> extends ConfigFinder {
                         column.toString(), query.getQuery()));
             } else {
                 //noinspection unchecked
-                returnValue.complete((R)rval.toString().trim());
+                R retVal = (R) rs.getObject(1, column.valueClass());
+                if (rval.getClass() == String.class) {
+                    //noinspection unchecked
+                    returnValue.complete((R)retVal.toString().trim());
+                } else {
+                    returnValue.complete(retVal);
+                }
 //                if ("String".equals(column.valueClass().getSimpleName())) {
 //                    returnValue.complete(rval.toString().trim());
 //                } else {
