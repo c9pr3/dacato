@@ -90,7 +90,7 @@ public interface Finder<R> extends ConfigFinder {
                             while (rs.next()) {
                                 //noinspection unchecked
                                 R rval = (R) rs.getObject(1, selector.valueClass());
-                                //System.out.println("RETVAL IS OF TYPE " + retVal.getClass().getSimpleName());
+                                System.out.println("RETVAL IS OF TYPE " + rval.getClass().getSimpleName());
                                 if (rval.getClass() == String.class) {
                                     //noinspection unchecked
                                     futureList.add((R)rval.toString().trim());
