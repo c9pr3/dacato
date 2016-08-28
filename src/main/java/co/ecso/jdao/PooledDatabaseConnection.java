@@ -6,18 +6,18 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * DatabaseConnection.
+ * PooledDatabaseConnection.
  * Decorator for static JDBCConnector.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 16.03.16
  */
-class DatabaseConnection {
+class PooledDatabaseConnection {
     private static final Map<Integer, ConnectionPool<Connection>> CONNECTION_POOL_MAP = new ConcurrentHashMap<>();
     private ApplicationConfig config;
 
-    DatabaseConnection(final ApplicationConfig config) throws SQLException {
+    PooledDatabaseConnection(final ApplicationConfig config) throws SQLException {
         this.config = config;
         if (!CONNECTION_POOL_MAP.containsKey(config.hashCode())) {
             CONNECTION_POOL_MAP.putIfAbsent(config.hashCode(), config.getConnectionPool());

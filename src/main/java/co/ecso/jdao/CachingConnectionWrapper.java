@@ -3,7 +3,7 @@ package co.ecso.jdao;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -18,15 +18,14 @@ import java.util.concurrent.ExecutionException;
  * @since 02.07.16
  */
 @SuppressWarnings({"unchecked", "WeakerAccess"})
-public class CachingConnectionWrapper extends DatabaseConnection {
+public final class CachingConnectionWrapper extends PooledDatabaseConnection {
     private static final Map<Integer, Cache<CacheKey, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();
-    private final DatabaseConnection databaseConnection;
+    private final Connection databaseConnection;
     private final ApplicationConfig config;
 
-    public CachingConnectionWrapper(final DatabaseConnection databaseConnection, final ApplicationConfig config,
-                                    final Cache cache) throws SQLException {
+    public CachingConnectionWrapper(final ApplicationConfig config, final Cache cache) throws SQLException {
         super(config);
-        this.databaseConnection = databaseConnection;
+        this.databaseConnection = config.getConnectionPool().getConnection();
         synchronized (CACHE_MAP) {
             CACHE_MAP.putIfAbsent(databaseConnection.hashCode(), cache);
         }
@@ -35,10 +34,7 @@ public class CachingConnectionWrapper extends DatabaseConnection {
 
     @Override
     public Connection pooledConnection() throws SQLException {
-        if (this.databaseConnection == null) {
-            throw new SQLException("DatabaseConnection could not be established");
-        }
-        return this.databaseConnection.pooledConnection();
+        return databaseConnection;
     }
 
     public CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column,
@@ -50,7 +46,6 @@ public class CachingConnectionWrapper extends DatabaseConnection {
                             .findOne(query, cacheKey.columnName(), cacheKey.whereId()));
         }
     }
-
 
     public CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column,
                                         final Map<DatabaseField<?>, ?> columnsToSelect) throws ExecutionException {
@@ -76,12 +71,12 @@ public class CachingConnectionWrapper extends DatabaseConnection {
         }
     }
 
-    public CompletableFuture<LinkedList<?>> findMany(final Query query, DatabaseField<?> selector,
-                                                        Map<DatabaseField<?>, ?> map) throws SQLException,
+    public CompletableFuture<List<?>> findMany(final Query query, final DatabaseField<?> selector,
+                                               final Map<DatabaseField<?>, ?> map) throws SQLException,
             ExecutionException {
         synchronized (CACHE_MAP) {
             final CacheKey cacheKey = new CacheKey(query.getQuery(), selector, CompletableFuture.completedFuture(null));
-            return (CompletableFuture<LinkedList<?>>) CACHE_MAP.get(databaseConnection.hashCode())
+            return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode())
                     .get(cacheKey, () -> ((Finder<Long>) () -> config).findMany(query, selector, map));
         }
     }

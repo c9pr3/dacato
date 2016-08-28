@@ -145,7 +145,7 @@ public abstract class AbstractTest {
      * Clean up Database.
      */
     protected final void cleanupDatabase() throws SQLException {
-        DatabaseConnection database = new DatabaseConnection(APPLICATION_CONFIG);
+        PooledDatabaseConnection database = new PooledDatabaseConnection(APPLICATION_CONFIG);
         try (final Connection connection = database.pooledConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("TRUNCATE SCHEMA PUBLIC RESTART IDENTITY AND COMMIT NO CHECK");

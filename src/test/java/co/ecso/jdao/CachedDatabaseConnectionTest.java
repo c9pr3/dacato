@@ -9,7 +9,7 @@ import java.sql.Connection;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -26,8 +26,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     @Before
     public void setUp() throws Exception {
         if (CONNECTION == null) {
-            CONNECTION = new CachingConnectionWrapper(
-                    new DatabaseConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
+            CONNECTION = new CachingConnectionWrapper(APPLICATION_CONFIG, APPLICATION_CACHE);
         }
         this.setUpDatabase();
     }
@@ -39,8 +38,8 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
 
     @Test
     public void testGetConnection() throws Exception {
-        final CachingConnectionWrapper cachedDBConnection = new CachingConnectionWrapper(
-                new DatabaseConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
+        final CachingConnectionWrapper cachedDBConnection =
+                new CachingConnectionWrapper(APPLICATION_CONFIG, APPLICATION_CACHE);
         final Connection connection = cachedDBConnection.pooledConnection();
         Assert.assertNotNull(connection);
     }
@@ -51,7 +50,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
         final Long newInsertID2 = insertOne().get();
         final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
         map.put(new DatabaseField<>("customer_first_name", "", Types.VARCHAR), "foo");
-        final LinkedList<?> result = CONNECTION.findMany(new Query("SELECT %s FROM customer WHERE %s = ?"),
+        final List<?> result = CONNECTION.findMany(new Query("SELECT %s FROM customer WHERE %s = ?"),
                 Fields.ID, map).get();
         Assert.assertNotNull(result);
         Assert.assertEquals(2, result.size());
@@ -66,7 +65,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
         insertOne().get();
         final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
         map.put(new DatabaseField<>("customer_first_name", "", Types.VARCHAR), "foo");
-        final LinkedList<?> result = CONNECTION.findMany(new Query("SELECT %s FROM customer WHERE %s = ?"),
+        final List<?> result = CONNECTION.findMany(new Query("SELECT %s FROM customer WHERE %s = ?"),
                 Fields.FIRST_NAME, map).get();
         Assert.assertNotNull(result);
         Assert.assertEquals(2, result.size());
@@ -101,19 +100,19 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
                 ex.printStackTrace();
             }
             return Long.valueOf(r.toString().trim());
-        }).get();
+        })
+                .get();
         Assert.assertNotNull(res);
         Assert.assertEquals(newInsertID.get(), res);
     }
 
     @Test
     public void removeAll() throws Exception {
-        final CachingConnectionWrapper connection = new CachingConnectionWrapper(
-                new DatabaseConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
+        final CachingConnectionWrapper connection = new CachingConnectionWrapper(APPLICATION_CONFIG, APPLICATION_CACHE);
 
         connection.truncate(new Query("TRUNCATE TABLE customer")).get();
 
-        final LinkedHashMap<DatabaseField<?>, Object> map = new LinkedHashMap<>();
+        final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
         map.put(Fields.FIRST_NAME, "firstName");
         map.put(Fields.LOGIN_PASSWORD, "loginPW");
         map.put(Fields.NUMBER, 1234L);
@@ -144,53 +143,58 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
                 CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
                 CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
                 CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map)
-        ).get();
+        )
+                .get();
 
-        final LinkedList<?> fres = connection.findMany(new Query("SELECT %s from customer"),
+        final List<?> fres = connection.findMany(new Query("SELECT %s from customer"),
                 Fields.ID, new HashMap<>()).get();
         Assert.assertEquals(20, fres.size());
         connection.truncate(new Query("TRUNCATE table customer AND COMMIT")).get();
-        final LinkedList<?> fres1 = connection.findMany(new Query("SELECT id from customer"),
+        final List<?> fres1 = connection.findMany(new Query("SELECT id from customer"),
                 Fields.ID, new HashMap<>()).get();
         Assert.assertEquals(0, fres1.size());
     }
 
     @Test
     public void selectIdWithValues() throws Exception {
-        final CachingConnectionWrapper connection = new CachingConnectionWrapper(
-                new DatabaseConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
+        final CachingConnectionWrapper connection = new CachingConnectionWrapper(APPLICATION_CONFIG, APPLICATION_CACHE);
         Assert.assertNotNull(connection);
 
     }
 
     @Test
     public void selectString() throws Exception {
-        final CachingConnectionWrapper connection = new CachingConnectionWrapper(
-                new DatabaseConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
+        final CachingConnectionWrapper connection = new CachingConnectionWrapper(APPLICATION_CONFIG, APPLICATION_CACHE);
         Assert.assertNotNull(connection);
 
     }
 
     private CompletableFuture<Long> insertOne() {
         return CONNECTION.insert(new Query("INSERT INTO customer VALUES(NULL, ?, ?, ?, 'auth', " +
-                "NULL, 'theme1', NULL)"), new LinkedHashMap<DatabaseField<?>, Object>() {{
-            put(new DatabaseField<>("customer_first_name", null, Types.VARCHAR), "foo");
-            put(new DatabaseField<>("customer_login_password", null, Types.VARCHAR), "password");
-            put(new DatabaseField<>("customer_number", 2L, Types.BIGINT), 1234L);
-        }});
+                "NULL, 'theme1', NULL)"), new LinkedHashMap<DatabaseField<?>, Object>() {
+                    {
+                        put(new DatabaseField<>("customer_first_name", null, Types.VARCHAR), "foo");
+                        put(new DatabaseField<>("customer_login_password", null, Types.VARCHAR), "password");
+                        put(new DatabaseField<>("customer_number", 2L, Types.BIGINT), 1234L);
+                    }
+                }
+        );
     }
 
     private static final class Fields {
         static final DatabaseField<Long> ID = new DatabaseField<>("id", -1L, Types.BIGINT);
         static final DatabaseField<String> THEME = new DatabaseField<>("customer_theme", "", Types.VARCHAR);
-        static final DatabaseField<Long> PRODUCT_OFFER_ID = new DatabaseField<>("f_product_offer_id", -1L, Types.BIGINT);
-        static final DatabaseField<String> AUTHORITY_ROLE = new DatabaseField<>("customer_authority_role", "", Types.VARCHAR);
+        static final DatabaseField<Long> PRODUCT_OFFER_ID =
+                new DatabaseField<>("f_product_offer_id", -1L, Types.BIGINT);
+        static final DatabaseField<String> AUTHORITY_ROLE =
+                new DatabaseField<>("customer_authority_role", "", Types.VARCHAR);
         static final DatabaseField<Long> NUMBER = new DatabaseField<>("customer_number", -1L, Types.BIGINT);
-        static final DatabaseField<String> LOGIN_PASSWORD = new DatabaseField<>("customer_login_password", "", Types.VARCHAR);
+        static final DatabaseField<String> LOGIN_PASSWORD =
+                new DatabaseField<>("customer_login_password", "", Types.VARCHAR);
         static final DatabaseField<String> FIRST_NAME = new DatabaseField<>("customer_first_name", "", Types.VARCHAR);
         static final DatabaseField<String> SESSION = new DatabaseField<>("session", "", Types.VARCHAR);
-        static final DatabaseField<String> NAME = new DatabaseField<>("offer_name", "", Types.VARCHAR);
-        static final DatabaseField<Float> PRICE = new DatabaseField<>("offer_price", 0.0F, Types.FLOAT);
-        static final DatabaseField<Boolean> DISPLAYABLE = new DatabaseField<>("displayable", false, Types.BOOLEAN);
+//        static final DatabaseField<String> NAME = new DatabaseField<>("offer_name", "", Types.VARCHAR);
+//        static final DatabaseField<Float> PRICE = new DatabaseField<>("offer_price", 0.0F, Types.FLOAT);
+//        static final DatabaseField<Boolean> DISPLAYABLE = new DatabaseField<>("displayable", false, Types.BOOLEAN);
     }
 }
