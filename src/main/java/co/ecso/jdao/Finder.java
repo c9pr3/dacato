@@ -69,6 +69,8 @@ public interface Finder<R> extends ConfigFinder {
 
     default CompletableFuture<LinkedList<R>> findMany(final Query query, DatabaseField<?> selector,
                                                       final Map<DatabaseField<?>, ?> columns) {
+
+        System.out.println("FIND MANY");
         final CompletableFuture<LinkedList<R>> returnFuture = new CompletableFuture<>();
         final LinkedList<R> futureList = new LinkedList<>();
         CompletableFuture.runAsync(() -> {
@@ -77,6 +79,7 @@ public interface Finder<R> extends ConfigFinder {
                 newColumns.add(selector);
                 newColumns.addAll(columns.keySet());
                 final String finalQuery = String.format(query.getQuery(), newColumns.toArray());
+                System.out.println("FIND MANY " + finalQuery);
                 try (Connection c = config().getConnectionPool().getConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                         for (int i = 1; i <= columns.size(); i++) {
@@ -85,7 +88,9 @@ public interface Finder<R> extends ConfigFinder {
                             stmt.setObject(i, valueToSet, sqlType);
                         }
                         try (final ResultSet rs = stmt.executeQuery()) {
+                            System.out.println("RESULT");
                             while (rs.next()) {
+                                System.out.println("R.next");
                                 //noinspection unchecked
                                 R retVal = (R) rs.getObject(1, selector.valueClass());
                                 //System.out.println("RETVAL IS OF TYPE " + retVal.getClass().getSimpleName());
@@ -94,9 +99,11 @@ public interface Finder<R> extends ConfigFinder {
                         }
                     }
                 }
+                System.out.println("returnFuture complete");
                 returnFuture.complete(futureList);
             } catch (final Exception e) {
                 e.printStackTrace();
+                System.out.println("returnFuture complete EXCEPTION");
                 returnFuture.completeExceptionally(e);
             }
         }, getThreadPool());
