@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @SuppressWarnings("WeakerAccess")
 public interface DatabaseEntity {
-    CompletableFuture<?> id();
+    Long id();
 
     CompletableFuture<? extends DatabaseEntity> save(final Map<DatabaseField<?>, ? extends Comparable> map);
 

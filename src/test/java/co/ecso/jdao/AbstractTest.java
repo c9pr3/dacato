@@ -17,7 +17,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 /**
- * AbstractContestTest.
+ * AbstractTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
@@ -27,7 +27,7 @@ public abstract class AbstractTest {
 
     static final Cache<Object, CompletableFuture<?>> APPLICATION_CACHE = new FakeCache();
 
-    static final ApplicationConfig APPLICATION_CONFIG = new ApplicationConfig() {
+    protected static final ApplicationConfig APPLICATION_CONFIG = new ApplicationConfig() {
         @Override
         public String getMysqlPoolName() {
             return "mysqlpool";
@@ -133,7 +133,7 @@ public abstract class AbstractTest {
     /**
      * Set up database.
      */
-    final void setUpDatabase() {
+    protected final void setUpDatabase() {
         final JDBCDataSource dataSource = this.getDataSource();
         try {
             final String lines = Files.readAllLines(Paths.get("test.sql"))
@@ -184,7 +184,7 @@ public abstract class AbstractTest {
     /**
      * Clean up Database.
      */
-    final void cleanupDatabase() throws SQLException {
+    protected final void cleanupDatabase() throws SQLException {
         HsqlConnection database = new HsqlConnection(APPLICATION_CONFIG);
         try (final Connection connection = database.pooledConnection()) {
             try (final Statement stmt = connection.createStatement()) {
