@@ -90,10 +90,10 @@ public interface Finder<R> extends ConfigFinder {
                             while (rs.next()) {
                                 //noinspection unchecked
                                 R rval = (R) rs.getObject(1, selector.valueClass());
-                                if (rval.getClass() == String.class) {
+                                if (selector.valueClass() == String.class) {
                                     //noinspection unchecked
                                     futureList.add((R)rval.toString().trim());
-                                } else if (rval.getClass() == Boolean.class) {
+                                } else if (selector.valueClass() == Boolean.class) {
                                     final Boolean boolVal = rval.toString().trim().equals("1");
                                     //noinspection unchecked
                                     futureList.add((R) boolVal);
@@ -121,28 +121,28 @@ public interface Finder<R> extends ConfigFinder {
         return threadPool;
     }
 
-    default void getResult(final Query query, final DatabaseField<R> column,
+    default void getResult(final Query query, final DatabaseField<R> selector,
                            final CompletableFuture<R> rvalFuture, final PreparedStatement stmt) throws SQLException {
         Objects.nonNull(query);
-        Objects.nonNull(column);
+        Objects.nonNull(selector);
         Objects.nonNull(rvalFuture);
         Objects.nonNull(stmt);
         try (final ResultSet rs = stmt.executeQuery()) {
             if (!rs.next()) {
                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
             }
-            final R rval = (R) rs.getObject(column.toString().trim(), column.valueClass());
+            final R rval = (R) rs.getObject(selector.toString().trim(), selector.valueClass());
             if (rval == null) {
 //                throw new SQLException(String.format("Result for %s, %s was null",
 //                        column.toString(), query.getQuery()));
                 rvalFuture.complete(null);
             } else {
                 //noinspection unchecked
-                R retVal = (R) rs.getObject(1, column.valueClass());
-                if (rval.getClass() == String.class) {
+                R retVal = (R) rs.getObject(1, selector.valueClass());
+                if (selector.valueClass() == String.class) {
                     //noinspection unchecked
                     rvalFuture.complete((R)retVal.toString().trim());
-                } else if (rval.getClass() == Boolean.class) {
+                } else if (selector.valueClass() == Boolean.class) {
                     final Boolean boolVal = retVal.toString().trim().equals("1");
                     //noinspection unchecked
                     rvalFuture.complete((R) boolVal);
