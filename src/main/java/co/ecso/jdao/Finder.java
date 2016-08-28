@@ -1,9 +1,6 @@
 package co.ecso.jdao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -55,12 +52,15 @@ public interface Finder<R> extends ConfigFinder {
                     for (int i = 1; i <= columnsToSelect.size(); i++) {
                         final int sqlType = ((DatabaseField) columnsToSelect.keySet().toArray()[i - 1]).sqlType();
                         final Object valueToSet = columnsToSelect.values().toArray()[i - 1];
-                        stmt.setObject(i, valueToSet, sqlType);
+                        try {
+                            stmt.setObject(i, valueToSet, sqlType);
+                        } catch (final SQLDataException e) {
+                            throw new SQLException(String.format("Could not set %s to %d: %s", valueToSet, sqlType, e));
+                        }
                     }
                     getResult(query, columnToReturn, f, stmt);
                 }
             } catch (final Exception e) {
-                e.printStackTrace();
                 f.completeExceptionally(e);
             }
         }, getThreadPool());
@@ -83,7 +83,11 @@ public interface Finder<R> extends ConfigFinder {
                         for (int i = 1; i <= columns.size(); i++) {
                             final int sqlType = ((DatabaseField) columns.keySet().toArray()[i - 1]).sqlType();
                             final Object valueToSet = columns.values().toArray()[i - 1];
-                            stmt.setObject(i, valueToSet, sqlType);
+                            try {
+                                stmt.setObject(i, valueToSet, sqlType);
+                            } catch (final SQLDataException e) {
+                                throw new SQLException(String.format("Could not set %s to %d: %s", valueToSet, sqlType, e));
+                            }
                         }
                         try (final ResultSet rs = stmt.executeQuery()) {
                             while (rs.next()) {
