@@ -81,8 +81,11 @@ public interface Finder<R> extends ConfigFinder {
                 final String finalQuery = String.format(query.getQuery(), newColumns.toArray());
                 System.out.println("FIND MANY " + finalQuery);
                 try (Connection c = config().getConnectionPool().getConnection()) {
+                    System.out.println("GOT CONNECTION");
                     try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                        System.out.println("GOT STATEMENT");
                         for (int i = 1; i <= columns.size(); i++) {
+                            System.out.println("STMT FILL UP " + i);
                             final int sqlType = ((DatabaseField) columns.keySet().toArray()[i - 1]).sqlType();
                             final Object valueToSet = columns.values().toArray()[i - 1];
                             stmt.setObject(i, valueToSet, sqlType);
