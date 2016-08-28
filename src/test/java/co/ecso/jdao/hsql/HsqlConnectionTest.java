@@ -22,8 +22,6 @@ import java.util.concurrent.ExecutionException;
  * @since 28.08.16
  */
 public final class HsqlConnectionTest extends AbstractTest {
-    private static final DatabaseConnection CONNECTION = new HsqlConnection(APPLICATION_CONFIG);
-
     @Before
     public void setUp() throws Exception {
         this.setUpDatabase();
@@ -35,14 +33,26 @@ public final class HsqlConnectionTest extends AbstractTest {
     }
 
     @Test
+    public void testTruncate() throws Exception {
+        testManyInserts();
+        LinkedList<Long> res = ((Finder<Long, Long>) () -> APPLICATION_CONFIG)
+                .findMany(new Query("SELECT id FROM customer"), new HashMap<>()).get();
+        Assert.assertEquals(20, res.size());
+        ((Truncater) () -> APPLICATION_CONFIG).truncate(new Query("TRUNCATE TABLE customer"));
+        LinkedList<Long> res2 = ((Finder<Long, Long>) () -> APPLICATION_CONFIG)
+                .findMany(new Query("SELECT id FROM customer"), new HashMap<>()).get();
+        Assert.assertEquals(0, res2.size());
+    }
+
+    @Test
     public void testManyInserts() throws Exception {
         final Map<DatabaseField<?>, Object> map1 = new LinkedHashMap<>();
         map1.put(Fields.NAME, "offername1");
         map1.put(Fields.PRICE, 1.0F);
         map1.put(Fields.DISPLAYABLE, true);
 
-        final CompletableFuture<Long> productOffer = CONNECTION.insert(
-                new Query("INSERT INTO product_offer VALUES (null, ?, ?, ?)"), map1);
+        CompletableFuture<Long> productOffer = ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG)
+                .insert(new Query("INSERT INTO product_offer VALUES (null, ?, ?, ?)"), map1);
 
         productOffer.thenAccept(offerId1 -> {
             final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
@@ -56,36 +66,37 @@ public final class HsqlConnectionTest extends AbstractTest {
 
             try {
                 CompletableFuture.allOf(
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
 
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
-                        CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map)
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map),
+                        ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map)
                 ).get();
 
-                CompletableFuture<LinkedList<Long>> res = ((Finder<Long, Long>) () -> APPLICATION_CONFIG)
-                        .findMany(new Query("SELECT id FROM customer"), new HashMap<>());
-                Assert.assertEquals(20, res.get().size());
+                LinkedList<Long> res = ((Finder<Long, Long>) () -> APPLICATION_CONFIG)
+                        .findMany(new Query("SELECT id FROM customer"), new HashMap<>()).get();
+                Assert.assertEquals(20, res.size());
             } catch (final InterruptedException | ExecutionException e) {
                 e.printStackTrace();
+                throw new RuntimeException(e);
             }
-        });
+        }).get();
     }
 
     private static final class Fields {

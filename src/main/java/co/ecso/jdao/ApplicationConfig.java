@@ -1,6 +1,6 @@
 package co.ecso.jdao;
 
-import java.sql.SQLException;
+import java.sql.Connection;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -10,6 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * @version $Id:$
  * @since 25.08.16
  */
+@SuppressWarnings("unused")
 public interface ApplicationConfig {
     String getMysqlPoolName();
 
@@ -47,5 +48,5 @@ public interface ApplicationConfig {
 
     ScheduledExecutorService getThreadPool();
 
-    ConnectionPool getConnectionPool();
+    ConnectionPool<Connection> getConnectionPool();
 }

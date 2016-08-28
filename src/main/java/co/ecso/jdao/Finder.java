@@ -19,7 +19,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * @version $Id:$
  * @since 28.08.16
  */
-public interface Finder<R, T> {
+public interface Finder<R, T> extends ConfigGetter {
 
     default R findOne(final Query query, final DatabaseField<T> column, final CompletableFuture<?> whereIdFuture) {
         final CompletableFuture<Object> f = new CompletableFuture<>();
@@ -104,8 +104,6 @@ public interface Finder<R, T> {
         return f;
     }
 
-    ApplicationConfig getConfig();
-
     default ScheduledExecutorService getThreadPool() {
         ScheduledExecutorService threadPool = this.getConfig().getThreadPool();
         if (this.getConfig().getThreadPool() == null) {
@@ -137,4 +135,6 @@ public interface Finder<R, T> {
             }
         }
     }
+
+
 }

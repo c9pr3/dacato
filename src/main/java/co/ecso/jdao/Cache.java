@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
  * @version $Id:$
  * @since 25.08.16
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 public interface Cache<K, V> {
     V getIfPresent(final Object var1);
 

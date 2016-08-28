@@ -17,8 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version $Id:$
  * @since 16.03.16
  */
+@SuppressWarnings("unused")
 public final class MysqlConnection implements DatabaseConnection {
-    private static final Map<Integer, ConnectionPool> CONNECTION_POOL_MAP = new ConcurrentHashMap<>();
+    private static final Map<Integer, ConnectionPool<Connection>> CONNECTION_POOL_MAP = new ConcurrentHashMap<>();
     private ApplicationConfig config;
 
     public MysqlConnection(final ApplicationConfig config) throws SQLException {
@@ -31,8 +32,7 @@ public final class MysqlConnection implements DatabaseConnection {
     @SuppressWarnings("Duplicates")
     @Override
     public Connection pooledConnection() throws SQLException {
-        final ConnectionPool pool = CONNECTION_POOL_MAP.get(config.hashCode());
-        final Connection connection = pool.getConnection();
+        final Connection connection = CONNECTION_POOL_MAP.get(config.hashCode()).getConnection();
         if (connection == null) {
             throw new SQLException(String.format("Could not get connection from pool %s",
                     getConfig().getHsqlPoolName()));

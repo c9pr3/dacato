@@ -1,6 +1,5 @@
 package co.ecso.jdao;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -11,6 +10,6 @@ import java.sql.SQLException;
  * @since 26.08.16
  */
 @FunctionalInterface
-public interface ConnectionPool {
-    Connection getConnection() throws SQLException;
+public interface ConnectionPool<T> {
+    T getConnection() throws SQLException;
 }
