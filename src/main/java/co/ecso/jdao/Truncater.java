@@ -11,11 +11,11 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 28.08.16
  */
-public interface Truncater extends ConfigGetter {
+public interface Truncater extends ConfigFinder {
 
     default CompletableFuture<Boolean> truncate(final Query query) {
         final CompletableFuture<Boolean> f = new CompletableFuture<>();
-        try (final Connection c = getConfig().getConnectionPool().getConnection()) {
+        try (Connection c = config().getConnectionPool().getConnection()) {
             try (final PreparedStatement stmt = c.prepareStatement(query.getQuery())) {
                 final boolean res = stmt.execute();
                 f.complete(res);

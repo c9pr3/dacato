@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 08.08.16
  */
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused"})
 public interface DatabaseEntity<T> {
     T id();
 

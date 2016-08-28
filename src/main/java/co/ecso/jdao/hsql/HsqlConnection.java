@@ -34,15 +34,9 @@ public final class HsqlConnection implements DatabaseConnection {
         final ConnectionPool<Connection> pool = CONNECTION_POOL_MAP.get(config.hashCode());
         final Connection connection = pool.getConnection();
         if (connection == null) {
-            throw new SQLException(String.format("Could not get connection from pool %s",
-                    getConfig().getHsqlPoolName()));
+            throw new SQLException("Could not get connection from pool %s");
         }
         return connection;
-    }
-
-    @Override
-    public ApplicationConfig getConfig() {
-        return this.config;
     }
 
 }

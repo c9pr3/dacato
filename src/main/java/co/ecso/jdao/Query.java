@@ -7,6 +7,7 @@ package co.ecso.jdao;
  * @version $Id:$
  * @since 26.08.16
  */
+@SuppressWarnings("WeakerAccess")
 public class Query {
 
     private final String query;

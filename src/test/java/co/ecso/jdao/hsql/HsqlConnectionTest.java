@@ -35,12 +35,12 @@ public final class HsqlConnectionTest extends AbstractTest {
     @Test
     public void testTruncate() throws Exception {
         testManyInserts();
-        LinkedList<Long> res = ((Finder<Long, Long>) () -> APPLICATION_CONFIG)
-                .findMany(new Query("SELECT id FROM customer"), new HashMap<>()).get();
+        LinkedList<Long> res = ((Finder<Long>) () -> APPLICATION_CONFIG)
+                .findMany(new Query("SELECT %s FROM customer"), Fields.ID, new HashMap<>()).get();
         Assert.assertEquals(20, res.size());
         ((Truncater) () -> APPLICATION_CONFIG).truncate(new Query("TRUNCATE TABLE customer"));
-        LinkedList<Long> res2 = ((Finder<Long, Long>) () -> APPLICATION_CONFIG)
-                .findMany(new Query("SELECT id FROM customer"), new HashMap<>()).get();
+        LinkedList<Long> res2 = ((Finder<Long>) () -> APPLICATION_CONFIG)
+                .findMany(new Query("SELECT %s FROM customer"), Fields.ID, new HashMap<>()).get();
         Assert.assertEquals(0, res2.size());
     }
 
@@ -51,7 +51,7 @@ public final class HsqlConnectionTest extends AbstractTest {
         map1.put(Fields.PRICE, 1.0F);
         map1.put(Fields.DISPLAYABLE, true);
 
-        CompletableFuture<Long> productOffer = ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG)
+        CompletableFuture<Long> productOffer = ((Inserter<Long>) () -> APPLICATION_CONFIG)
                 .insert(new Query("INSERT INTO product_offer VALUES (null, ?, ?, ?)"), map1);
 
         productOffer.thenAccept(offerId1 -> {
@@ -89,8 +89,8 @@ public final class HsqlConnectionTest extends AbstractTest {
                         ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map)
                 ).get();
 
-                LinkedList<Long> res = ((Finder<Long, Long>) () -> APPLICATION_CONFIG)
-                        .findMany(new Query("SELECT id FROM customer"), new HashMap<>()).get();
+                LinkedList<Long> res = ((Finder<Long>) () -> APPLICATION_CONFIG)
+                        .findMany(new Query("SELECT %s FROM customer"), Fields.ID, new HashMap<>()).get();
                 Assert.assertEquals(20, res.size());
             } catch (final InterruptedException | ExecutionException e) {
                 e.printStackTrace();
@@ -100,6 +100,7 @@ public final class HsqlConnectionTest extends AbstractTest {
     }
 
     private static final class Fields {
+        static final DatabaseField<Long> ID = new DatabaseField<>("id", -1L, Types.BIGINT);
         static final DatabaseField<String> THEME = new DatabaseField<>("customer_theme", "", Types.VARCHAR);
         static final DatabaseField<Long> PRODUCT_OFFER_ID = new DatabaseField<>("f_product_offer_id", -1L, Types.BIGINT);
         static final DatabaseField<String> AUTHORITY_ROLE = new DatabaseField<>("customer_authority_role", "", Types.VARCHAR);

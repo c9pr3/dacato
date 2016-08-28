@@ -28,7 +28,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     public void setUp() throws Exception {
         if (CONNECTION == null) {
             CONNECTION = new CachingConnectionWrapper(
-                    new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CACHE);
+                    new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
         }
         this.setUpDatabase();
     }
@@ -41,7 +41,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     @Test
     public void testGetConnection() throws Exception {
         final CachingConnectionWrapper cachedDBConnection = new CachingConnectionWrapper(
-                new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CACHE);
+                new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
         final Connection connection = cachedDBConnection.pooledConnection();
         Assert.assertNotNull(connection);
     }
@@ -52,11 +52,26 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
         final Long newInsertID2 = insertOne().get();
         final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
         map.put(new DatabaseField<>("customer_first_name", "", Types.VARCHAR), "foo");
-        final LinkedList<?> result = CONNECTION.findMany(new Query("SELECT * FROM customer WHERE %s = ?"), map).get();
+        final LinkedList<?> result = CONNECTION.findMany(new Query("SELECT %s FROM customer WHERE %s = ?"),
+                Fields.ID, map).get();
         Assert.assertNotNull(result);
         Assert.assertEquals(2, result.size());
+
         Assert.assertEquals(newInsertID, result.get(0));
         Assert.assertEquals(newInsertID2, result.get(1));
+    }
+
+    @Test
+    public void findManyStrings() throws Exception {
+        insertOne().get();
+        insertOne().get();
+        final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
+        map.put(new DatabaseField<>("customer_first_name", "", Types.VARCHAR), "foo");
+        final LinkedList<?> result = CONNECTION.findMany(new Query("SELECT %s FROM customer WHERE %s = ?"),
+                Fields.FIRST_NAME, map).get();
+        Assert.assertNotNull(result);
+        Assert.assertEquals(2, result.size());
+        result.forEach(r -> Assert.assertEquals(r.getClass(), String.class));
     }
 
     @Test
@@ -67,7 +82,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
         DatabaseField<?> dbField = new DatabaseField<>("id", -1L, Types.BIGINT);
         columns.put(dbField, newInsertID.get());
         final Query query = new Query("SELECT %s FROM customer WHERE %s = ?");
-        CompletableFuture<String> res = ((Finder<CompletableFuture<String>, String>) () -> APPLICATION_CONFIG)
+        CompletableFuture<String> res = ((Finder<String>) () -> APPLICATION_CONFIG)
                 .findOne(query, returnColumn, columns);
         Assert.assertNotNull(res);
         Assert.assertEquals("foo", res.get());
@@ -95,7 +110,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     @Test
     public void removeAll() throws Exception {
         final CachingConnectionWrapper connection = new CachingConnectionWrapper(
-                new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CACHE);
+                new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
 
         connection.truncate(new Query("TRUNCATE TABLE customer")).get();
 
@@ -132,19 +147,19 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
                 CONNECTION.insert(new Query("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)"), map)
         ).get();
 
-        final LinkedList<?> fres = connection.findMany(new Query("SELECT id from customer"),
-                new HashMap<>()).get();
+        final LinkedList<?> fres = connection.findMany(new Query("SELECT %s from customer"),
+                Fields.ID, new HashMap<>()).get();
         Assert.assertEquals(20, fres.size());
         connection.truncate(new Query("TRUNCATE table customer AND COMMIT")).get();
         final LinkedList<?> fres1 = connection.findMany(new Query("SELECT id from customer"),
-                new HashMap<>()).get();
+                Fields.ID, new HashMap<>()).get();
         Assert.assertEquals(0, fres1.size());
     }
 
     @Test
     public void selectIdWithValues() throws Exception {
         final CachingConnectionWrapper connection = new CachingConnectionWrapper(
-                new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CACHE);
+                new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
         Assert.assertNotNull(connection);
 
     }
@@ -152,7 +167,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     @Test
     public void selectString() throws Exception {
         final CachingConnectionWrapper connection = new CachingConnectionWrapper(
-                new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CACHE);
+                new HsqlConnection(APPLICATION_CONFIG), APPLICATION_CONFIG, APPLICATION_CACHE);
         Assert.assertNotNull(connection);
 
     }
@@ -167,6 +182,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     }
 
     private static final class Fields {
+        static final DatabaseField<Long> ID = new DatabaseField<>("id", -1L, Types.BIGINT);
         static final DatabaseField<String> THEME = new DatabaseField<>("customer_theme", "", Types.VARCHAR);
         static final DatabaseField<Long> PRODUCT_OFFER_ID = new DatabaseField<>("f_product_offer_id", -1L, Types.BIGINT);
         static final DatabaseField<String> AUTHORITY_ROLE = new DatabaseField<>("customer_authority_role", "", Types.VARCHAR);

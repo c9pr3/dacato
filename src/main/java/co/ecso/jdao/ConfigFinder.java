@@ -1,12 +1,13 @@
 package co.ecso.jdao;
 
 /**
- * CLASS
+ * ConfigFinder.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 28.08.16
  */
-interface ConfigGetter {
-    ApplicationConfig getConfig();
+@FunctionalInterface
+interface ConfigFinder {
+    ApplicationConfig config();
 }

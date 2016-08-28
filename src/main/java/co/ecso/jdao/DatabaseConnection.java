@@ -13,7 +13,4 @@ import java.sql.SQLException;
 public interface DatabaseConnection {
 
     Connection pooledConnection() throws SQLException;
-
-    ApplicationConfig getConfig();
-
 }

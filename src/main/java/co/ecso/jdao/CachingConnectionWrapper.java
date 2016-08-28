@@ -19,16 +19,17 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @SuppressWarnings({"unchecked", "WeakerAccess"})
 public final class CachingConnectionWrapper implements DatabaseConnection {
-    private final DatabaseConnection databaseConnection;
     private static final Map<Integer, Cache<CacheKey, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();
+    private final DatabaseConnection databaseConnection;
     private final ApplicationConfig config;
 
-    public CachingConnectionWrapper(final DatabaseConnection databaseConnection, final Cache cache) {
+    public CachingConnectionWrapper(final DatabaseConnection databaseConnection, final ApplicationConfig config,
+                                    final Cache cache) {
         this.databaseConnection = databaseConnection;
         synchronized (CACHE_MAP) {
             CACHE_MAP.putIfAbsent(databaseConnection.hashCode(), cache);
         }
-        this.config = databaseConnection.getConfig();
+        this.config = config;
     }
 
     @Override
@@ -39,17 +40,16 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
         return this.databaseConnection.pooledConnection();
     }
 
-    @Override
-    public ApplicationConfig getConfig() {
-        return this.config;
-    }
+//    public ApplicationConfig getConfig() {
+//        return this.config;
+//    }
 
     public CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column,
-                                           final CompletableFuture<Long> whereIdFuture) {
+                                        final CompletableFuture<Long> whereIdFuture) {
         synchronized (CACHE_MAP) {
             final CacheKey cacheKey = new CacheKey<>(query.getQuery(), column, whereIdFuture);
             return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-                    ((Finder<CompletableFuture<Long>, Long>) databaseConnection::getConfig)
+                    ((Finder<Long>) () -> config)
                             .findOne(query, cacheKey.columnName(), cacheKey.whereId()));
         }
     }
@@ -58,21 +58,25 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
         synchronized (CACHE_MAP) {
             return ((Truncater) () -> config).truncate(query)
                     .thenApply(rVal -> {
-                if (rVal) {
-                    CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
-                    CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
-                }
-                return rVal;
-            });
+                        if (rVal) {
+                            CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
+                            CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
+                        }
+                        return rVal;
+                    });
         }
     }
 
-    public CompletableFuture<LinkedList<?>> findMany(final Query query, Map<DatabaseField<?>, ?> map) throws SQLException {
+    public CompletableFuture<LinkedList<?>> findMany(final Query query, DatabaseField<?> selector,
+                                                        Map<DatabaseField<?>, ?> map) throws SQLException {
         synchronized (CACHE_MAP) {
-            final CacheKey cacheKey = new CacheKey(query.getQuery(), new DatabaseField<>("*", "", Types.VARCHAR),
-                    CompletableFuture.completedFuture(-1L));
-            return (CompletableFuture<LinkedList<?>>) CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-                    ((Finder<Long, Long>) databaseConnection::getConfig).findMany(query, map));
+//            final CacheKey cacheKey = new CacheKey(query.getQuery(), new DatabaseField<>("id", -1L, Types.BIGINT),
+//                    CompletableFuture.completedFuture(-1L));
+
+            final CacheKey cacheKey = new CacheKey(query.getQuery(), selector, CompletableFuture.completedFuture(null));
+
+            return (CompletableFuture<LinkedList<?>>) CACHE_MAP.get(databaseConnection.hashCode())
+                    .get(cacheKey, () -> ((Finder<Long>) () -> config).findMany(query, selector, map));
         }
     }
 
@@ -104,10 +108,10 @@ public final class CachingConnectionWrapper implements DatabaseConnection {
             CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
             CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
         }
-        return ((Inserter<CompletableFuture<Long>>) () -> config).insert(query, map);
+        return ((Inserter<Long>) () -> config).insert(query, map);
     }
 
-//    @Override
+    //    @Override
 //    public CompletableFuture<Boolean> update(final String tableName,
 //                                             final Map<DatabaseField<?>, ? extends Comparable> map,
 //                                             final CompletableFuture<?> whereId) {
