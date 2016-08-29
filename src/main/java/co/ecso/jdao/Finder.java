@@ -56,19 +56,6 @@ public interface Finder<R> extends ConfigGetter {
         return f;
     }
 
-    default void fillStatement(final Map<DatabaseField<?>, ?> columnsToSelect, final PreparedStatement stmt)
-            throws SQLException {
-        for (int i = 1; i <= columnsToSelect.size(); i++) {
-            final int sqlType = ((DatabaseField) columnsToSelect.keySet().toArray()[i - 1]).sqlType();
-            final Object valueToSet = columnsToSelect.values().toArray()[i - 1];
-            try {
-                stmt.setObject(i, valueToSet, sqlType);
-            } catch (final SQLDataException | SQLSyntaxErrorException e) {
-                throw new SQLException(String.format("Could not set %s to %d: %s", valueToSet, sqlType, e));
-            }
-        }
-    }
-
     default CompletableFuture<LinkedList<R>> findMany(final Query query, DatabaseField<?> selector,
                                                       final Map<DatabaseField<?>, ?> columns) {
 
@@ -107,6 +94,19 @@ public interface Finder<R> extends ConfigGetter {
             }
         }, config().getThreadPool());
         return returnFuture;
+    }
+
+    default void fillStatement(final Map<DatabaseField<?>, ?> columnsToSelect, final PreparedStatement stmt)
+            throws SQLException {
+        for (int i = 1; i <= columnsToSelect.size(); i++) {
+            final int sqlType = ((DatabaseField) columnsToSelect.keySet().toArray()[i - 1]).sqlType();
+            final Object valueToSet = columnsToSelect.values().toArray()[i - 1];
+            try {
+                stmt.setObject(i, valueToSet, sqlType);
+            } catch (final SQLDataException | SQLSyntaxErrorException e) {
+                throw new SQLException(String.format("Could not set %s to %d: %s", valueToSet, sqlType, e));
+            }
+        }
     }
 
     default void getResult(final Query query, final DatabaseField<R> selector,
