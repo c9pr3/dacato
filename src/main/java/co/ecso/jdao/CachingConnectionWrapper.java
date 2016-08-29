@@ -18,28 +18,37 @@ import java.util.concurrent.ExecutionException;
  * @since 02.07.16
  */
 @SuppressWarnings({"unchecked", "WeakerAccess"})
-public class CachingConnectionWrapper extends PooledDatabaseConnection {
+public class CachingConnectionWrapper {
+    private static final Object MUTEX = new Object();
     private static final Map<Integer, Cache<CacheKey, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();
+    private static final Map<Integer, ConnectionPool<Connection>> CONNECTION_POOL_MAP = new ConcurrentHashMap<>();
     private final Connection databaseConnection;
     private final ApplicationConfig config;
 
     public CachingConnectionWrapper(final ApplicationConfig config, final Cache cache) throws SQLException {
-        super(config);
-        this.databaseConnection = config.getConnectionPool().getConnection();
-        synchronized (CACHE_MAP) {
+        synchronized (MUTEX) {
+            if (!CONNECTION_POOL_MAP.containsKey(config.hashCode())) {
+                CONNECTION_POOL_MAP.putIfAbsent(config.hashCode(), config.getConnectionPool());
+            }
+            this.databaseConnection = CONNECTION_POOL_MAP.get(config.hashCode()).getConnection();
+            this.config = config;
             CACHE_MAP.putIfAbsent(databaseConnection.hashCode(), cache);
         }
-        this.config = config;
     }
 
-    @Override
-    public final Connection pooledConnection() throws SQLException {
-        return databaseConnection;
-    }
+//    private Connection pooledConnection() throws SQLException {
+//        synchronized (MUTEX) {
+//            final Connection connection = CONNECTION_POOL_MAP.get(config.hashCode()).getConnection();
+//            if (connection == null) {
+//                throw new SQLException("Could not get connection from pool");
+//            }
+//            return connection;
+//        }
+//    }
 
     public final CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column,
                                         final CompletableFuture<Long> whereIdFuture) throws ExecutionException {
-        synchronized (CACHE_MAP) {
+        synchronized (MUTEX) {
             final CacheKey cacheKey = new CacheKey<>(query.getQuery(), column, whereIdFuture);
             return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
                     ((Finder<Long>) () -> config)
@@ -49,7 +58,7 @@ public class CachingConnectionWrapper extends PooledDatabaseConnection {
 
     public final CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column,
                                         final Map<DatabaseField<?>, ?> columnsToSelect) throws ExecutionException {
-        synchronized (CACHE_MAP) {
+        synchronized (MUTEX) {
             final CacheKey cacheKey = new CacheKey<>(query.getQuery(), column,
                     CompletableFuture.completedFuture(columnsToSelect));
             return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
@@ -59,7 +68,7 @@ public class CachingConnectionWrapper extends PooledDatabaseConnection {
     }
 
     public final CompletableFuture<Boolean> truncate(final Query query) {
-        synchronized (CACHE_MAP) {
+        synchronized (MUTEX) {
             return ((Truncater) () -> config).truncate(query)
                     .thenApply(rVal -> {
                         if (rVal) {
@@ -74,7 +83,7 @@ public class CachingConnectionWrapper extends PooledDatabaseConnection {
     public final CompletableFuture<List<?>> findMany(final Query query, final DatabaseField<?> selector,
                                                final Map<DatabaseField<?>, ?> map) throws SQLException,
             ExecutionException {
-        synchronized (CACHE_MAP) {
+        synchronized (MUTEX) {
             final CacheKey cacheKey = new CacheKey(query.getQuery(), selector, CompletableFuture.completedFuture(null));
             return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode())
                     .get(cacheKey, () -> ((Finder<Long>) () -> config).findMany(query, selector, map));
@@ -105,7 +114,7 @@ public class CachingConnectionWrapper extends PooledDatabaseConnection {
 //    }
 
     public final CompletableFuture<Long> insert(final Query query, final Map<DatabaseField<?>, ?> map) {
-        synchronized (CACHE_MAP) {
+        synchronized (MUTEX) {
             CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
             CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
         }

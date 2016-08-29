@@ -5,7 +5,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.Connection;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -34,14 +33,6 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     @After
     public void tearDown() throws Exception {
         this.cleanupDatabase();
-    }
-
-    @Test
-    public void testGetConnection() throws Exception {
-        final CachingConnectionWrapper cachedDBConnection =
-                new CachingConnectionWrapper(APPLICATION_CONFIG, APPLICATION_CACHE);
-        final Connection connection = cachedDBConnection.pooledConnection();
-        Assert.assertNotNull(connection);
     }
 
     @Test

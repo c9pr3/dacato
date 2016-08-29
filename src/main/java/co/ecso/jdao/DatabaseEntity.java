@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 public interface DatabaseEntity<T> {
     T id();
 
-    CompletableFuture<? extends DatabaseEntity> save(final Map<DatabaseField<?>, ? extends Comparable> map);
+    CompletableFuture<? extends DatabaseEntity> save(final Map<DatabaseField<?>, ?> map);
 
     String toJson() throws SQLException;
 

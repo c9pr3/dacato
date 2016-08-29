@@ -119,23 +119,20 @@ public interface Finder<R> extends ConfigGetter {
             if (!rs.next()) {
                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
             }
-            final R rval = (R) rs.getObject(selector.toString().trim(), selector.valueClass());
+            final R rval = (R) rs.getObject(1, selector.valueClass());
             if (rval == null) {
-//                throw new SQLException(String.format("Result for %s, %s was null",
-//                        column.toString(), query.getQuery()));
                 rvalFuture.complete(null);
             } else {
                 //noinspection unchecked
-                R retVal = (R) rs.getObject(1, selector.valueClass());
                 if (selector.valueClass() == String.class) {
                     //noinspection unchecked
-                    rvalFuture.complete((R) retVal.toString().trim());
+                    rvalFuture.complete((R) rval.toString().trim());
                 } else if (selector.valueClass() == Boolean.class) {
-                    final Boolean boolVal = retVal.toString().trim().equals("1");
+                    final Boolean boolVal = rval.toString().trim().equals("1");
                     //noinspection unchecked
                     rvalFuture.complete((R) boolVal);
                 } else {
-                    rvalFuture.complete(retVal);
+                    rvalFuture.complete(rval);
                 }
             }
         }
