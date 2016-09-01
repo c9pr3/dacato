@@ -3,6 +3,7 @@ package co.ecso.jdao;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,16 +37,6 @@ public class CachingConnectionWrapper {
         }
     }
 
-//    private Connection pooledConnection() throws SQLException {
-//        synchronized (MUTEX) {
-//            final Connection connection = CONNECTION_POOL_MAP.get(config.hashCode()).getConnection();
-//            if (connection == null) {
-//                throw new SQLException("Could not get connection from pool");
-//            }
-//            return connection;
-//        }
-//    }
-
     public final CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column,
                                         final CompletableFuture<Long> whereIdFuture) throws ExecutionException {
         synchronized (MUTEX) {
@@ -57,7 +48,8 @@ public class CachingConnectionWrapper {
     }
 
     public final CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column,
-                                        final Map<DatabaseField<?>, ?> columnsToSelect) throws ExecutionException {
+                                        final LinkedHashMap<DatabaseField<?>, ?> columnsToSelect)
+            throws ExecutionException {
         synchronized (MUTEX) {
             final CacheKey cacheKey = new CacheKey<>(query.getQuery(), column,
                     CompletableFuture.completedFuture(columnsToSelect));
@@ -81,7 +73,7 @@ public class CachingConnectionWrapper {
     }
 
     public final CompletableFuture<List<?>> findMany(final Query query, final DatabaseField<?> selector,
-                                               final Map<DatabaseField<?>, ?> map) throws SQLException,
+                                               final LinkedHashMap<DatabaseField<?>, ?> map) throws SQLException,
             ExecutionException {
         synchronized (MUTEX) {
             final CacheKey cacheKey = new CacheKey(query.getQuery(), selector, CompletableFuture.completedFuture(null));
@@ -90,30 +82,7 @@ public class CachingConnectionWrapper {
         }
     }
 
-//    @Override
-//    public CompletableFuture<Long> selectIdWithValues(final Query query, final Map<DatabaseField<?>, ?> values) {
-//        final CacheKey cacheKey = new CacheKey(tableName, values);
-//        try {
-//            return (CompletableFuture<Long>) CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-//                    this.databaseConnection.selectIdWithValues(cacheKey.tableName(), cacheKey.values()));
-//        } catch (final ExecutionException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    @Override
-//    public CompletableFuture<List<Long>> selectIdsWithValues(final String tableName,
-//                                                             final Map<DatabaseField<?>, ?> values) {
-//        final CacheKey cacheKey = new CacheKey(tableName, values);
-//        try {
-//            return (CompletableFuture<List<Long>>) CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-//                    this.databaseConnection.selectIdsWithValues(tableName, values));
-//        } catch (final ExecutionException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-    public final CompletableFuture<Long> insert(final Query query, final Map<DatabaseField<?>, ?> map) {
+    public final CompletableFuture<Long> insert(final Query query, final LinkedHashMap<DatabaseField<?>, ?> map) {
         synchronized (MUTEX) {
             CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
             CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
@@ -121,15 +90,13 @@ public class CachingConnectionWrapper {
         return ((Inserter<Long>) () -> config).insert(query, map);
     }
 
-    //    @Override
-//    public CompletableFuture<Boolean> update(final String tableName,
-//                                             final Map<DatabaseField<?>, ? extends Comparable> map,
-//                                             final CompletableFuture<?> whereId) {
-//        CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
-//        CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
-//        return this.databaseConnection.update(tableName, map, whereId);
-//    }
-//
+    public CompletableFuture<Boolean> update(final Query query, final LinkedHashMap<DatabaseField<?>, ?> map,
+                                             final CompletableFuture<?> whereId) {
+        CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
+        CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
+        return ((Updater) () -> config).update(query, map, whereId);
+    }
+
     @SuppressWarnings("WeakerAccess")
     public static final class CacheKey<T> implements Serializable {
 

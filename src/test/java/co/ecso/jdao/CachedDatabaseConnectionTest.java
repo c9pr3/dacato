@@ -6,11 +6,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.Types;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * CachedDatabaseConnectionTest.
@@ -39,7 +37,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     public void findMany() throws Exception {
         final Long newInsertID = insertOne().get();
         final Long newInsertID2 = insertOne().get();
-        final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
+        final LinkedHashMap<DatabaseField<?>, Object> map = new LinkedHashMap<>();
         map.put(new DatabaseField<>("customer_first_name", "", Types.VARCHAR), "foo");
         final List<?> result = CONNECTION.findMany(new Query("SELECT %s FROM customer WHERE %s = ?"),
                 Fields.ID, map).get();
@@ -54,7 +52,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     public void findManyStrings() throws Exception {
         insertOne().get();
         insertOne().get();
-        final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
+        final LinkedHashMap<DatabaseField<?>, Object> map = new LinkedHashMap<>();
         map.put(new DatabaseField<>("customer_first_name", "", Types.VARCHAR), "foo");
         final List<?> result = CONNECTION.findMany(new Query("SELECT %s FROM customer WHERE %s = ?"),
                 Fields.FIRST_NAME, map).get();
@@ -67,7 +65,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     public void findOneWithMap() throws Exception {
         final CompletableFuture<Long> newInsertID = insertOne();
         final DatabaseField<String> returnColumn = new DatabaseField<>("customer_first_name", "", Types.VARCHAR);
-        final Map<DatabaseField<?>, Object> columns = new LinkedHashMap<>();
+        final LinkedHashMap<DatabaseField<?>, Object> columns = new LinkedHashMap<>();
         DatabaseField<?> dbField = new DatabaseField<>("id", -1L, Types.BIGINT);
         columns.put(dbField, newInsertID.get());
         final Query query = new Query("SELECT %s FROM customer WHERE %s = ?");
@@ -98,12 +96,68 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     }
 
     @Test
+    public void testFindMultiple() throws Exception {
+        CompletableFuture<Long> id = insertOne();
+        CompletableFuture<String> firstName = ((Finder<String>) () -> APPLICATION_CONFIG)
+                .findOne(new Query("SELECT %s FROM customer WHERE id = ?"),
+                        new DatabaseField<>("customer_first_name", "", Types.VARCHAR), id);
+
+        final Query query = new Query("SELECT %s, %s, %s FROM customer WHERE %s = ? AND %s = ?");
+
+        final LinkedList<DatabaseField<?>> columnsToReturn = new LinkedList<>();
+        columnsToReturn.add(new DatabaseField<>("id", -1L, Types.BIGINT));
+        columnsToReturn.add(new DatabaseField<>("customer_first_name", "", Types.VARCHAR));
+        columnsToReturn.add(new DatabaseField<>("customer_login_password", "", Types.VARCHAR));
+
+        final LinkedHashMap<DatabaseField<?>, Object> columnsToSelect = new LinkedHashMap<>();
+        columnsToSelect.put(new DatabaseField<>("id", -1L, Types.BIGINT), id.get());
+        columnsToSelect.put(new DatabaseField<>("customer_first_name", "", Types.VARCHAR), firstName.get());
+
+        final CompletableFuture<LinkedList<?>> rval = ((MultipleReturnFinder<Void>) () -> APPLICATION_CONFIG)
+                .findeOne(query, columnsToReturn, columnsToSelect);
+
+        final List<?> resList = rval.get(10, TimeUnit.SECONDS);
+
+        Assert.assertEquals(3, resList.size());
+        Assert.assertEquals("foo", resList.get(1));
+        Assert.assertEquals("password", resList.get(2));
+    }
+
+    @Test
+    public void update() throws Exception {
+        final CachingConnectionWrapper connection = new CachingConnectionWrapper(APPLICATION_CONFIG, APPLICATION_CACHE);
+        final CompletableFuture<Long> found = connection.findOne(new Query("SELECT %s FROM customer WHERE id = ?"),
+                new DatabaseField<>("id", -1L, Types.BIGINT), insertOne()).handle((ok, ex) -> {
+                    if (ex != null) {
+                        ex.printStackTrace();
+                    }
+                    return Long.valueOf(ok.toString().trim());
+        });
+        Assert.assertNotNull(found);
+
+        final String firstName = (String)connection.findOne(new Query("SELECT %s FROM customer WHERE id = ?"),
+                new DatabaseField<>("customer_first_name", "", Types.VARCHAR), found).get();
+        Assert.assertNotNull(firstName);
+        Assert.assertEquals("foo", firstName);
+
+        final LinkedHashMap<DatabaseField<?>, Object> map = new LinkedHashMap<>();
+        map.put(new DatabaseField<>("customer_first_name", null, Types.VARCHAR), "foo1");
+        final Boolean updated = connection.update(new Query("UPDATE customer SET %s = ? WHERE %s = ?"), map, found).get();
+        Assert.assertTrue(updated);
+
+        final String firstName1 = (String)connection.findOne(new Query("SELECT %s FROM customer WHERE id = ?"),
+                new DatabaseField<>("customer_first_name", "", Types.VARCHAR), found).get();
+        Assert.assertNotNull(firstName1);
+        Assert.assertEquals("foo1", firstName1);
+    }
+
+    @Test
     public void removeAll() throws Exception {
         final CachingConnectionWrapper connection = new CachingConnectionWrapper(APPLICATION_CONFIG, APPLICATION_CACHE);
 
         connection.truncate(new Query("TRUNCATE TABLE customer")).get();
 
-        final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
+        final LinkedHashMap<DatabaseField<?>, Object> map = new LinkedHashMap<>();
         map.put(Fields.FIRST_NAME, "firstName");
         map.put(Fields.LOGIN_PASSWORD, "loginPW");
         map.put(Fields.NUMBER, 1234L);
@@ -138,26 +192,12 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
                 .get();
 
         final List<?> fres = connection.findMany(new Query("SELECT %s from customer"),
-                Fields.ID, new HashMap<>()).get();
+                Fields.ID, new LinkedHashMap<>()).get();
         Assert.assertEquals(20, fres.size());
         connection.truncate(new Query("TRUNCATE table customer AND COMMIT")).get();
         final List<?> fres1 = connection.findMany(new Query("SELECT id from customer"),
-                Fields.ID, new HashMap<>()).get();
+                Fields.ID, new LinkedHashMap<>()).get();
         Assert.assertEquals(0, fres1.size());
-    }
-
-    @Test
-    public void selectIdWithValues() throws Exception {
-        final CachingConnectionWrapper connection = new CachingConnectionWrapper(APPLICATION_CONFIG, APPLICATION_CACHE);
-        Assert.assertNotNull(connection);
-
-    }
-
-    @Test
-    public void selectString() throws Exception {
-        final CachingConnectionWrapper connection = new CachingConnectionWrapper(APPLICATION_CONFIG, APPLICATION_CACHE);
-        Assert.assertNotNull(connection);
-
     }
 
     private CompletableFuture<Long> insertOne() {

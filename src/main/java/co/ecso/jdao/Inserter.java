@@ -1,7 +1,7 @@
 package co.ecso.jdao;
 
 import java.sql.*;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -13,9 +13,10 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 28.08.16
  */
+@SuppressWarnings("Duplicates")
 public interface Inserter<T> extends ConfigGetter {
 
-    default CompletableFuture<T> insert(final Query query, final Map<DatabaseField<?>, ?> values) {
+    default CompletableFuture<T> insert(final Query query, final LinkedHashMap<DatabaseField<?>, ?> values) {
         final CompletableFuture<T> returnValue = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {
@@ -23,7 +24,6 @@ public interface Inserter<T> extends ConfigGetter {
                     try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(),
                             Statement.RETURN_GENERATED_KEYS)) {
                         fillStatement(values, stmt);
-                        stmt.executeUpdate();
                         getResult(query, returnValue, stmt);
                     }
                 }
@@ -39,6 +39,7 @@ public interface Inserter<T> extends ConfigGetter {
         Objects.nonNull(query);
         Objects.nonNull(retValFuture);
         Objects.nonNull(stmt);
+        stmt.executeUpdate();
         try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
             if (!generatedKeys.next()) {
                 throw new SQLException(String.format("Query %s failed, resultset empty",
@@ -49,7 +50,7 @@ public interface Inserter<T> extends ConfigGetter {
         }
     }
 
-    default void fillStatement(final Map<DatabaseField<?>, ?> values, final PreparedStatement stmt)
+    default void fillStatement(final LinkedHashMap<DatabaseField<?>, ?> values, final PreparedStatement stmt)
             throws SQLException {
         int i = 1;
         for (final DatabaseField<?> databaseField : values.keySet()) {

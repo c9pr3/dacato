@@ -1,25 +1,25 @@
 package co.ecso.jdao;
 
 import java.sql.*;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Finder.
  *
- * @param <R> ReturnValue, p.e. Long or String
+ * @param <T> ReturnValue, p.e. Long or String
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 28.08.16
  */
-public interface Finder<R> extends ConfigGetter {
+public interface Finder<T> extends ConfigGetter {
 
-    default CompletableFuture<R> findOne(final Query query, final DatabaseField<R> columnToReturn,
+    default CompletableFuture<T> findOne(final Query query, final DatabaseField<T> columnToReturn,
                                          final CompletableFuture<?> whereFuture) {
-        final CompletableFuture<R> returnValueFuture = new CompletableFuture<>();
+        final CompletableFuture<T> returnValueFuture = new CompletableFuture<>();
         whereFuture.thenAccept(whereId -> {
             try {
                 final String finalQuery = String.format(query.getQuery(), columnToReturn);
@@ -36,9 +36,9 @@ public interface Finder<R> extends ConfigGetter {
         return returnValueFuture;
     }
 
-    default CompletableFuture<R> findOne(final Query query, final DatabaseField<R> columnToReturn,
-                                         final Map<DatabaseField<?>, ?> columnsToSelect) {
-        final CompletableFuture<R> f = new CompletableFuture<>();
+    default CompletableFuture<T> findOne(final Query query, final DatabaseField<T> columnToReturn,
+                                         final LinkedHashMap<DatabaseField<?>, ?> columnsToSelect) {
+        final CompletableFuture<T> f = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try (Connection c = config().getConnectionPool().getConnection()) {
                 final List<DatabaseField> newArr = new LinkedList<>();
@@ -56,39 +56,21 @@ public interface Finder<R> extends ConfigGetter {
         return f;
     }
 
-    default CompletableFuture<LinkedList<R>> findMany(final Query query, DatabaseField<?> selector,
-                                                      final Map<DatabaseField<?>, ?> columns) {
-
-        final CompletableFuture<LinkedList<R>> returnFuture = new CompletableFuture<>();
-        final LinkedList<R> futureList = new LinkedList<>();
+    default CompletableFuture<LinkedList<T>> findMany(final Query query, DatabaseField<?> selector,
+                                                      final LinkedHashMap<DatabaseField<?>, ?> columns) {
+        final CompletableFuture<LinkedList<T>> returnFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {
-                LinkedList<DatabaseField<?>> newColumns = new LinkedList<>();
+                final LinkedList<DatabaseField<?>> newColumns = new LinkedList<>();
                 newColumns.add(selector);
                 newColumns.addAll(columns.keySet());
                 final String finalQuery = String.format(query.getQuery(), newColumns.toArray());
-                try (Connection c = config().getConnectionPool().getConnection()) {
+                try (final Connection c = config().getConnectionPool().getConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                         fillStatement(columns, stmt);
-                        try (final ResultSet rs = stmt.executeQuery()) {
-                            while (rs.next()) {
-                                //noinspection unchecked
-                                R rval = (R) rs.getObject(1, selector.valueClass());
-                                if (selector.valueClass() == String.class) {
-                                    //noinspection unchecked
-                                    futureList.add((R) rval.toString().trim());
-                                } else if (selector.valueClass() == Boolean.class) {
-                                    final Boolean boolVal = rval.toString().trim().equals("1");
-                                    //noinspection unchecked
-                                    futureList.add((R) boolVal);
-                                } else {
-                                    futureList.add(rval);
-                                }
-                            }
-                        }
+                        getResult(selector, returnFuture, stmt);
                     }
                 }
-                returnFuture.complete(futureList);
             } catch (final Exception e) {
                 returnFuture.completeExceptionally(e);
             }
@@ -96,7 +78,7 @@ public interface Finder<R> extends ConfigGetter {
         return returnFuture;
     }
 
-    default void fillStatement(final Map<DatabaseField<?>, ?> columnsToSelect, final PreparedStatement stmt)
+    default void fillStatement(final LinkedHashMap<DatabaseField<?>, ?> columnsToSelect, final PreparedStatement stmt)
             throws SQLException {
         for (int i = 1; i <= columnsToSelect.size(); i++) {
             final int sqlType = ((DatabaseField) columnsToSelect.keySet().toArray()[i - 1]).sqlType();
@@ -109,8 +91,30 @@ public interface Finder<R> extends ConfigGetter {
         }
     }
 
-    default void getResult(final Query query, final DatabaseField<R> selector,
-                           final CompletableFuture<R> rvalFuture, final PreparedStatement stmt) throws SQLException {
+    default void getResult(final DatabaseField<?> selector, final CompletableFuture<LinkedList<T>> returnFuture,
+                           final PreparedStatement stmt) throws SQLException {
+        final LinkedList<T> futureList = new LinkedList<>();
+        try (final ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                //noinspection unchecked
+                final T rval = (T) rs.getObject(1, selector.valueClass());
+                if (selector.valueClass() == String.class) {
+                    //noinspection unchecked
+                    futureList.add((T) rval.toString().trim());
+                } else if (selector.valueClass() == Boolean.class) {
+                    final Boolean boolVal = rval.toString().trim().equals("1");
+                    //noinspection unchecked
+                    futureList.add((T) boolVal);
+                } else {
+                    futureList.add(rval);
+                }
+            }
+        }
+        returnFuture.complete(futureList);
+    }
+
+    default void getResult(final Query query, final DatabaseField<T> selector,
+                           final CompletableFuture<T> rvalFuture, final PreparedStatement stmt) throws SQLException {
         Objects.nonNull(query);
         Objects.nonNull(selector);
         Objects.nonNull(rvalFuture);
@@ -119,18 +123,18 @@ public interface Finder<R> extends ConfigGetter {
             if (!rs.next()) {
                 throw new SQLException(String.format("Query %s failed, resultset empty", query.getQuery()));
             }
-            final R rval = (R) rs.getObject(1, selector.valueClass());
+            final T rval = (T) rs.getObject(1, selector.valueClass());
             if (rval == null) {
                 rvalFuture.complete(null);
             } else {
                 //noinspection unchecked
                 if (selector.valueClass() == String.class) {
                     //noinspection unchecked
-                    rvalFuture.complete((R) rval.toString().trim());
+                    rvalFuture.complete((T) rval.toString().trim());
                 } else if (selector.valueClass() == Boolean.class) {
                     final Boolean boolVal = rval.toString().trim().equals("1");
                     //noinspection unchecked
-                    rvalFuture.complete((R) boolVal);
+                    rvalFuture.complete((T) boolVal);
                 } else {
                     rvalFuture.complete(rval);
                 }
