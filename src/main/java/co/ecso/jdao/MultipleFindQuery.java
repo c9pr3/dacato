@@ -27,14 +27,6 @@ public final class MultipleFindQuery {
         this.query = query;
     }
 
-//    public MultipleFindQuery(final String query, final List<DatabaseField<?>> columnsToSelect,
-//                             final List<DatabaseField<?>> columnsWhere) {
-//        this.columnsToSelect = columnsToSelect;
-//        this.columnsWhere = columnsWhere;
-//        this.whereFuture = CompletableFuture.completedFuture(null);
-//        this.query = query;
-//    }
-
     public MultipleFindQuery(final String query, final List<DatabaseField<?>> columnsToSelect) {
         this.columnsToSelect = columnsToSelect;
         this.columnsWhere = new LinkedList<>();

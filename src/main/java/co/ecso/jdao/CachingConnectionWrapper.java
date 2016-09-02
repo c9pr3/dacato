@@ -17,15 +17,16 @@ import java.util.concurrent.ExecutionException;
  * @version $Id:$
  * @since 02.07.16
  */
-@SuppressWarnings({"unchecked", "WeakerAccess"})
+@SuppressWarnings("WeakerAccess")
 public class CachingConnectionWrapper {
     private static final Object MUTEX = new Object();
-    private static final Map<Integer, Cache<CacheKey, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();
+    private static final Map<Integer, Cache<CacheKey<?>, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();
     private static final Map<Integer, ConnectionPool<Connection>> CONNECTION_POOL_MAP = new ConcurrentHashMap<>();
     private final Connection databaseConnection;
     private final ApplicationConfig config;
 
-    public CachingConnectionWrapper(final ApplicationConfig config, final Cache cache) throws SQLException {
+    public CachingConnectionWrapper(final ApplicationConfig config,
+                                    final Cache<CacheKey<?>, CompletableFuture<?>> cache) throws SQLException {
         synchronized (MUTEX) {
             if (!CONNECTION_POOL_MAP.containsKey(config.hashCode())) {
                 CONNECTION_POOL_MAP.putIfAbsent(config.hashCode(), config.getConnectionPool());
@@ -74,6 +75,7 @@ public class CachingConnectionWrapper {
                                         final List<DatabaseField<?>> columnsWhere) throws ExecutionException {
         synchronized (MUTEX) {
             final CacheKey cacheKey = new CacheKey<>(query, column, CompletableFuture.completedFuture(columnsWhere));
+            //noinspection unchecked
             return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
                     ((SingleReturnFinder) () -> config)
                             .find(new SingleFindQuery<>(query, column, columnsWhere)));

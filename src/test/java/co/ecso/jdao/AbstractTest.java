@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractTest {
 
-    static final Cache<Object, CompletableFuture<?>> APPLICATION_CACHE = new FakeCache();
+    static final Cache<CachingConnectionWrapper.CacheKey<?>, CompletableFuture<?>> APPLICATION_CACHE = new FakeCache();
 
     protected static final ApplicationConfig APPLICATION_CONFIG = new ApplicationConfig() {
 

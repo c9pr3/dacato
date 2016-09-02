@@ -2,7 +2,6 @@ package co.ecso.jdao;
 
 import java.sql.*;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -35,9 +34,6 @@ public interface Inserter<T> extends ConfigGetter {
 
     default void getResult(final String query, final CompletableFuture<T> retValFuture, final PreparedStatement stmt)
             throws SQLException {
-        Objects.nonNull(query);
-        Objects.nonNull(retValFuture);
-        Objects.nonNull(stmt);
         stmt.executeUpdate();
         try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
             if (!generatedKeys.next()) {
