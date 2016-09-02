@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 08.08.16
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-public interface DatabaseEntity<T> {
+public interface DatabaseEntity<T> extends SingleReturnFinder<T>, MultipleReturnFinder {
     T id();
 
     CompletableFuture<? extends DatabaseEntity> save(final Map<DatabaseField<?>, ?> map);
@@ -20,4 +20,5 @@ public interface DatabaseEntity<T> {
     String toJson() throws SQLException;
 
     void checkValidity();
+
 }

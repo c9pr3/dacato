@@ -70,7 +70,7 @@ public abstract class AbstractTest {
 
         @Override
         public String getConnectString() {
-            return "jdbc:hsqldb:wpconfig.mem";
+            return "jdbc:hsqldb:mem:jdao";
         }
 
         @Override
@@ -137,7 +137,7 @@ public abstract class AbstractTest {
 
     private JDBCDataSource getDataSource() {
         final JDBCDataSource dataSource = new JDBCDataSource();
-        dataSource.setUrl("jdbc:hsqldb:wpconfig.mem");
+        dataSource.setUrl("jdbc:hsqldb:mem:jdao");
         return dataSource;
     }
 

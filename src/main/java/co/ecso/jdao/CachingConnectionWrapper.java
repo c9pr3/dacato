@@ -3,7 +3,6 @@ package co.ecso.jdao;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,29 +36,7 @@ public class CachingConnectionWrapper {
         }
     }
 
-    public final CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column,
-                                        final CompletableFuture<Long> whereIdFuture) throws ExecutionException {
-        synchronized (MUTEX) {
-            final CacheKey cacheKey = new CacheKey<>(query.getQuery(), column, whereIdFuture);
-            return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-                    ((Finder<Long>) () -> config)
-                            .findOne(query, cacheKey.columnName(), cacheKey.whereId()));
-        }
-    }
-
-    public final CompletableFuture<?> findOne(final Query query, final DatabaseField<?> column,
-                                        final LinkedHashMap<DatabaseField<?>, ?> columnsToSelect)
-            throws ExecutionException {
-        synchronized (MUTEX) {
-            final CacheKey cacheKey = new CacheKey<>(query.getQuery(), column,
-                    CompletableFuture.completedFuture(columnsToSelect));
-            return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-                    ((Finder<Long>) () -> config)
-                            .findOne(query, cacheKey.columnName(), columnsToSelect));
-        }
-    }
-
-    public final CompletableFuture<Boolean> truncate(final Query query) {
+    public final CompletableFuture<Boolean> truncate(final String query) {
         synchronized (MUTEX) {
             return ((Truncater) () -> config).truncate(query)
                     .thenApply(rVal -> {
@@ -72,22 +49,46 @@ public class CachingConnectionWrapper {
         }
     }
 
+    public final CompletableFuture<Long> insert(final String query, final Map<DatabaseField<?>, ?> map) {
+        synchronized (MUTEX) {
+            CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
+            CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
+        }
+        return ((Inserter<Long>) () -> config).insert(query, map);
+    }
+
+    /*
+    public final CompletableFuture<?> findMany(final String query, final DatabaseField<?> column,
+                                        final CompletableFuture<Long> whereIdFuture) throws ExecutionException {
+        synchronized (MUTEX) {
+            final CacheKey cacheKey = new CacheKey<>(query.getQuery(), column, whereIdFuture);
+            return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
+                    ((MultipleReturnFinder<Long>) () -> config)
+                            .findMany(query, cacheKey.columnName(), cacheKey.whereId()));
+        }
+    }
+    */
+
+    //SELECT %s from customer
+    public final CompletableFuture<List<?>> findMany(final String query, final DatabaseField<?> column,
+                                        final List<DatabaseField<?>> columnsWhere) throws ExecutionException {
+        synchronized (MUTEX) {
+            final CacheKey cacheKey = new CacheKey<>(query, column, CompletableFuture.completedFuture(columnsWhere));
+            return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
+                    ((SingleReturnFinder) () -> config)
+                            .find(new SingleFindQuery<>(query, column, columnsWhere)));
+        }
+    }
+
+    /*
     public final CompletableFuture<List<?>> findMany(final Query query, final DatabaseField<?> selector,
                                                final LinkedHashMap<DatabaseField<?>, ?> map) throws SQLException,
             ExecutionException {
         synchronized (MUTEX) {
             final CacheKey cacheKey = new CacheKey(query.getQuery(), selector, CompletableFuture.completedFuture(null));
             return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode())
-                    .get(cacheKey, () -> ((Finder<Long>) () -> config).findMany(query, selector, map));
+                    .get(cacheKey, () -> ((MultipleReturnFinder<Long>) () -> config).findMany(query, selector, map));
         }
-    }
-
-    public final CompletableFuture<Long> insert(final Query query, final LinkedHashMap<DatabaseField<?>, ?> map) {
-        synchronized (MUTEX) {
-            CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
-            CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
-        }
-        return ((Inserter<Long>) () -> config).insert(query, map);
     }
 
     public CompletableFuture<Boolean> update(final Query query, final LinkedHashMap<DatabaseField<?>, ?> map,
@@ -96,6 +97,7 @@ public class CachingConnectionWrapper {
         CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
         return ((Updater) () -> config).update(query, map, whereId);
     }
+    */
 
     @SuppressWarnings("WeakerAccess")
     public static final class CacheKey<T> implements Serializable {
@@ -112,14 +114,6 @@ public class CachingConnectionWrapper {
             this.columnName = columnName;
             this.whereId = whereId;
             this.values = null;
-        }
-
-        DatabaseField<?> columnName() {
-            return columnName;
-        }
-
-        CompletableFuture<T> whereId() {
-            return whereId;
         }
 
         @Override

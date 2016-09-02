@@ -4,9 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Objects;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -14,69 +14,76 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
- * @since 30.08.16
+ * @since 28.08.16
  */
-public interface MultipleReturnFinder<Void> extends Finder<Void> {
+public interface MultipleReturnFinder extends ConfigGetter, StatementFiller {
 
-    default CompletableFuture<LinkedList<?>> findeOne(final Query query,
-                                                      final LinkedList<DatabaseField<?>> columnsToReturn,
-                                                      final LinkedHashMap<DatabaseField<?>, ?> columnsToSelect) {
-        final CompletableFuture<LinkedList<?>> rval = new CompletableFuture<>();
+    /**
+     * It is List<List<?>> because we have an unknown amount of rows for an unknown amount of select-attributes.
+     * For instance:
+     *  rows:
+     *      0: id, first_name, foo
+     *      1: id, first_name, foo
+     *      2: id, first_name, foo
+     *      etc.
+     *
+     * @param query MultipleFindQuery to do.
+     * @return List of list of values which were found.
+     */
+    default CompletableFuture<List<List<?>>> find(final MultipleFindQuery query) {
+        final List<DatabaseField<?>> columnsToSelect = query.columnsToSelect();
+        final List<DatabaseField<?>> columnsWhere = query.columnsWhere();
+        final CompletableFuture<?> whereFuture = query.whereFuture();
 
-        final LinkedList<Object> newArr = new LinkedList<>();
-        newArr.addAll(columnsToReturn);
-        columnsToSelect.forEach((k, v) -> newArr.add(k));
-        final String finalQuery = String.format(query.getQuery(), newArr.toArray());
+        final CompletableFuture<List<List<?>>> returnValueFuture = new CompletableFuture<>();
 
-        CompletableFuture.runAsync(() -> {
+        final List<Object> format = new ArrayList<>();
+        whereFuture.thenAccept(whereColumn -> {
+            format.addAll(columnsToSelect);
+            format.addAll(columnsWhere);
+            //find a way to find out if format.toArray has the right amount of entries needed to solve query.query()
+            final String finalQuery = String.format(query.query(), format.toArray());
             try (Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    fillStatement(columnsToSelect, stmt);
-                    getListResult(columnsToReturn, rval, stmt);
+                    returnValueFuture.complete(getResult(finalQuery, columnsToSelect,
+                            fillStatement(finalQuery, columnsWhere, whereColumn, stmt)));
                 }
             } catch (final Exception e) {
-                rval.completeExceptionally(e);
+                returnValueFuture.completeExceptionally(e);
             }
-        }, config().getThreadPool());
-
-        return rval;
+        });
+        return returnValueFuture;
     }
 
-    default CompletableFuture<LinkedList<LinkedList<?>>> findeMany(final Query query,
-                                                       final LinkedList<DatabaseField<?>> columnsToReturn,
-                                                       final LinkedHashMap<DatabaseField<?>, ?> columnsToSelect) {
-        final CompletableFuture<LinkedList<LinkedList<?>>> rval = new CompletableFuture<>();
-
-        return rval;
-    }
-
-    default void getListResult(final LinkedList<DatabaseField<?>> columnsToReturn,
-                               final CompletableFuture<LinkedList<?>> rvalFuture, final PreparedStatement stmt)
-            throws SQLException {
-        Objects.nonNull(rvalFuture);
-        Objects.nonNull(stmt);
-        final LinkedList<Object> newList = new LinkedList<>();
+    //* @todo map back to DatabaseField with value rather than types.
+    default List<List<?>> getResult(final String finalQuery, final List<DatabaseField<?>> columnsToSelect,
+                              final PreparedStatement stmt) throws SQLException {
+        final List<List<?>> rvalList = new LinkedList<>();
         try (final ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                for (int i = 0; i < columnsToReturn.size(); i++) {
-                    final Object rval = rs.getObject(i + 1, columnsToReturn.get(i).valueClass());
+                List<Object> thisList = new LinkedList<>();
+                for (int i = 0; i < columnsToSelect.size(); i++) {
+                    final DatabaseField<?> selector = columnsToSelect.get(i);
+                    final Object rval = rs.getObject(i + 1, selector.valueClass());
                     if (rval == null) {
-                        newList.add(i, null);
+                        rvalList.add(null);
                     } else {
-                        if (columnsToReturn.get(i).valueClass() == String.class) {
-                            newList.add(i, rval.toString().trim());
-                        } else if (columnsToReturn.get(i).valueClass() == Boolean.class) {
+                        if (selector.valueClass() == String.class) {
+                            //noinspection unchecked
+                            thisList.add(rval.toString().trim());
+                        } else if (selector.valueClass() == Boolean.class) {
                             final Boolean boolVal = rval.toString().trim().equals("1");
                             //noinspection unchecked
-                            newList.add(i, boolVal);
+                            thisList.add(boolVal);
                         } else {
-                            newList.add(i, rval);
+                            thisList.add(rval);
                         }
                     }
                 }
+                rvalList.add(thisList);
             }
         }
-        rvalFuture.complete(newList);
+        return rvalList;
     }
 
 }

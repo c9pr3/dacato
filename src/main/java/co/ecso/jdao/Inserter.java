@@ -1,7 +1,7 @@
 package co.ecso.jdao;
 
 import java.sql.*;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -16,13 +16,12 @@ import java.util.concurrent.CompletableFuture;
 @SuppressWarnings("Duplicates")
 public interface Inserter<T> extends ConfigGetter {
 
-    default CompletableFuture<T> insert(final Query query, final LinkedHashMap<DatabaseField<?>, ?> values) {
+    default CompletableFuture<T> insert(final String query, final Map<DatabaseField<?>, ?> values) {
         final CompletableFuture<T> returnValue = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {
                 try (Connection c = config().getConnectionPool().getConnection()) {
-                    try (final PreparedStatement stmt = c.prepareStatement(query.getQuery(),
-                            Statement.RETURN_GENERATED_KEYS)) {
+                    try (final PreparedStatement stmt = c.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                         fillStatement(values, stmt);
                         getResult(query, returnValue, stmt);
                     }
@@ -34,7 +33,7 @@ public interface Inserter<T> extends ConfigGetter {
         return returnValue;
     }
 
-    default void getResult(final Query query, final CompletableFuture<T> retValFuture, final PreparedStatement stmt)
+    default void getResult(final String query, final CompletableFuture<T> retValFuture, final PreparedStatement stmt)
             throws SQLException {
         Objects.nonNull(query);
         Objects.nonNull(retValFuture);
@@ -42,15 +41,14 @@ public interface Inserter<T> extends ConfigGetter {
         stmt.executeUpdate();
         try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
             if (!generatedKeys.next()) {
-                throw new SQLException(String.format("Query %s failed, resultset empty",
-                        query.getQuery()));
+                throw new SQLException(String.format("Query %s failed, resultset empty", query));
             }
             //noinspection unchecked
             retValFuture.complete((T) generatedKeys.getObject(1));
         }
     }
 
-    default void fillStatement(final LinkedHashMap<DatabaseField<?>, ?> values, final PreparedStatement stmt)
+    default void fillStatement(final Map<DatabaseField<?>, ?> values, final PreparedStatement stmt)
             throws SQLException {
         int i = 1;
         for (final DatabaseField<?> databaseField : values.keySet()) {
