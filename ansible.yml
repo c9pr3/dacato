@@ -1,0 +1,7 @@
+---
+- hosts: wp
+  remote_user: wpdeploy
+  become: yes
+  tasks:
+  - name: ifconfig
+    shell: ifconfig
