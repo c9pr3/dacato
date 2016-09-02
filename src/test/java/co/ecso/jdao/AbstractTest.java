@@ -25,7 +25,8 @@ import java.util.stream.Collectors;
 public abstract class AbstractTest {
 
     static final Cache<CachingConnectionWrapper.CacheKey<?>, CompletableFuture<?>> APPLICATION_CACHE = new FakeCache();
-
+    private static snaq.db.ConnectionPool CONNECTION_POOL = null;
+    private static ScheduledThreadPoolExecutor THREAD_POOL = null;
     protected static final ApplicationConfig APPLICATION_CONFIG = new ApplicationConfig() {
 
         @Override
@@ -75,14 +76,20 @@ public abstract class AbstractTest {
 
         @Override
         public ScheduledExecutorService getThreadPool() {
-            return new ScheduledThreadPoolExecutor(this.getMaxPoolSize());
+            if (THREAD_POOL == null) {
+                THREAD_POOL = new ScheduledThreadPoolExecutor(this.getMaxPoolSize());
+            }
+            return THREAD_POOL;
         }
 
         @Override
         public ConnectionPool<Connection> getConnectionPool() {
-            return () -> new snaq.db.ConnectionPool(getPoolName(), getMinPoolSize(),
-                    getMaxPoolSize(), getPoolMaxSize(), getPoolIdleTimeout(),
-                    getConnectString(), null).getConnection();
+            if (CONNECTION_POOL == null) {
+                    CONNECTION_POOL = new snaq.db.ConnectionPool(getPoolName(), getMinPoolSize(),
+                            getMaxPoolSize(), getPoolMaxSize(), getPoolIdleTimeout(),
+                            getConnectString(), null);
+            }
+            return () -> CONNECTION_POOL.getConnection();
         }
     };
 

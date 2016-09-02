@@ -38,16 +38,16 @@ public class CachingConnectionWrapper {
     }
 
     public final CompletableFuture<Boolean> truncate(final String query) {
-        synchronized (MUTEX) {
-            return ((Truncater) () -> config).truncate(query)
-                    .thenApply(rVal -> {
-                        if (rVal) {
+        return ((Truncater) () -> config).truncate(query)
+                .thenApply(rVal -> {
+                    if (rVal) {
+                        synchronized (MUTEX) {
                             CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
                             CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
                         }
-                        return rVal;
-                    });
-        }
+                    }
+                    return rVal;
+                });
     }
 
     public final CompletableFuture<Long> insert(final String query, final Map<DatabaseField<?>, ?> map) {
@@ -73,13 +73,11 @@ public class CachingConnectionWrapper {
     //SELECT %s from customer
     public final CompletableFuture<List<?>> findMany(final String query, final DatabaseField<?> column,
                                         final List<DatabaseField<?>> columnsWhere) throws ExecutionException {
-        synchronized (MUTEX) {
-            final CacheKey cacheKey = new CacheKey<>(query, column, CompletableFuture.completedFuture(columnsWhere));
-            //noinspection unchecked
-            return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-                    ((SingleReturnFinder) () -> config)
-                            .find(new SingleFindQuery<>(query, column, columnsWhere)));
-        }
+        final CacheKey cacheKey = new CacheKey<>(query, column, CompletableFuture.completedFuture(columnsWhere));
+        //noinspection unchecked
+        return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
+                ((SingleReturnFinder) () -> config)
+                        .find(new SingleFindQuery<>(query, column, columnsWhere)));
     }
 
     /*

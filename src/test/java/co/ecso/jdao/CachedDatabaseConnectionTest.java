@@ -8,6 +8,8 @@ import org.junit.Test;
 import java.sql.Types;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * CachedDatabaseConnectionTest.
@@ -36,7 +38,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     public void removeAll() throws Exception {
         final CachingConnectionWrapper connection = new CachingConnectionWrapper(APPLICATION_CONFIG, APPLICATION_CACHE);
 
-        connection.truncate("TRUNCATE TABLE customer").get();
+        connection.truncate("TRUNCATE TABLE customer AND COMMIT").get();
 
         final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
         map.put(Fields.FIRST_NAME, "firstName");
@@ -46,7 +48,70 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
         map.put(Fields.PRODUCT_OFFER_ID, null);
         map.put(Fields.THEME, "CERULEAN");
         map.put(Fields.SESSION, "");
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
+        insertFiveHundred(map);
 
+        final List<?> fres = connection.findMany("SELECT %s from customer", Fields.ID, new LinkedList<>()).get();
+        Assert.assertEquals(10000, fres.size());
+        connection.truncate("TRUNCATE table customer AND COMMIT").get();
+        final List<?> fres1 = connection.findMany("SELECT id from customer", Fields.ID, new LinkedList<>()).get();
+        Assert.assertEquals(0, fres1.size());
+    }
+
+    private void insertFiveHundred(final Map<DatabaseField<?>, Object> map)
+            throws InterruptedException, ExecutionException, TimeoutException {
+
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+        insertTwenty(map);
+    }
+
+    private void insertTwenty(final Map<DatabaseField<?>, Object> map)
+            throws InterruptedException, ExecutionException, TimeoutException {
         CompletableFuture.allOf(
                 CONNECTION.insert("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)", map),
                 CONNECTION.insert("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)", map),
@@ -58,7 +123,6 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
                 CONNECTION.insert("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)", map),
                 CONNECTION.insert("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)", map),
                 CONNECTION.insert("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)", map),
-
                 CONNECTION.insert("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)", map),
                 CONNECTION.insert("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)", map),
                 CONNECTION.insert("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)", map),
@@ -71,12 +135,6 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
                 CONNECTION.insert("INSERT INTO customer VALUES (null, ?, ?, ?, ?, ?, ?, ?)", map)
         )
                 .get();
-
-        final List<?> fres = connection.findMany("SELECT %s from customer", Fields.ID, new LinkedList<>()).get();
-        Assert.assertEquals(20, fres.size());
-        connection.truncate("TRUNCATE table customer AND COMMIT").get();
-        final List<?> fres1 = connection.findMany("SELECT id from customer", Fields.ID, new LinkedList<>()).get();
-        Assert.assertEquals(0, fres1.size());
     }
 
     @Test

@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 public interface SingleReturnFinder<T> extends ConfigGetter, StatementFiller {
 
     default CompletableFuture<List<T>> find(final SingleFindQuery<T> query) {
+
         final DatabaseField<T> columnToSelect = query.columnSelect();
         final List<DatabaseField<?>> columnsWhere = query.columnsWhere();
         final CompletableFuture<?> whereFuture = query.whereFuture();

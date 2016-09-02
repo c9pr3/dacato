@@ -16,31 +16,30 @@ import java.util.concurrent.CompletableFuture;
 public interface Inserter<T> extends ConfigGetter {
 
     default CompletableFuture<T> insert(final String query, final Map<DatabaseField<?>, ?> values) {
-        final CompletableFuture<T> returnValue = new CompletableFuture<>();
+        final CompletableFuture<T> retValFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {
                 try (Connection c = config().getConnectionPool().getConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                         fillStatement(values, stmt);
-                        getResult(query, returnValue, stmt);
+                        retValFuture.complete(getResult(query, stmt));
                     }
                 }
-            } catch (final Exception e) {
-                returnValue.completeExceptionally(e);
+            } catch (final SQLException e) {
+                retValFuture.completeExceptionally(e);
             }
         }, config().getThreadPool());
-        return returnValue;
+        return retValFuture;
     }
 
-    default void getResult(final String query, final CompletableFuture<T> retValFuture, final PreparedStatement stmt)
-            throws SQLException {
+    default T getResult(final String query, final PreparedStatement stmt) throws SQLException {
         stmt.executeUpdate();
         try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
             if (!generatedKeys.next()) {
                 throw new SQLException(String.format("Query %s failed, resultset empty", query));
             }
             //noinspection unchecked
-            retValFuture.complete((T) generatedKeys.getObject(1));
+            return (T) generatedKeys.getObject(1);
         }
     }
 

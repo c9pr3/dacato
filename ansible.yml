@@ -1,6 +1,0 @@
----
-- hosts: wp
-  remote_user: wpdeploy
-  tasks:
-  - name: test
-    shell: echo test
