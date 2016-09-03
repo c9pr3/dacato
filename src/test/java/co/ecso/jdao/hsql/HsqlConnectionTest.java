@@ -91,18 +91,14 @@ public final class HsqlConnectionTest extends AbstractTest {
                     "SELECT %s FROM customer",
                     new ColumnList().get(Fields.ID)
             );
-            List res = ((MultipleReturnFinder) () -> APPLICATION_CONFIG).find(findQuery).get();
+            List res = ((MultipleColumnFinder) () -> APPLICATION_CONFIG).find(findQuery).get();
 
             Assert.assertEquals(20, res.size());
 
             final Map<DatabaseField<?>, CompletableFuture<?>> map1 = new ColumnList()
                     .get(new DatabaseField<>("id", -1L, Types.BIGINT), CompletableFuture.completedFuture(0L));
-            final ListFindQuery<Long> findQuery2 = new ListFindQuery<>(
-                    "SELECT %s FROM customer WHERE %s = ?",
-                    Fields.ID,
-                    map1
-            );
-            final List<Long> res2 = ((SingleReturnFinder<Long>) () -> APPLICATION_CONFIG).find(findQuery2).get();
+            final List<Long> res2 = ((SingleColumnFinder<Long>) () -> APPLICATION_CONFIG).find(
+                    new ListFindQuery<>("SELECT %s FROM customer WHERE %s = ?", Fields.ID, map1)).get();
             Assert.assertEquals(1, res2.size());
         } catch (final InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -113,12 +109,12 @@ public final class HsqlConnectionTest extends AbstractTest {
     @Test
     public void testTruncate() throws Exception {
         testManyInserts();
-        final List<Long> res = ((SingleReturnFinder<Long>) () -> APPLICATION_CONFIG)
+        final List<Long> res = ((SingleColumnFinder<Long>) () -> APPLICATION_CONFIG)
                 .find(new ListFindQuery<>("SELECT %s FROM customer", Fields.ID)).get();
         Assert.assertEquals(20, res.size());
         ((Truncater) () -> APPLICATION_CONFIG).truncate("TRUNCATE TABLE customer");
 
-        final List<Long> res2 = ((SingleReturnFinder<Long>) () -> APPLICATION_CONFIG)
+        final List<Long> res2 = ((SingleColumnFinder<Long>) () -> APPLICATION_CONFIG)
                 .find(new ListFindQuery<>("SELECT %s FROM customer", Fields.ID)).get();
         Assert.assertEquals(0, res2.size());
     }

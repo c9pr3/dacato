@@ -64,21 +64,23 @@ public class CachingConnectionWrapper {
         synchronized (MUTEX) {
             final CacheKey cacheKey = new CacheKey<>(query.getQuery(), column, whereIdFuture);
             return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-                    ((MultipleReturnFinder<Long>) () -> config)
+                    ((MultipleColumnFinder<Long>) () -> config)
                             .findMany(query, cacheKey.columnName(), cacheKey.whereId()));
         }
     }
     */
 
     //SELECT %s from customer
-    public final CompletableFuture<List<?>> findMany(final String query, final DatabaseField<?> column,
-                                        final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere)
-            throws ExecutionException {
-        final CacheKey cacheKey = new CacheKey<>(query, column, CompletableFuture.completedFuture(columnsWhere));
+    public final CompletableFuture<List<?>> findMany(final String query,
+                                                           final DatabaseField<?> columnToSelect,
+                                                           final Map<DatabaseField<?>, CompletableFuture<?>>
+                                                                   columnsWhere) throws ExecutionException {
+        //todo
+        final CacheKey cacheKey = new CacheKey<>(query, null, CompletableFuture.completedFuture(columnsWhere));
         //noinspection unchecked
         return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-                ((SingleReturnFinder) () -> config)
-                        .find(new ListFindQuery<>(query, column, columnsWhere)));
+                ((SingleColumnFinder) () -> config)
+                        .find(new ListFindQuery(query, columnToSelect, columnsWhere)));
     }
 
     /*
@@ -88,7 +90,7 @@ public class CachingConnectionWrapper {
         synchronized (MUTEX) {
             final CacheKey cacheKey = new CacheKey(query.getQuery(), selector, CompletableFuture.completedFuture(null));
             return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode())
-                    .get(cacheKey, () -> ((MultipleReturnFinder<Long>) () -> config).findMany(query, selector, map));
+                    .get(cacheKey, () -> ((MultipleColumnFinder<Long>) () -> config).findMany(query, selector, map));
         }
     }
 

@@ -14,32 +14,32 @@ import java.util.concurrent.CompletableFuture;
 @SuppressWarnings("WeakerAccess")
 public final class ListFindQuery<T> {
 
-    private final DatabaseField<T> columnToSelect;
-    private final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere;
     private final String query;
-
-    public ListFindQuery(final String query, final DatabaseField<T> columnToSelect,
-                         final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere) {
-        this.columnToSelect = columnToSelect;
-        this.columnsWhere = columnsWhere;
-        this.query = query;
-    }
+    private final DatabaseField<T> columnToSelect;
+    private final Map<DatabaseField<?>, CompletableFuture<?>> whereFutureMap;
 
     public ListFindQuery(final String query, final DatabaseField<T> columnToSelect) {
-        this.columnToSelect = columnToSelect;
-        this.columnsWhere = new LinkedHashMap<>();
         this.query = query;
+        this.columnToSelect = columnToSelect;
+        this.whereFutureMap = new LinkedHashMap<>();
     }
 
-    public DatabaseField<T> columnSelect() {
-        return columnToSelect;
-    }
-
-    public Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere() {
-        return columnsWhere;
+    public ListFindQuery(final String query, final DatabaseField<T> columnToSelect,
+                         final Map<DatabaseField<?>, CompletableFuture<?>> whereFutureMap) {
+        this.query = query;
+        this.columnToSelect = columnToSelect;
+        this.whereFutureMap = whereFutureMap;
     }
 
     public String query() {
         return query;
+    }
+
+    public DatabaseField<T> columnToSelect() {
+        return columnToSelect;
+    }
+
+    public Map<DatabaseField<?>, CompletableFuture<?>> whereFutureMap() {
+        return whereFutureMap;
     }
 }

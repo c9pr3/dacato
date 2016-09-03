@@ -12,13 +12,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * MultipleReturnFinder.
+ * MultipleColumnFinder.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 28.08.16
  */
-public interface MultipleReturnFinder extends ConfigGetter, StatementFiller {
+public interface MultipleColumnFinder extends ConfigGetter, StatementFiller {
 
     /**
      * It is List<List<?>> because we have an unknown amount of rows for an unknown amount of select-attributes.

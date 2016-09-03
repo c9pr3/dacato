@@ -144,8 +144,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
         final Map<DatabaseField<?>, CompletableFuture<?>> whereList = new LinkedHashMap<>();
         whereList.put(new DatabaseField<>("customer_first_name", "", Types.VARCHAR),
                 CompletableFuture.completedFuture("foo"));
-        final List<?> result = CONNECTION.findMany("SELECT %s FROM customer WHERE %s = ?",
-                Fields.ID, whereList).get();
+        final List<?> result = CONNECTION.findMany("SELECT %s FROM customer WHERE %s = ?", Fields.ID, whereList).get();
         Assert.assertNotNull(result);
         Assert.assertEquals(2, result.size());
 
@@ -178,7 +177,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
 
         final MultipleFindQuery query = new MultipleFindQuery(
                 "SELECT %s FROM customer WHERE %s = ?", selectColumns, columnsWhere);
-        final List<List<?>> res = ((MultipleReturnFinder) () -> APPLICATION_CONFIG).find(query).get();
+        final List<List<?>> res = ((MultipleColumnFinder) () -> APPLICATION_CONFIG).find(query).get();
         Assert.assertNotNull(res);
         //System.out.println(Arrays.toString(res.toArray()));
 
@@ -209,7 +208,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     @Test
     public void testFindMultiple() throws Exception {
         CompletableFuture<Long> id = insertOne();
-        CompletableFuture<String> firstName = ((MultipleReturnFinder<String>) () -> APPLICATION_CONFIG)
+        CompletableFuture<String> firstName = ((MultipleColumnFinder<String>) () -> APPLICATION_CONFIG)
                 .findMany(new Query("SELECT %s FROM customer WHERE id = ?"),
                         new DatabaseField<>("customer_first_name", "", Types.VARCHAR), id);
 
@@ -224,7 +223,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
         columnsSelect.put(new DatabaseField<>("id", -1L, Types.BIGINT), id.get());
         columnsSelect.put(new DatabaseField<>("customer_first_name", "", Types.VARCHAR), firstName.get());
 
-        final CompletableFuture<LinkedList<?>> rval = ((MultipleReturnFinder<Void>) () -> APPLICATION_CONFIG)
+        final CompletableFuture<LinkedList<?>> rval = ((MultipleColumnFinder<Void>) () -> APPLICATION_CONFIG)
                 .findeOne(query, columnsToReturn, columnsSelect);
 
         final List<?> resList = rval.get(10, TimeUnit.SECONDS);

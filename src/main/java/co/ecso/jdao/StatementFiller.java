@@ -17,7 +17,7 @@ interface StatementFiller {
                                             final List<?> valuesWhere, final PreparedStatement stmt)
             throws SQLException {
         // System.out.println("SETTING in " + finalQuery + ": " + Arrays.toString(columnsWhere.toArray()));
-        for (int i = 0; i < columnsWhere.size(); i++) {
+        for (int i = 0; i < valuesWhere.size(); i++) {
             final Object valueToSet = valuesWhere.get(i);
             final int sqlType = columnsWhere.get(i).sqlType();
             try {

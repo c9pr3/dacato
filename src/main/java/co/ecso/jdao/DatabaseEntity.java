@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 08.08.16
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-public interface DatabaseEntity<T> extends SingleReturnFinder<T>, MultipleReturnFinder {
+public interface DatabaseEntity<T> extends SingleColumnFinder<T>, MultipleColumnFinder {
     T id();
 
     CompletableFuture<? extends DatabaseEntity> save(final Map<DatabaseField<?>, ?> map);

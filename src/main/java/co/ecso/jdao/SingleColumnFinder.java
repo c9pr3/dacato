@@ -4,22 +4,49 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * SingleReturnFinder.
+ * SingleColumnFinder.
  *
  * @param <T> value to Return, i.E. Long
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 02.09.16
  */
-public interface SingleReturnFinder<T> extends ConfigGetter, StatementFiller {
+public interface SingleColumnFinder<T> extends ConfigGetter, StatementFiller {
+
+    @SuppressWarnings("Duplicates")
+    default CompletableFuture<List<T>> find(final ListFindQuery<T> query) {
+        final DatabaseField<T> columnToSelect = query.columnToSelect();
+
+        final CompletableFuture<List<T>> returnValueFuture = new CompletableFuture<>();
+
+        //noinspection Duplicates
+        final List<Object> format = new ArrayList<>();
+        final Map<DatabaseField<?>, CompletableFuture<?>> whereFuture = query.whereFutureMap();
+        final List<?> whereList = whereFuture.values().stream().map(CompletableFuture::join)
+                .collect(Collectors.toList());
+
+        CompletableFuture.runAsync(() -> {
+            format.add(columnToSelect);
+            whereFuture.keySet().forEach(format::add);
+            //find a way to find out if format.toArray has the right amount of entries needed to solve query.query()
+            final String finalQuery = String.format(query.query(), format.toArray());
+
+            try (Connection c = config().getConnectionPool().getConnection()) {
+                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                    returnValueFuture.complete(getListRowResult(finalQuery, columnToSelect,
+                            fillStatement(finalQuery, Collections.singletonList(columnToSelect), whereList, stmt)));
+                }
+            } catch (final Exception e) {
+                returnValueFuture.completeExceptionally(e);
+            }
+        }, config().getThreadPool());
+        return returnValueFuture;
+    }
 
     default CompletableFuture<T> find(final SingleFindQuery<T> query) {
         final DatabaseField<T> columnToSelect = query.columnSelect();
@@ -33,8 +60,10 @@ public interface SingleReturnFinder<T> extends ConfigGetter, StatementFiller {
                 .collect(Collectors.toList());
         CompletableFuture.runAsync(() -> {
             format.add(columnToSelect);
+            whereFuture.keySet().forEach(format::add);
             //find a way to find out if format.toArray has the right amount of entries needed to solve query.query()
             final String finalQuery = String.format(query.query(), format.toArray());
+
             try (Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     returnValueFuture.complete(getSingleRowResult(finalQuery, columnToSelect,
@@ -47,58 +76,31 @@ public interface SingleReturnFinder<T> extends ConfigGetter, StatementFiller {
         return returnValueFuture;
     }
 
-    default CompletableFuture<List<T>> find(final ListFindQuery<T> query) {
-        final DatabaseField<T> columnToSelect = query.columnSelect();
-        final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere = query.columnsWhere();
-        final Map<DatabaseField<?>, CompletableFuture<?>> whereFuture = query.columnsWhere();
-
-        final CompletableFuture<List<T>> returnValueFuture = new CompletableFuture<>();
-
-        final List<Object> format = new ArrayList<>();
-
-        final List<?> whereList = whereFuture.values().stream().map(CompletableFuture::join)
-                .collect(Collectors.toList());
-        CompletableFuture.runAsync(() -> {
-            format.add(columnToSelect);
-            format.addAll(columnsWhere.keySet());
-            //find a way to find out if format.toArray has the right amount of entries needed to solve query.query()
-            final String finalQuery = String.format(query.query(), format.toArray());
-            try (Connection c = config().getConnectionPool().getConnection()) {
-                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    returnValueFuture.complete(getResult(finalQuery, columnToSelect,
-                            fillStatement(finalQuery, new LinkedList<>(columnsWhere.keySet()), whereList, stmt)));
-                }
-            } catch (final Exception e) {
-                returnValueFuture.completeExceptionally(e);
-            }
-        });
-        return returnValueFuture;
-    }
-
     //* @todo map back to DatabaseField with value rather than types.
-    default List<T> getResult(final String finalQuery, final DatabaseField<T> columnToSelect,
-                              final PreparedStatement stmt) throws SQLException {
-        final List<T> rvalList = new LinkedList<>();
+    @SuppressWarnings("Duplicates")
+    default List<T> getListRowResult(final String finalQuery, final DatabaseField<T> columnToSelect,
+                               final PreparedStatement stmt) throws SQLException {
+        List<T> rValList = new LinkedList<>();
         try (final ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 final T rval = (T) rs.getObject(1, columnToSelect.valueClass());
                 if (rval == null) {
-                    rvalList.add(null);
+                    rValList.add(null);
                 } else {
                     if (columnToSelect.valueClass() == String.class) {
                         //noinspection unchecked
-                        rvalList.add((T) rval.toString().trim());
+                        rValList.add((T) rval.toString().trim());
                     } else if (columnToSelect.valueClass() == Boolean.class) {
                         final Boolean boolVal = rval.toString().trim().equals("1");
                         //noinspection unchecked
-                        rvalList.add((T) boolVal);
+                        rValList.add((T) boolVal);
                     } else {
-                        rvalList.add(rval);
+                        rValList.add(rval);
                     }
                 }
             }
         }
-        return rvalList;
+        return rValList;
     }
 
     //* @todo map back to DatabaseField with value rather than types.
@@ -125,5 +127,4 @@ public interface SingleReturnFinder<T> extends ConfigGetter, StatementFiller {
             }
         }
     }
-
 }
