@@ -1,5 +1,6 @@
 package co.ecso.jdao;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -10,14 +11,15 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 03.09.16
  */
+@SuppressWarnings("WeakerAccess")
 public final class SingleFindQuery<T> {
 
     private final DatabaseField<T> columnToSelect;
-    private final CompletableFuture<?> whereFuture;
+    private final Map<DatabaseField<?>, CompletableFuture<?>> whereFuture;
     private final String query;
 
     public SingleFindQuery(final String query, final DatabaseField<T> columnToSelect,
-                           final CompletableFuture<?> whereFuture) {
+                           final Map<DatabaseField<?>, CompletableFuture<?>> whereFuture) {
         this.columnToSelect = columnToSelect;
         this.whereFuture = whereFuture;
         this.query = query;
@@ -27,7 +29,7 @@ public final class SingleFindQuery<T> {
         return columnToSelect;
     }
 
-    public CompletableFuture<?> whereFuture() {
+    public Map<DatabaseField<?>, CompletableFuture<?>> whereFuture() {
         return whereFuture;
     }
 

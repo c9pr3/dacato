@@ -181,7 +181,7 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
                 newInsertID);
         final List<List<?>> res = ((MultipleReturnFinder) () -> APPLICATION_CONFIG).find(query).get();
         Assert.assertNotNull(res);
-        System.out.println(Arrays.toString(res.toArray()));
+        //System.out.println(Arrays.toString(res.toArray()));
 
         Assert.assertEquals("foo", res.get(0).get(0));
     }
