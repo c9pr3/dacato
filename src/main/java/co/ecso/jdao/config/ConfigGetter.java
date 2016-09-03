@@ -1,4 +1,4 @@
-package co.ecso.jdao;
+package co.ecso.jdao.config;
 
 /**
  * ConfigGetter.
@@ -8,6 +8,6 @@ package co.ecso.jdao;
  * @since 28.08.16
  */
 @FunctionalInterface
-interface ConfigGetter {
+public interface ConfigGetter {
     ApplicationConfig config();
 }

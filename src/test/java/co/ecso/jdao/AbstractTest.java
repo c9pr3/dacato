@@ -1,5 +1,7 @@
 package co.ecso.jdao;
 
+import co.ecso.jdao.config.ApplicationConfig;
+import co.ecso.jdao.connection.ConnectionPool;
 import co.ecso.jdao.helpers.CreateTableOnlyFilter;
 import co.ecso.jdao.helpers.MysqlToHsqlMap;
 import org.hsqldb.jdbc.JDBCDataSource;
@@ -10,7 +12,6 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -24,10 +25,11 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractTest {
 
-    static final Cache<CachingConnectionWrapper.CacheKey<?>, CompletableFuture<?>> APPLICATION_CACHE = new FakeCache();
+//    static final Cache<CachingConnectionWrapper.CacheKey<?>, CompletableFuture<?>> APPLICATION_CACHE =
+// new FakeCache();
     private static snaq.db.ConnectionPool CONNECTION_POOL = null;
     private static ScheduledThreadPoolExecutor THREAD_POOL = null;
-    protected static final ApplicationConfig APPLICATION_CONFIG = new ApplicationConfig() {
+    static final ApplicationConfig APPLICATION_CONFIG = new ApplicationConfig() {
 
         @Override
         public String getMysqlHost() {

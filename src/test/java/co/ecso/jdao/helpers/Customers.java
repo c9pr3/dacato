@@ -1,6 +1,7 @@
-package co.ecso.jdao.test;
+package co.ecso.jdao.helpers;
 
-import co.ecso.jdao.*;
+import co.ecso.jdao.config.ApplicationConfig;
+import co.ecso.jdao.database.*;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
  * @since 15.03.16
  */
 @SuppressWarnings("WeakerAccess")
-public final class Customers {
+public final class Customers implements DatabaseTable<Long> {
 
     private final ApplicationConfig config;
 
@@ -23,12 +24,12 @@ public final class Customers {
         this.config = config;
     }
 
-    CompletableFuture<Boolean> removeAll() {
-        return ((Truncater) () -> config).truncate("TRUNCATE TABLE customer");
+    public CompletableFuture<Boolean> removeAll() {
+        return this.truncate("TRUNCATE TABLE customer");
     }
 
-    CompletableFuture<Customer> findOne(final CompletableFuture<Long> id) {
-        return ((SingleColumnFinder<Long>) () -> config).find(
+    public CompletableFuture<Customer> findOne(final CompletableFuture<Long> id) {
+        return this.find(
                 new SingleFindQuery<>("SELECT %s FROM customer WHERE id = ?", Customer.Fields.ID,
                         new ColumnList().get(Customer.Fields.ID, id)))
                 .thenApply(id1 -> new Customer(config, id1));
@@ -36,18 +37,14 @@ public final class Customers {
 
     public CompletableFuture<Customer> add(final String customerFirstName, final String customerLastName,
                                            final long customerNumber) {
-        final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
-        map.put(Customer.Fields.FIRST_NAME, customerFirstName);
-        map.put(Customer.Fields.LAST_NAME, customerLastName);
-        map.put(Customer.Fields.NUMBER, customerNumber);
-        return ((Inserter<Long>) () -> config)
-                .insert("INSERT INTO customer VALUES (null, ?, ?, ?)", map)
+        return this.insert("INSERT INTO customer VALUES (null, ?, ?, ?)",
+                new ColumnList().keys(Customer.Fields.FIRST_NAME, Customer.Fields.LAST_NAME, Customer.Fields.NUMBER)
+                        .values(Arrays.asList(customerFirstName, customerLastName, customerNumber)).get())
                 .thenApply(id -> new Customer(config, id));
     }
 
     public CompletableFuture<List<Customer>> findAll() {
-        return ((SingleColumnFinder<Long>) () -> config)
-                .find(new ListFindQuery<>("SELECT %s FROM customer", Customer.Fields.ID))
+        return this.find(new ListFindQuery<>("SELECT %s FROM customer", Customer.Fields.ID))
                 .thenApply(idList -> idList.stream().map(id1 -> new Customer(config, id1))
                         .collect(Collectors.toList()));
     }
@@ -58,15 +55,18 @@ public final class Customers {
         final List<DatabaseField<?>> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(Customer.Fields.ID);
         columnsToSelect.add(Customer.Fields.FIRST_NAME);
-        columnsToSelect.add(Customer.Fields.LAST_NAME);
 
         final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere = new HashMap<>();
         columnsWhere.put(Customer.Fields.ID, id);
-        columnsWhere.put(Customer.Fields.FIRST_NAME, firstName);
 
-        return ((MultipleColumnFinder) () -> config).find(
-                new MultipleFindQuery("SELECT %s, %s, %s FROM customer WHERE %s = ? AND %s = ?",
+        return this.find(
+                new MultipleFindQuery("SELECT %s, %s FROM customer WHERE %s = ?",
                         columnsToSelect, columnsWhere)
         );
+    }
+
+    @Override
+    public ApplicationConfig config() {
+        return config;
     }
 }

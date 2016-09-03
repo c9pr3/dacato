@@ -1,4 +1,6 @@
-package co.ecso.jdao;
+package co.ecso.jdao.config;
+
+import co.ecso.jdao.connection.ConnectionPool;
 
 import java.sql.Connection;
 import java.util.concurrent.ScheduledExecutorService;

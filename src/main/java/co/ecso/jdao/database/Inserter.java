@@ -1,6 +1,9 @@
-package co.ecso.jdao;
+package co.ecso.jdao.database;
+
+import co.ecso.jdao.config.ConfigGetter;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -12,8 +15,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 28.08.16
  */
-@SuppressWarnings("Duplicates")
-public interface Inserter<T> extends ConfigGetter {
+interface Inserter<T> extends ConfigGetter, StatementFiller {
 
     default CompletableFuture<T> insert(final String query, final Map<DatabaseField<?>, ?> values) {
         final CompletableFuture<T> retValFuture = new CompletableFuture<>();
@@ -21,7 +23,7 @@ public interface Inserter<T> extends ConfigGetter {
             try {
                 try (Connection c = config().getConnectionPool().getConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-                        fillStatement(values, stmt);
+                        fillStatement(new ArrayList<>(values.keySet()), new ArrayList<>(values.values()), stmt);
                         retValFuture.complete(getResult(query, stmt));
                     }
                 }
@@ -40,24 +42,6 @@ public interface Inserter<T> extends ConfigGetter {
             }
             //noinspection unchecked
             return (T) generatedKeys.getObject(1);
-        }
-    }
-
-    default void fillStatement(final Map<DatabaseField<?>, ?> values, final PreparedStatement stmt)
-            throws SQLException {
-        int i = 1;
-        for (final DatabaseField<?> databaseField : values.keySet()) {
-            try {
-                if (values.get(databaseField) == null) {
-                    stmt.setNull(i, databaseField.sqlType());
-                } else {
-                    stmt.setObject(i, values.get(databaseField), databaseField.sqlType());
-                }
-            } catch (final SQLDataException | SQLSyntaxErrorException e) {
-                throw new SQLException(String.format("Could not set %s to %d: %s",
-                        values.get(databaseField), databaseField.sqlType(), e));
-            }
-            i++;
         }
     }
 

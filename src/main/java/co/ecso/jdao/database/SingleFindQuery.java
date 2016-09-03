@@ -1,4 +1,4 @@
-package co.ecso.jdao;
+package co.ecso.jdao.database;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -11,7 +11,6 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 03.09.16
  */
-@SuppressWarnings("WeakerAccess")
 public final class SingleFindQuery<T> {
 
     private final DatabaseField<T> columnToSelect;

@@ -1,4 +1,4 @@
-package co.ecso.jdao;
+package co.ecso.jdao.cache;
 
 import java.util.Map;
 import java.util.concurrent.Callable;

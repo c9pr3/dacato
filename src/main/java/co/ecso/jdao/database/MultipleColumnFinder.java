@@ -1,4 +1,6 @@
-package co.ecso.jdao;
+package co.ecso.jdao.database;
+
+import co.ecso.jdao.config.ConfigGetter;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
  * @version $Id:$
  * @since 28.08.16
  */
-public interface MultipleColumnFinder extends ConfigGetter, StatementFiller {
+interface MultipleColumnFinder extends ConfigGetter, StatementFiller {
 
     /**
      * It is List<List<?>> because we have an unknown amount of rows for an unknown amount of select-attributes.
@@ -49,7 +51,7 @@ public interface MultipleColumnFinder extends ConfigGetter, StatementFiller {
             try (Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     returnValueFuture.complete(getResult(finalQuery, columnsToSelect,
-                            fillStatement(finalQuery, new ArrayList<>(whereFuture.keySet()), whereList, stmt)));
+                            fillStatement(new ArrayList<>(whereFuture.keySet()), whereList, stmt)));
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);

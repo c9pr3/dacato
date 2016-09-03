@@ -1,4 +1,4 @@
-package co.ecso.jdao;
+package co.ecso.jdao.database;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,7 +12,6 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 02.09.16
  */
-@SuppressWarnings("WeakerAccess")
 public final class MultipleFindQuery {
 
     private final List<DatabaseField<?>> columnsToSelect;

@@ -1,4 +1,4 @@
-package co.ecso.jdao;
+package co.ecso.jdao.database;
 
 /**
  * DatabaseField
@@ -7,7 +7,6 @@ package co.ecso.jdao;
  * @version $Id:$
  * @since 08.08.16
  */
-@SuppressWarnings("WeakerAccess")
 public final class DatabaseField<T> {
 
     private final String name;

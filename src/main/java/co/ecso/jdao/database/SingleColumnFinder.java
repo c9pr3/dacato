@@ -1,4 +1,6 @@
-package co.ecso.jdao;
+package co.ecso.jdao.database;
+
+import co.ecso.jdao.config.ConfigGetter;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,18 +13,16 @@ import java.util.stream.Collectors;
 /**
  * SingleColumnFinder.
  *
- * @param <T> value to Return, i.E. Long
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 02.09.16
  */
-public interface SingleColumnFinder<T> extends ConfigGetter, StatementFiller {
+interface SingleColumnFinder extends ConfigGetter, StatementFiller {
 
-    @SuppressWarnings("Duplicates")
-    default CompletableFuture<List<T>> find(final ListFindQuery<T> query) {
-        final DatabaseField<T> columnToSelect = query.columnToSelect();
+    default <R> CompletableFuture<List<R>> find(final ListFindQuery<R> query) {
+        final DatabaseField<R> columnToSelect = query.columnToSelect();
 
-        final CompletableFuture<List<T>> returnValueFuture = new CompletableFuture<>();
+        final CompletableFuture<List<R>> returnValueFuture = new CompletableFuture<>();
 
         //noinspection Duplicates
         final List<Object> format = new ArrayList<>();
@@ -39,7 +39,7 @@ public interface SingleColumnFinder<T> extends ConfigGetter, StatementFiller {
             try (Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     returnValueFuture.complete(getListRowResult(finalQuery, columnToSelect,
-                            fillStatement(finalQuery, Collections.singletonList(columnToSelect), whereList, stmt)));
+                            fillStatement(Collections.singletonList(columnToSelect), whereList, stmt)));
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
@@ -48,11 +48,11 @@ public interface SingleColumnFinder<T> extends ConfigGetter, StatementFiller {
         return returnValueFuture;
     }
 
-    default CompletableFuture<T> find(final SingleFindQuery<T> query) {
-        final DatabaseField<T> columnToSelect = query.columnSelect();
+    default <R> CompletableFuture<R> find(final SingleFindQuery<R> query) {
+        final DatabaseField<R> columnToSelect = query.columnSelect();
         final Map<DatabaseField<?>, CompletableFuture<?>> whereFuture = query.whereFuture();
 
-        final CompletableFuture<T> returnValueFuture = new CompletableFuture<>();
+        final CompletableFuture<R> returnValueFuture = new CompletableFuture<>();
 
         //noinspection Duplicates
         final List<Object> format = new ArrayList<>();
@@ -66,8 +66,10 @@ public interface SingleColumnFinder<T> extends ConfigGetter, StatementFiller {
 
             try (Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    returnValueFuture.complete(getSingleRowResult(finalQuery, columnToSelect,
-                            fillStatement(finalQuery, new LinkedList<>(whereFuture.keySet()), whereList, stmt)));
+                    final PreparedStatement filledStatement = fillStatement(
+                            new LinkedList<>(whereFuture.keySet()), whereList, stmt);
+                    final R singleRowResult =  getSingleRowResult(finalQuery, columnToSelect, filledStatement);
+                    returnValueFuture.complete(singleRowResult);
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
@@ -77,23 +79,22 @@ public interface SingleColumnFinder<T> extends ConfigGetter, StatementFiller {
     }
 
     //* @todo map back to DatabaseField with value rather than types.
-    @SuppressWarnings("Duplicates")
-    default List<T> getListRowResult(final String finalQuery, final DatabaseField<T> columnToSelect,
+    default <R> List<R> getListRowResult(final String finalQuery, final DatabaseField<R> columnToSelect,
                                final PreparedStatement stmt) throws SQLException {
-        List<T> rValList = new LinkedList<>();
+        List<R> rValList = new LinkedList<>();
         try (final ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                final T rval = (T) rs.getObject(1, columnToSelect.valueClass());
+                final R rval = (R) rs.getObject(1, columnToSelect.valueClass());
                 if (rval == null) {
                     rValList.add(null);
                 } else {
                     if (columnToSelect.valueClass() == String.class) {
                         //noinspection unchecked
-                        rValList.add((T) rval.toString().trim());
+                        rValList.add((R) rval.toString().trim());
                     } else if (columnToSelect.valueClass() == Boolean.class) {
                         final Boolean boolVal = rval.toString().trim().equals("1");
                         //noinspection unchecked
-                        rValList.add((T) boolVal);
+                        rValList.add((R) boolVal);
                     } else {
                         rValList.add(rval);
                     }
@@ -104,23 +105,23 @@ public interface SingleColumnFinder<T> extends ConfigGetter, StatementFiller {
     }
 
     //* @todo map back to DatabaseField with value rather than types.
-    default T getSingleRowResult(final String finalQuery, final DatabaseField<T> columnToSelect,
+    default <R> R getSingleRowResult(final String finalQuery, final DatabaseField<R> columnToSelect,
                                  final PreparedStatement stmt) throws SQLException {
         try (final ResultSet rs = stmt.executeQuery()) {
             if (!rs.next()) {
                 throw new SQLException(String.format("No Results for %s", finalQuery));
             }
-            final T rval = (T) rs.getObject(1, columnToSelect.valueClass());
+            final R rval = (R) rs.getObject(1, columnToSelect.valueClass());
             if (rval == null) {
                 return null;
             } else {
                 if (columnToSelect.valueClass() == String.class) {
                     //noinspection unchecked
-                    return (T) rval.toString().trim();
+                    return (R) rval.toString().trim();
                 } else if (columnToSelect.valueClass() == Boolean.class) {
                     final Boolean boolVal = rval.toString().trim().equals("1");
                     //noinspection unchecked
-                    return (T) boolVal;
+                    return (R) boolVal;
                 } else {
                     return rval;
                 }

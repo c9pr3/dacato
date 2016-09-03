@@ -1,4 +1,4 @@
-package co.ecso.jdao;
+package co.ecso.jdao.connection;
 
 import java.sql.SQLException;
 
