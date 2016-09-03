@@ -1,8 +1,7 @@
 package co.ecso.jdao;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * ColumnList.
@@ -14,5 +13,12 @@ import java.util.List;
 public final class ColumnList {
     public List<DatabaseField<?>> get(final DatabaseField<?> ...fields) {
         return Collections.synchronizedList(Collections.unmodifiableList(Arrays.asList(fields)));
+    }
+
+    public Map<DatabaseField<?>, CompletableFuture<?>> get(final DatabaseField<?> column,
+                                                           final CompletableFuture<?> future) {
+        final Map<DatabaseField<?>, CompletableFuture<?>> rValMap = new LinkedHashMap<>();
+        rValMap.put(column, future);
+        return rValMap;
     }
 }

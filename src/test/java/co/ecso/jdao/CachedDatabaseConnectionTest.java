@@ -69,10 +69,10 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
         insertFiveHundred(map);
         insertFiveHundred(map);
 
-        final List<?> fres = connection.findMany("SELECT %s from customer", Fields.ID, new LinkedList<>()).get();
+        final List<?> fres = connection.findMany("SELECT %s from customer", Fields.ID, new LinkedHashMap<>()).get();
         Assert.assertEquals(10000, fres.size());
         connection.truncate("TRUNCATE table customer AND COMMIT").get();
-        final List<?> fres1 = connection.findMany("SELECT id from customer", Fields.ID, new LinkedList<>()).get();
+        final List<?> fres1 = connection.findMany("SELECT id from customer", Fields.ID, new LinkedHashMap<>()).get();
         Assert.assertEquals(0, fres1.size());
     }
 
@@ -141,8 +141,9 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     public void findMany() throws Exception {
         final Long newInsertID = insertOne().get();
         final Long newInsertID2 = insertOne().get();
-        final List<DatabaseField<?>> whereList = new LinkedList<>();
-        whereList.add(new DatabaseField<>("customer_first_name", "", Types.VARCHAR, "foo"));
+        final Map<DatabaseField<?>, CompletableFuture<?>> whereList = new LinkedHashMap<>();
+        whereList.put(new DatabaseField<>("customer_first_name", "", Types.VARCHAR),
+                CompletableFuture.completedFuture("foo"));
         final List<?> result = CONNECTION.findMany("SELECT %s FROM customer WHERE %s = ?",
                 Fields.ID, whereList).get();
         Assert.assertNotNull(result);
@@ -156,8 +157,9 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
     public void findManyStrings() throws Exception {
         insertOne().get();
         insertOne().get();
-        final LinkedList<DatabaseField<?>> whereList = new LinkedList<>();
-        whereList.add(new DatabaseField<>("customer_first_name", "", Types.VARCHAR, "foo"));
+        final Map<DatabaseField<?>, CompletableFuture<?>> whereList = new LinkedHashMap<>();
+        whereList.put(new DatabaseField<>("customer_first_name", "", Types.VARCHAR),
+                CompletableFuture.completedFuture("foo"));
         final List<?> result = CONNECTION.findMany("SELECT %s FROM customer WHERE %s = ?",
                 Fields.FIRST_NAME, whereList).get();
         Assert.assertNotNull(result);
@@ -171,14 +173,11 @@ public final class CachedDatabaseConnectionTest extends AbstractTest {
 
         final List<DatabaseField<?>> selectColumns = new LinkedList<>();
         selectColumns.add(new DatabaseField<>("customer_first_name", "", Types.VARCHAR));
-        final List<DatabaseField<?>> columnsWhere = new LinkedList<>();
-        columnsWhere.add(new DatabaseField<>("id", -1L, Types.BIGINT));
+        final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere = new HashMap<>();
+        columnsWhere.put(new DatabaseField<>("id", -1L, Types.BIGINT), newInsertID);
 
         final MultipleFindQuery query = new MultipleFindQuery(
-                "SELECT %s FROM customer WHERE %s = ?",
-                selectColumns,
-                columnsWhere,
-                newInsertID);
+                "SELECT %s FROM customer WHERE %s = ?", selectColumns, columnsWhere);
         final List<List<?>> res = ((MultipleReturnFinder) () -> APPLICATION_CONFIG).find(query).get();
         Assert.assertNotNull(res);
         //System.out.println(Arrays.toString(res.toArray()));

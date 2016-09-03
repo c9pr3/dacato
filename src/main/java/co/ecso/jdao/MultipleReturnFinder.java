@@ -7,7 +7,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * MultipleReturnFinder.
@@ -32,32 +34,33 @@ public interface MultipleReturnFinder extends ConfigGetter, StatementFiller {
      */
     default CompletableFuture<List<List<?>>> find(final MultipleFindQuery query) {
         final List<DatabaseField<?>> columnsToSelect = query.columnsToSelect();
-        final List<DatabaseField<?>> columnsWhere = query.columnsWhere();
-        final CompletableFuture<?> whereFuture = query.whereFuture();
+        final Map<DatabaseField<?>, CompletableFuture<?>> whereFuture = query.columnsWhere();
 
         final CompletableFuture<List<List<?>>> returnValueFuture = new CompletableFuture<>();
 
         final List<Object> format = new ArrayList<>();
-        whereFuture.thenAccept(whereColumn -> {
+        final List<?> whereList = whereFuture.values().stream().map(CompletableFuture::join)
+                .collect(Collectors.toList());
+        CompletableFuture.runAsync(() -> {
             format.addAll(columnsToSelect);
-            format.addAll(columnsWhere);
+            format.addAll(whereFuture.keySet());
             //find a way to find out if format.toArray has the right amount of entries needed to solve query.query()
             final String finalQuery = String.format(query.query(), format.toArray());
             try (Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     returnValueFuture.complete(getResult(finalQuery, columnsToSelect,
-                            fillStatement(finalQuery, columnsWhere, whereColumn, stmt)));
+                            fillStatement(finalQuery, new ArrayList<>(whereFuture.keySet()), whereList, stmt)));
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
             }
-        });
+        }, config().getThreadPool());
         return returnValueFuture;
     }
 
     //* @todo map back to DatabaseField with value rather than types.
     default List<List<?>> getResult(final String finalQuery, final List<DatabaseField<?>> columnsToSelect,
-                              final PreparedStatement stmt) throws SQLException {
+                                    final PreparedStatement stmt) throws SQLException {
         final List<List<?>> rvalList = new LinkedList<>();
         try (final ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {

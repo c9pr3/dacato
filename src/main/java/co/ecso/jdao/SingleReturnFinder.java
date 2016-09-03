@@ -38,7 +38,7 @@ public interface SingleReturnFinder<T> extends ConfigGetter, StatementFiller {
             try (Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     returnValueFuture.complete(getSingleRowResult(finalQuery, columnToSelect,
-                            fillStatement(finalQuery, new ArrayList<>(whereFuture.keySet()), whereList, stmt)));
+                            fillStatement(finalQuery, new LinkedList<>(whereFuture.keySet()), whereList, stmt)));
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
@@ -49,21 +49,24 @@ public interface SingleReturnFinder<T> extends ConfigGetter, StatementFiller {
 
     default CompletableFuture<List<T>> find(final ListFindQuery<T> query) {
         final DatabaseField<T> columnToSelect = query.columnSelect();
-        final List<DatabaseField<?>> columnsWhere = query.columnsWhere();
-        final CompletableFuture<?> whereFuture = query.whereFuture();
+        final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere = query.columnsWhere();
+        final Map<DatabaseField<?>, CompletableFuture<?>> whereFuture = query.columnsWhere();
 
         final CompletableFuture<List<T>> returnValueFuture = new CompletableFuture<>();
 
         final List<Object> format = new ArrayList<>();
-        whereFuture.thenAccept(whereColumn -> {
+
+        final List<?> whereList = whereFuture.values().stream().map(CompletableFuture::join)
+                .collect(Collectors.toList());
+        CompletableFuture.runAsync(() -> {
             format.add(columnToSelect);
-            format.addAll(columnsWhere);
+            format.addAll(columnsWhere.keySet());
             //find a way to find out if format.toArray has the right amount of entries needed to solve query.query()
             final String finalQuery = String.format(query.query(), format.toArray());
             try (Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     returnValueFuture.complete(getResult(finalQuery, columnToSelect,
-                            fillStatement(finalQuery, columnsWhere, null, stmt)));
+                            fillStatement(finalQuery, new LinkedList<>(columnsWhere.keySet()), whereList, stmt)));
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);

@@ -1,7 +1,8 @@
 package co.ecso.jdao;
 
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -15,22 +16,19 @@ import java.util.concurrent.CompletableFuture;
 public final class MultipleFindQuery {
 
     private final List<DatabaseField<?>> columnsToSelect;
-    private final List<DatabaseField<?>> columnsWhere;
-    private final CompletableFuture<?> whereFuture;
+    private final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere;
     private final String query;
 
     public MultipleFindQuery(final String query, final List<DatabaseField<?>> columnsToSelect,
-                             final List<DatabaseField<?>> columnsWhere, final CompletableFuture<?> whereFuture) {
+                             final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere) {
         this.columnsToSelect = columnsToSelect;
         this.columnsWhere = columnsWhere;
-        this.whereFuture = whereFuture;
         this.query = query;
     }
 
     public MultipleFindQuery(final String query, final List<DatabaseField<?>> columnsToSelect) {
         this.columnsToSelect = columnsToSelect;
-        this.columnsWhere = new LinkedList<>();
-        this.whereFuture = CompletableFuture.completedFuture(null);
+        this.columnsWhere = new LinkedHashMap<>();
         this.query = query;
     }
 
@@ -38,12 +36,8 @@ public final class MultipleFindQuery {
         return columnsToSelect;
     }
 
-    public List<DatabaseField<?>> columnsWhere() {
+    public Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere() {
         return columnsWhere;
-    }
-
-    public CompletableFuture<?> whereFuture() {
-        return whereFuture;
     }
 
     public String query() {

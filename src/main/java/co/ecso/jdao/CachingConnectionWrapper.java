@@ -72,7 +72,8 @@ public class CachingConnectionWrapper {
 
     //SELECT %s from customer
     public final CompletableFuture<List<?>> findMany(final String query, final DatabaseField<?> column,
-                                        final List<DatabaseField<?>> columnsWhere) throws ExecutionException {
+                                        final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere)
+            throws ExecutionException {
         final CacheKey cacheKey = new CacheKey<>(query, column, CompletableFuture.completedFuture(columnsWhere));
         //noinspection unchecked
         return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->

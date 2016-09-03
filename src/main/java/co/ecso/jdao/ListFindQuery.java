@@ -1,7 +1,7 @@
 package co.ecso.jdao;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -15,30 +15,19 @@ import java.util.concurrent.CompletableFuture;
 public final class ListFindQuery<T> {
 
     private final DatabaseField<T> columnToSelect;
-    private final List<DatabaseField<?>> columnsWhere;
-    private final CompletableFuture<?> whereFuture;
+    private final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere;
     private final String query;
 
     public ListFindQuery(final String query, final DatabaseField<T> columnToSelect,
-                         final List<DatabaseField<?>> columnsWhere, final CompletableFuture<?> whereFuture) {
+                         final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere) {
         this.columnToSelect = columnToSelect;
         this.columnsWhere = columnsWhere;
-        this.whereFuture = whereFuture;
-        this.query = query;
-    }
-
-    public ListFindQuery(final String query, final DatabaseField<T> columnToSelect,
-                         final List<DatabaseField<?>> columnsWhere) {
-        this.columnToSelect = columnToSelect;
-        this.columnsWhere = columnsWhere;
-        this.whereFuture = CompletableFuture.completedFuture(null);
         this.query = query;
     }
 
     public ListFindQuery(final String query, final DatabaseField<T> columnToSelect) {
         this.columnToSelect = columnToSelect;
-        this.columnsWhere = new LinkedList<>();
-        this.whereFuture = CompletableFuture.completedFuture(null);
+        this.columnsWhere = new LinkedHashMap<>();
         this.query = query;
     }
 
@@ -46,12 +35,8 @@ public final class ListFindQuery<T> {
         return columnToSelect;
     }
 
-    public List<DatabaseField<?>> columnsWhere() {
+    public Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere() {
         return columnsWhere;
-    }
-
-    public CompletableFuture<?> whereFuture() {
-        return whereFuture;
     }
 
     public String query() {

@@ -95,11 +95,12 @@ public final class HsqlConnectionTest extends AbstractTest {
 
             Assert.assertEquals(20, res.size());
 
+            final Map<DatabaseField<?>, CompletableFuture<?>> map1 = new ColumnList()
+                    .get(new DatabaseField<>("id", -1L, Types.BIGINT), CompletableFuture.completedFuture(0L));
             final ListFindQuery<Long> findQuery2 = new ListFindQuery<>(
                     "SELECT %s FROM customer WHERE %s = ?",
                     Fields.ID,
-                    new ColumnList().get(new DatabaseField<>("id", -1L, Types.BIGINT, 0L)),
-                    CompletableFuture.completedFuture(null)
+                    map1
             );
             final List<Long> res2 = ((SingleReturnFinder<Long>) () -> APPLICATION_CONFIG).find(findQuery2).get();
             Assert.assertEquals(1, res2.size());
@@ -113,12 +114,7 @@ public final class HsqlConnectionTest extends AbstractTest {
     public void testTruncate() throws Exception {
         testManyInserts();
         final List<Long> res = ((SingleReturnFinder<Long>) () -> APPLICATION_CONFIG)
-                .find(new ListFindQuery<>(
-                                "SELECT %s FROM customer",
-                                Fields.ID,
-                                new ColumnList().get(),
-                                CompletableFuture.completedFuture(null))
-                ).get();
+                .find(new ListFindQuery<>("SELECT %s FROM customer", Fields.ID)).get();
         Assert.assertEquals(20, res.size());
         ((Truncater) () -> APPLICATION_CONFIG).truncate("TRUNCATE TABLE customer");
 
