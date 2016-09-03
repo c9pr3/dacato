@@ -95,7 +95,7 @@ public final class HsqlConnectionTest extends AbstractTest {
 
             Assert.assertEquals(20, res.size());
 
-            final SingleFindQuery<Long> findQuery2 = new SingleFindQuery<>(
+            final ListFindQuery<Long> findQuery2 = new ListFindQuery<>(
                     "SELECT %s FROM customer WHERE %s = ?",
                     Fields.ID,
                     new ColumnList().get(new DatabaseField<>("id", -1L, Types.BIGINT, 0L)),
@@ -113,7 +113,7 @@ public final class HsqlConnectionTest extends AbstractTest {
     public void testTruncate() throws Exception {
         testManyInserts();
         final List<Long> res = ((SingleReturnFinder<Long>) () -> APPLICATION_CONFIG)
-                .find(new SingleFindQuery<>(
+                .find(new ListFindQuery<>(
                                 "SELECT %s FROM customer",
                                 Fields.ID,
                                 new ColumnList().get(),
@@ -123,7 +123,7 @@ public final class HsqlConnectionTest extends AbstractTest {
         ((Truncater) () -> APPLICATION_CONFIG).truncate("TRUNCATE TABLE customer");
 
         final List<Long> res2 = ((SingleReturnFinder<Long>) () -> APPLICATION_CONFIG)
-                .find(new SingleFindQuery<>("SELECT %s FROM customer", Fields.ID)).get();
+                .find(new ListFindQuery<>("SELECT %s FROM customer", Fields.ID)).get();
         Assert.assertEquals(0, res2.size());
     }
 

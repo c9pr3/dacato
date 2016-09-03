@@ -77,7 +77,7 @@ public class CachingConnectionWrapper {
         //noinspection unchecked
         return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
                 ((SingleReturnFinder) () -> config)
-                        .find(new SingleFindQuery<>(query, column, columnsWhere)));
+                        .find(new ListFindQuery<>(query, column, columnsWhere)));
     }
 
     /*
