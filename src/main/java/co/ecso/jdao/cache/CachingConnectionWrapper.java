@@ -1,10 +1,12 @@
 package co.ecso.jdao.cache;
 
+import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.connection.ConnectionPool;
 import co.ecso.jdao.database.DatabaseField;
 
 import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -19,22 +21,22 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CachingConnectionWrapper {
     private static final Object MUTEX = new Object();
-//    private static final Map<Integer, Cache<CacheKey<?>, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();
+    private static final Map<Integer, Cache<CacheKey<?>, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();
     private static final Map<Integer, ConnectionPool<Connection>> CONNECTION_POOL_MAP = new ConcurrentHashMap<>();
-//    private final Connection databaseConnection;
-//    private final ApplicationConfig config;
+    private final Connection databaseConnection;
+    private final ApplicationConfig config;
 
-//    public CachingConnectionWrapper(final ApplicationConfig config,
-//                                    final Cache<CacheKey<?>, CompletableFuture<?>> cache) throws SQLException {
-//        synchronized (MUTEX) {
-//            if (!CONNECTION_POOL_MAP.containsKey(config.hashCode())) {
-//                CONNECTION_POOL_MAP.putIfAbsent(config.hashCode(), config.getConnectionPool());
-//            }
-//            this.databaseConnection = CONNECTION_POOL_MAP.get(config.hashCode()).getConnection();
-//            this.config = config;
-//            CACHE_MAP.putIfAbsent(databaseConnection.hashCode(), cache);
-//        }
-//    }
+    public CachingConnectionWrapper(final ApplicationConfig config,
+                                    final Cache<CacheKey<?>, CompletableFuture<?>> cache) throws SQLException {
+        synchronized (MUTEX) {
+            if (!CONNECTION_POOL_MAP.containsKey(config.hashCode())) {
+                CONNECTION_POOL_MAP.putIfAbsent(config.hashCode(), config.getConnectionPool());
+            }
+            this.databaseConnection = CONNECTION_POOL_MAP.get(config.hashCode()).getConnection();
+            this.config = config;
+            CACHE_MAP.putIfAbsent(databaseConnection.hashCode(), cache);
+        }
+    }
 
 //    public final CompletableFuture<Boolean> truncate(final String query) {
 //        return ((Truncater) () -> config).truncate(query)
