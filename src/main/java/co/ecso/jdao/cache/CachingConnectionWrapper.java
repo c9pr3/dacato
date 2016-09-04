@@ -1,9 +1,13 @@
 package co.ecso.jdao.cache;
 
 import co.ecso.jdao.connection.ConnectionPool;
+import co.ecso.jdao.database.DatabaseField;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -98,52 +102,52 @@ public class CachingConnectionWrapper {
 //    }
 //    */
 //
-//    @SuppressWarnings("WeakerAccess")
-//    public static final class CacheKey<T> implements Serializable {
-//
-//        private static final long serialVersionUID = -384732894789324L;
-//
-//        private final String tableName;
-//        private final DatabaseField<?> columnName;
-//        private final CompletableFuture<T> whereId;
-//        private final Map<DatabaseField<?>, ?> values;
-//
-//        CacheKey(final String tableName, final DatabaseField<?> columnName, final CompletableFuture<T> whereId) {
-//            this.tableName = tableName;
-//            this.columnName = columnName;
-//            this.whereId = whereId;
-//            this.values = null;
-//        }
-//
-//        @Override
-//        public String toString() {
-//            return "CacheKey{" +
-//                    "tableName='" + tableName + '\'' +
-//                    ", columnName='" + columnName + '\'' +
-//                    ", whereId=" + whereId +
-//                    ", values=" + values +
-//                    '}';
-//        }
-//
-//        @Override
-//        public boolean equals(final Object o) {
-//            if (this == o) {
-//                return true;
-//            }
-//            if (o == null || getClass() != o.getClass()) {
-//                return false;
-//            }
-//            final CacheKey cacheKey = (CacheKey) o;
-//            return whereId == cacheKey.whereId &&
-//                    Objects.equals(tableName, cacheKey.tableName) &&
-//                    Objects.equals(columnName, cacheKey.columnName) &&
-//                    Objects.equals(values, cacheKey.values);
-//        }
-//
-//        @Override
-//        public int hashCode() {
-//            return Objects.hash(tableName, columnName, whereId, values);
-//        }
-//    }
-//
+    @SuppressWarnings("WeakerAccess")
+    public static final class CacheKey<T> implements Serializable {
+
+        private static final long serialVersionUID = -384732894789324L;
+
+        private final String tableName;
+        private final DatabaseField<?> columnName;
+        private final CompletableFuture<T> whereId;
+        private final Map<DatabaseField<?>, ?> values;
+
+        CacheKey(final String tableName, final DatabaseField<?> columnName, final CompletableFuture<T> whereId) {
+            this.tableName = tableName;
+            this.columnName = columnName;
+            this.whereId = whereId;
+            this.values = null;
+        }
+
+        @Override
+        public String toString() {
+            return "CacheKey{" +
+                    "tableName='" + tableName + '\'' +
+                    ", columnName='" + columnName + '\'' +
+                    ", whereId=" + whereId +
+                    ", values=" + values +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            final CacheKey cacheKey = (CacheKey) o;
+            return whereId == cacheKey.whereId &&
+                    Objects.equals(tableName, cacheKey.tableName) &&
+                    Objects.equals(columnName, cacheKey.columnName) &&
+                    Objects.equals(values, cacheKey.values);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(tableName, columnName, whereId, values);
+        }
+    }
+
 }
