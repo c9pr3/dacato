@@ -25,7 +25,7 @@ public interface DatabaseEntity<T> extends Updater, SingleColumnFinder, Multiple
     default <R> CompletableFuture<R> findById(final String query, final DatabaseField<R> field,
                                                         final DatabaseField<T> idField) {
         return find(new SingleFindQuery<>(query, field,
-                ColumnList.get(idField, CompletableFuture.completedFuture(this.id()))
+                ColumnList.build(idField, CompletableFuture.completedFuture(this.id()))
         ));
     }
 

@@ -15,13 +15,13 @@ import java.util.concurrent.CompletableFuture;
 public final class SingleFindQuery<T> {
 
     private final DatabaseField<T> columnToSelect;
-    private final Map<DatabaseField<?>, CompletableFuture<?>> whereFuture;
+    private final Map<DatabaseField<?>, CompletableFuture<?>> whereFutureMap;
     private final String query;
 
     public SingleFindQuery(final String query, final DatabaseField<T> columnToSelect,
-                           final Map<DatabaseField<?>, CompletableFuture<?>> whereFuture) {
+                           final Map<DatabaseField<?>, CompletableFuture<?>> whereFutureMap) {
         this.columnToSelect = columnToSelect;
-        this.whereFuture = whereFuture;
+        this.whereFutureMap = whereFutureMap;
         this.query = query;
     }
 
@@ -29,8 +29,8 @@ public final class SingleFindQuery<T> {
         return columnToSelect;
     }
 
-    public Map<DatabaseField<?>, CompletableFuture<?>> whereFuture() {
-        return whereFuture;
+    public Map<DatabaseField<?>, CompletableFuture<?>> whereFutureMap() {
+        return whereFutureMap;
     }
 
     public String query() {

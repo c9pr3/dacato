@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractTest {
 
-//    static final Cache<CachingConnectionWrapper.CacheKey<?>, CompletableFuture<?>> APPLICATION_CACHE =
+//    static final Cache<CachingDatabaseEntity.CacheKey<?>, CompletableFuture<?>> APPLICATION_CACHE =
 // new FakeCache();
     private static snaq.db.ConnectionPool CONNECTION_POOL = null;
     private static ScheduledThreadPoolExecutor THREAD_POOL = null;

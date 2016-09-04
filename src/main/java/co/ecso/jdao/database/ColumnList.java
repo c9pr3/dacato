@@ -14,12 +14,12 @@ public final class ColumnList {
     private final List<DatabaseField<?>> keys = new LinkedList<>();
     private final List<Object> values = new LinkedList<>();
 
-    public static List<DatabaseField<?>> get(final DatabaseField<?> ...fields) {
+    public static List<DatabaseField<?>> build(final DatabaseField<?> ...fields) {
         return Collections.synchronizedList(Collections.unmodifiableList(Arrays.asList(fields)));
     }
 
-    public static Map<DatabaseField<?>, CompletableFuture<?>> get(final DatabaseField<?> column,
-                                                           final CompletableFuture<?> future) {
+    public static Map<DatabaseField<?>, CompletableFuture<?>> build(final DatabaseField<?> column,
+                                                                    final CompletableFuture<?> future) {
         final Map<DatabaseField<?>, CompletableFuture<?>> rValMap = new LinkedHashMap<>();
         rValMap.put(column, future);
         return rValMap;
@@ -35,7 +35,7 @@ public final class ColumnList {
         return this;
     }
 
-    public Map<DatabaseField<?>, ?> get() {
+    public Map<DatabaseField<?>, ?> build() {
         final Map<DatabaseField<?>, Object> map = new LinkedHashMap<>();
         for (int i = 0; i < keys.size(); i++) {
             map.put(keys.get(i), values.get(i));

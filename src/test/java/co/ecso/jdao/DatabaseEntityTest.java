@@ -58,8 +58,8 @@ public final class DatabaseEntityTest extends AbstractTest {
         this.customer = this.customer.save(
                 new ColumnList().keys(
                         Customer.Fields.FIRST_NAME, Customer.Fields.LAST_NAME, Customer.Fields.NUMBER
-                ).values(Arrays.asList("foo1", "bla1", customer.number().get())).get(),
-                new ColumnList().keys(Customer.Fields.ID).values(Collections.singletonList(this.customer.id())).get()
+                ).values(Arrays.asList("foo1", "bla1", customer.number().get())).build(),
+                new ColumnList().keys(Customer.Fields.ID).values(Collections.singletonList(this.customer.id())).build()
         ).get();
 
         Assert.assertEquals("foo1", this.customer.firstName().get());
@@ -68,8 +68,8 @@ public final class DatabaseEntityTest extends AbstractTest {
         this.customer = this.customer.save(
                 new ColumnList().keys(
                         Customer.Fields.FIRST_NAME, Customer.Fields.LAST_NAME, Customer.Fields.NUMBER
-                ).values(Arrays.asList("foo2", customer.lastName().get(), customer.number().get())).get(),
-                new ColumnList().keys(Customer.Fields.ID).values(Collections.singletonList(this.customer.id())).get()
+                ).values(Arrays.asList("foo2", customer.lastName().get(), customer.number().get())).build(),
+                new ColumnList().keys(Customer.Fields.ID).values(Collections.singletonList(this.customer.id())).build()
         ).get();
 
         Assert.assertEquals("foo2", this.customer.firstName().get());

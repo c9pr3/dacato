@@ -9,12 +9,10 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * CachingConnectionWrapper.
  *
- * @deprecated Deprecated
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 02.07.16
  */
-@Deprecated
 public class CachingConnectionWrapper {
     private static final Object MUTEX = new Object();
 //    private static final Map<Integer, Cache<CacheKey<?>, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();

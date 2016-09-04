@@ -76,20 +76,20 @@ public final class HsqlConnectionTest extends AbstractTest {
                             "VALUES (null, ?, ?, ?, ?, ?, ?, ?)", map),
                     ((Inserter<CompletableFuture<Long>>) () -> APPLICATION_CONFIG).insert("INSERT INTO customer " +
                             "VALUES (null, ?, ?, ?, ?, ?, ?, ?)", map)
-            ).get();
+            ).build();
 
             final MultipleFindQuery findQuery = new MultipleFindQuery(
                     "SELECT %s FROM customer",
-                    new ColumnList().get(Fields.ID)
+                    new ColumnList().build(Fields.ID)
             );
-            List res = ((MultipleColumnFinder) () -> APPLICATION_CONFIG).find(findQuery).get();
+            List res = ((MultipleColumnFinder) () -> APPLICATION_CONFIG).find(findQuery).build();
 
             Assert.assertEquals(20, res.size());
 
             final Map<DatabaseField<?>, CompletableFuture<?>> map1 = new ColumnList()
-                    .get(new DatabaseField<>("id", -1L, Types.BIGINT), CompletableFuture.completedFuture(0L));
+                    .build(new DatabaseField<>("id", -1L, Types.BIGINT), CompletableFuture.completedFuture(0L));
             final List<Long> res2 = ((SingleColumnFinder) () -> APPLICATION_CONFIG).find(
-                    new ListFindQuery<>("SELECT %s FROM customer WHERE %s = ?", Fields.ID, map1)).get();
+                    new ListFindQuery<>("SELECT %s FROM customer WHERE %s = ?", Fields.ID, map1)).build();
             Assert.assertEquals(1, res2.size());
         } catch (final InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -101,12 +101,12 @@ public final class HsqlConnectionTest extends AbstractTest {
     public void testTruncate() throws Exception {
 //        testManyInserts();
 //        final List<Long> res = ((SingleColumnFinder) () -> APPLICATION_CONFIG)
-//                .find(new ListFindQuery<>("SELECT %s FROM customer", Fields.ID)).get();
+//                .find(new ListFindQuery<>("SELECT %s FROM customer", Fields.ID)).build();
 //        Assert.assertEquals(20, res.size());
 //        ((Truncater) () -> APPLICATION_CONFIG).truncate("TRUNCATE TABLE customer");
 //
 //        final List<Long> res2 = ((SingleColumnFinder) () -> APPLICATION_CONFIG)
-//                .find(new ListFindQuery<>("SELECT %s FROM customer", Fields.ID)).get();
+//                .find(new ListFindQuery<>("SELECT %s FROM customer", Fields.ID)).build();
 //        Assert.assertEquals(0, res2.size());
     }
 

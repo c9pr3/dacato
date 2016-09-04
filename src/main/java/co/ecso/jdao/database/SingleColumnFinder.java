@@ -50,7 +50,7 @@ interface SingleColumnFinder extends ConfigGetter, StatementFiller {
 
     default <R> CompletableFuture<R> find(final SingleFindQuery<R> query) {
         final DatabaseField<R> columnToSelect = query.columnSelect();
-        final Map<DatabaseField<?>, CompletableFuture<?>> whereFuture = query.whereFuture();
+        final Map<DatabaseField<?>, CompletableFuture<?>> whereFuture = query.whereFutureMap();
 
         final CompletableFuture<R> returnValueFuture = new CompletableFuture<>();
 

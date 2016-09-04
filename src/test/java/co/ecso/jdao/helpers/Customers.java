@@ -20,7 +20,6 @@ public final class Customers implements DatabaseTable<Long> {
     private final ApplicationConfig config;
 
     public Customers(final ApplicationConfig config) {
-        Objects.requireNonNull(config);
         this.config = config;
     }
 
@@ -29,16 +28,15 @@ public final class Customers implements DatabaseTable<Long> {
     }
 
     public CompletableFuture<Customer> findOne(final CompletableFuture<Long> id) {
-        return this.find(
-                new SingleFindQuery<>("SELECT %s FROM customer WHERE id = ?", Customer.Fields.ID,
-                        ColumnList.get(Customer.Fields.ID, id))).thenApply(id1 -> new Customer(config, id1));
+        return this.find(new SingleFindQuery<>("SELECT %s FROM customer WHERE id = ?", Customer.Fields.ID,
+                ColumnList.build(Customer.Fields.ID, id))).thenApply(id1 -> new Customer(config, id1));
     }
 
     public CompletableFuture<Customer> add(final String customerFirstName, final String customerLastName,
                                            final long customerNumber) {
         return this.insert("INSERT INTO customer VALUES (null, ?, ?, ?)",
                 new ColumnList().keys(Customer.Fields.FIRST_NAME, Customer.Fields.LAST_NAME, Customer.Fields.NUMBER)
-                        .values(Arrays.asList(customerFirstName, customerLastName, customerNumber)).get())
+                        .values(Arrays.asList(customerFirstName, customerLastName, customerNumber)).build())
                 .thenApply(id -> new Customer(config, id));
     }
 
@@ -49,7 +47,7 @@ public final class Customers implements DatabaseTable<Long> {
     }
 
     public CompletableFuture<List<List<?>>> findIdAndFirstNameByID(final CompletableFuture<Long> id,
-                                                             final CompletableFuture<String> firstName) {
+                                                                   final CompletableFuture<String> firstName) {
 
         final List<DatabaseField<?>> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(Customer.Fields.ID);
@@ -58,10 +56,8 @@ public final class Customers implements DatabaseTable<Long> {
         final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere = new HashMap<>();
         columnsWhere.put(Customer.Fields.ID, id);
 
-        return this.find(
-                new MultipleFindQuery("SELECT %s, %s FROM customer WHERE %s = ?",
-                        columnsToSelect, columnsWhere)
-        );
+        return this.find(new MultipleFindQuery("SELECT %s, %s FROM customer WHERE %s = ?",
+                columnsToSelect, columnsWhere));
     }
 
     @Override
