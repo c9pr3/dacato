@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 02.09.16
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class MultipleFindQuery {
 
     private final List<DatabaseField<?>> columnsToSelect;

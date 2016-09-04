@@ -21,7 +21,7 @@ interface Inserter<T> extends ConfigGetter, StatementFiller {
         final CompletableFuture<T> retValFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {
-                try (Connection c = config().getConnectionPool().getConnection()) {
+                try (final Connection c = config().getConnectionPool().getConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                         fillStatement(new ArrayList<>(values.keySet()), new ArrayList<>(values.values()), stmt);
                         retValFuture.complete(getResult(query, stmt));

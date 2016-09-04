@@ -18,7 +18,7 @@ interface Truncater extends ConfigGetter {
     default CompletableFuture<Boolean> truncate(final String query) {
         final CompletableFuture<Boolean> retValFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
-            try (Connection c = config().getConnectionPool().getConnection()) {
+            try (final Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(query)) {
                     retValFuture.complete(stmt.execute());
                 }

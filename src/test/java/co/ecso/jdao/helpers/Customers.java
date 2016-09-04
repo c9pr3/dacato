@@ -31,8 +31,7 @@ public final class Customers implements DatabaseTable<Long> {
     public CompletableFuture<Customer> findOne(final CompletableFuture<Long> id) {
         return this.find(
                 new SingleFindQuery<>("SELECT %s FROM customer WHERE id = ?", Customer.Fields.ID,
-                        new ColumnList().get(Customer.Fields.ID, id)))
-                .thenApply(id1 -> new Customer(config, id1));
+                        ColumnList.get(Customer.Fields.ID, id))).thenApply(id1 -> new Customer(config, id1));
     }
 
     public CompletableFuture<Customer> add(final String customerFirstName, final String customerLastName,

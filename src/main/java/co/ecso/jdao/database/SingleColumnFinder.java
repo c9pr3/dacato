@@ -36,7 +36,7 @@ interface SingleColumnFinder extends ConfigGetter, StatementFiller {
             //find a way to find out if format.toArray has the right amount of entries needed to solve query.query()
             final String finalQuery = String.format(query.query(), format.toArray());
 
-            try (Connection c = config().getConnectionPool().getConnection()) {
+            try (final Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     returnValueFuture.complete(getListRowResult(finalQuery, columnToSelect,
                             fillStatement(Collections.singletonList(columnToSelect), whereList, stmt)));
@@ -64,7 +64,7 @@ interface SingleColumnFinder extends ConfigGetter, StatementFiller {
             //find a way to find out if format.toArray has the right amount of entries needed to solve query.query()
             final String finalQuery = String.format(query.query(), format.toArray());
 
-            try (Connection c = config().getConnectionPool().getConnection()) {
+            try (final Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     final PreparedStatement filledStatement = fillStatement(
                             new LinkedList<>(whereFuture.keySet()), whereList, stmt);
@@ -81,7 +81,7 @@ interface SingleColumnFinder extends ConfigGetter, StatementFiller {
     //* @todo map back to DatabaseField with value rather than types.
     default <R> List<R> getListRowResult(final String finalQuery, final DatabaseField<R> columnToSelect,
                                final PreparedStatement stmt) throws SQLException {
-        List<R> rValList = new LinkedList<>();
+        final List<R> rValList = new LinkedList<>();
         try (final ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 final R rval = (R) rs.getObject(1, columnToSelect.valueClass());

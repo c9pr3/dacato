@@ -14,11 +14,11 @@ public final class ColumnList {
     private final List<DatabaseField<?>> keys = new LinkedList<>();
     private final List<Object> values = new LinkedList<>();
 
-    public List<DatabaseField<?>> get(final DatabaseField<?> ...fields) {
+    public static List<DatabaseField<?>> get(final DatabaseField<?> ...fields) {
         return Collections.synchronizedList(Collections.unmodifiableList(Arrays.asList(fields)));
     }
 
-    public Map<DatabaseField<?>, CompletableFuture<?>> get(final DatabaseField<?> column,
+    public static Map<DatabaseField<?>, CompletableFuture<?>> get(final DatabaseField<?> column,
                                                            final CompletableFuture<?> future) {
         final Map<DatabaseField<?>, CompletableFuture<?>> rValMap = new LinkedHashMap<>();
         rValMap.put(column, future);

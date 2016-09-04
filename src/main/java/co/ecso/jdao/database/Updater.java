@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 30.08.16
  */
-public interface Updater extends ConfigGetter, StatementFiller {
+interface Updater extends ConfigGetter, StatementFiller {
 
     default CompletableFuture<Boolean> update(final String query, final Map<DatabaseField<?>, ?> valuesToSet,
                                               final Map<DatabaseField<?>, ?> whereMap) {
@@ -30,7 +30,7 @@ public interface Updater extends ConfigGetter, StatementFiller {
                 whereMap.keySet().forEach(newArr::add);
                 final String finalQuery = String.format(query, newArr.toArray());
 
-                try (Connection c = config().getConnectionPool().getConnection()) {
+                try (final Connection c = config().getConnectionPool().getConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                         final List<Object> values = new LinkedList<>();
                         valuesToSet.values().forEach(values::add);

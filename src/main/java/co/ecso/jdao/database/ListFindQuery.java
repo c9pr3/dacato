@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 02.09.16
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class ListFindQuery<T> {
 
     private final String query;

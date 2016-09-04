@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 03.09.16
  */
+@SuppressWarnings("WeakerAccess")
 public final class SingleFindQuery<T> {
 
     private final DatabaseField<T> columnToSelect;

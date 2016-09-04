@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 08.08.16
  */
+@SuppressWarnings("unused")
 public interface DatabaseEntity<T> extends Updater, SingleColumnFinder, MultipleColumnFinder {
     T id();
 
@@ -20,5 +21,12 @@ public interface DatabaseEntity<T> extends Updater, SingleColumnFinder, Multiple
     String toJson() throws SQLException;
 
     void checkValidity();
+
+    default <R> CompletableFuture<R> findById(final String query, final DatabaseField<R> field,
+                                                        final DatabaseField<T> idField) {
+        return find(new SingleFindQuery<>(query, field,
+                ColumnList.get(idField, CompletableFuture.completedFuture(this.id()))
+        ));
+    }
 
 }

@@ -48,7 +48,7 @@ interface MultipleColumnFinder extends ConfigGetter, StatementFiller {
             format.addAll(whereFuture.keySet());
             //find a way to find out if format.toArray has the right amount of entries needed to solve query.query()
             final String finalQuery = String.format(query.query(), format.toArray());
-            try (Connection c = config().getConnectionPool().getConnection()) {
+            try (final Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     returnValueFuture.complete(getResult(finalQuery, columnsToSelect,
                             fillStatement(new ArrayList<>(whereFuture.keySet()), whereList, stmt)));
@@ -66,7 +66,7 @@ interface MultipleColumnFinder extends ConfigGetter, StatementFiller {
         final List<List<?>> rvalList = new LinkedList<>();
         try (final ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                List<Object> thisList = new LinkedList<>();
+                final List<Object> thisList = new LinkedList<>();
                 for (int i = 0; i < columnsToSelect.size(); i++) {
                     final DatabaseField<?> selector = columnsToSelect.get(i);
                     final Object rval = rs.getObject(i + 1, selector.valueClass());
