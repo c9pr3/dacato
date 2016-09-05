@@ -3,7 +3,10 @@ package co.ecso.jdao.helpers;
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -36,7 +39,7 @@ public final class Customers implements DatabaseTable<Long> {
                                            final long customerNumber) {
         return this.insert("INSERT INTO customer VALUES (null, ?, ?, ?)",
                 new ColumnList().keys(Customer.Fields.FIRST_NAME, Customer.Fields.LAST_NAME, Customer.Fields.NUMBER)
-                        .values(Arrays.asList(customerFirstName, customerLastName, customerNumber)).build())
+                        .values(customerFirstName, customerLastName, customerNumber).build())
                 .thenApply(id -> new Customer(config, id));
     }
 

@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -58,7 +57,7 @@ public final class DatabaseEntityTest extends AbstractTest {
         this.customer = this.customer.save(
                 new ColumnList().keys(
                         Customer.Fields.FIRST_NAME, Customer.Fields.LAST_NAME, Customer.Fields.NUMBER
-                ).values(Arrays.asList("foo1", "bla1", customer.number().get())).build(),
+                ).values("foo1", "bla1", customer.number().get()).build(),
                 new ColumnList().keys(Customer.Fields.ID).values(Collections.singletonList(this.customer.id())).build()
         ).get();
 
@@ -68,7 +67,7 @@ public final class DatabaseEntityTest extends AbstractTest {
         this.customer = this.customer.save(
                 new ColumnList().keys(
                         Customer.Fields.FIRST_NAME, Customer.Fields.LAST_NAME, Customer.Fields.NUMBER
-                ).values(Arrays.asList("foo2", customer.lastName().get(), customer.number().get())).build(),
+                ).values("foo2", customer.lastName().get(), customer.number().get()).build(),
                 new ColumnList().keys(Customer.Fields.ID).values(Collections.singletonList(this.customer.id())).build()
         ).get();
 
