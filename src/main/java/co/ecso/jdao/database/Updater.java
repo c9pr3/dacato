@@ -5,11 +5,9 @@ import co.ecso.jdao.config.ConfigGetter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Updater.
@@ -26,10 +24,15 @@ interface Updater extends ConfigGetter, StatementFiller {
         CompletableFuture.runAsync(() -> {
             try {
                 final List<DatabaseField<?>> newArr = new LinkedList<>();
+                final List<String> selectFormat = new ArrayList<>();
+                final List<String> whereFormat = new ArrayList<>();
+                valuesToSet.forEach((k, v) -> selectFormat.add("%s = ?"));
+                whereMap.forEach((k, v) -> whereFormat.add("%s = ?"));
                 valuesToSet.keySet().forEach(newArr::add);
                 whereMap.keySet().forEach(newArr::add);
-                final String finalQuery = String.format(query, newArr.toArray());
-
+                final String finalQuery = String.format(
+                        String.format(query, selectFormat.stream().collect(Collectors.joining(", ")),
+                                whereFormat.stream().collect(Collectors.joining(", "))), newArr.toArray());
                 try (final Connection c = config().getConnectionPool().getConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                         final List<Object> values = new LinkedList<>();

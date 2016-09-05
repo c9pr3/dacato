@@ -56,7 +56,7 @@ public final class Customer implements DatabaseEntity<Long> {
                                             final Map<DatabaseField<?>, ?> whereMap) {
         this.checkValidity();
         return this.update(
-                "UPDATE customer SET %s = ?, %s = ?, %s = ? WHERE %s = ?", updateMap, whereMap)
+                "UPDATE customer SET %s WHERE %s", updateMap, whereMap)
                 .thenApply(b -> new Customer(this.config, this.id));
     }
 
