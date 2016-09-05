@@ -30,6 +30,11 @@ public final class ColumnList {
         return this;
     }
 
+    public ColumnList values(final Object ...value) {
+        values.addAll(Arrays.asList(value));
+        return this;
+    }
+
     public ColumnList values(final List<Object> value) {
         value.forEach(values::add);
         return this;
