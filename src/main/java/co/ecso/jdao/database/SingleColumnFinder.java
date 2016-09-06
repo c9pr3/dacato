@@ -84,24 +84,29 @@ interface SingleColumnFinder extends ConfigGetter, StatementFiller {
         final List<R> rValList = new LinkedList<>();
         try (final ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                final R rval = (R) rs.getObject(1, columnToSelect.valueClass());
-                if (rval == null) {
-                    rValList.add(null);
-                } else {
-                    if (columnToSelect.valueClass() == String.class) {
-                        //noinspection unchecked
-                        rValList.add((R) rval.toString().trim());
-                    } else if (columnToSelect.valueClass() == Boolean.class) {
-                        final Boolean boolVal = rval.toString().trim().equals("1");
-                        //noinspection unchecked
-                        rValList.add((R) boolVal);
-                    } else {
-                        rValList.add(rval);
-                    }
-                }
+                fillResultList(columnToSelect, rValList, rs);
             }
         }
         return rValList;
+    }
+
+    default <R> void fillResultList(final DatabaseField<R> columnToSelect, final List<R> rValList,
+                                    final ResultSet rs) throws SQLException {
+        final R rval = (R) rs.getObject(1, columnToSelect.valueClass());
+        if (rval == null) {
+            rValList.add(null);
+        } else {
+            if (columnToSelect.valueClass() == String.class) {
+                //noinspection unchecked
+                rValList.add((R) rval.toString().trim());
+            } else if (columnToSelect.valueClass() == Boolean.class) {
+                final Boolean boolVal = rval.toString().trim().equals("1");
+                //noinspection unchecked
+                rValList.add((R) boolVal);
+            } else {
+                rValList.add(rval);
+            }
+        }
     }
 
     //* @todo map back to DatabaseField with value rather than types.

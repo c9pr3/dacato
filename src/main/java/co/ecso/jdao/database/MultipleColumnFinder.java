@@ -66,13 +66,13 @@ interface MultipleColumnFinder extends ConfigGetter, StatementFiller {
         final List<List<?>> rvalList = new LinkedList<>();
         try (final ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                rvalList.add(fillResultList(columnsToSelect, rvalList, rs));
+                fillResultList(columnsToSelect, rvalList, rs);
             }
         }
         return rvalList;
     }
 
-    default List<?> fillResultList(final List<DatabaseField<?>> columnsToSelect, final List<List<?>> rvalList,
+    default void fillResultList(final List<DatabaseField<?>> columnsToSelect, final List<List<?>> rvalList,
                                         final ResultSet rs) throws SQLException {
         final List<Object> thisList = new LinkedList<>();
         for (int i = 0; i < columnsToSelect.size(); i++) {
@@ -93,7 +93,7 @@ interface MultipleColumnFinder extends ConfigGetter, StatementFiller {
                 }
             }
         }
-        return thisList;
+        rvalList.add(thisList);
     }
 
 }
