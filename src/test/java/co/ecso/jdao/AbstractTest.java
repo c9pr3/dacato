@@ -102,24 +102,17 @@ public abstract class AbstractTest {
     /**
      * Set up database.
      */
-    protected final void setUpDatabase() {
+    protected final void setUpDatabase() throws IOException, SQLException {
         final JDBCDataSource dataSource = this.getDataSource();
-        try {
-            final String lines = Files.readAllLines(Paths.get("test.sql"))
-                    .stream()
-                    .filter(CreateTableOnlyFilter::filter)
-                    .map(MysqlToHsqlMap::filter)
-                    .collect(Collectors.joining());
-            try (final Connection connection = dataSource.getConnection()) {
-                try (final Statement stmt = connection.createStatement()) {
-                    stmt.execute(lines);
-                }
-            } catch (final SQLException e) {
-                // not interested
-//                 e.printStackTrace();
+        final String lines = Files.readAllLines(Paths.get("test.sql"))
+                .stream()
+                .filter(CreateTableOnlyFilter::filter)
+                .map(MysqlToHsqlMap::filter)
+                .collect(Collectors.joining());
+        try (final Connection connection = dataSource.getConnection()) {
+            try (final Statement stmt = connection.createStatement()) {
+                stmt.execute(lines);
             }
-        } catch (final IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -158,8 +151,6 @@ public abstract class AbstractTest {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("TRUNCATE SCHEMA PUBLIC RESTART IDENTITY AND COMMIT NO CHECK");
             }
-        } catch (final SQLException e) {
-            throw new RuntimeException(e.getMessage(), e);
         }
     }
 

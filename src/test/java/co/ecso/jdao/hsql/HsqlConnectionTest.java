@@ -93,7 +93,6 @@ public final class HsqlConnectionTest extends AbstractTest {
             Assert.assertEquals(1, res2.size());
         } catch (final InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
         }
     }
 

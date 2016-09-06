@@ -6,6 +6,7 @@ import co.ecso.jdao.database.DatabaseField;
 
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ConcurrentModificationException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,7 +72,7 @@ public final class Customer implements DatabaseEntity<Long> {
     @Override
     public void checkValidity() {
         if (this.invalid.get()) {
-            throw new RuntimeException("Object destroyed");
+            throw new ConcurrentModificationException("Object destroyed");
         }
     }
 
