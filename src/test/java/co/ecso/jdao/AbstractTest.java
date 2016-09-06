@@ -104,7 +104,7 @@ public abstract class AbstractTest {
     /**
      * Set up database.
      */
-    protected final void setUpDatabase() throws IOException, SQLException {
+    protected final void setUpDatabase() throws IOException {
         final JDBCDataSource dataSource = this.getDataSource();
         final String lines = Files.readAllLines(Paths.get("test.sql"))
                 .stream()
@@ -115,8 +115,8 @@ public abstract class AbstractTest {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute(lines);
             }
-        } catch (final SQLException ignored) {
-            LOGGER.warning(ignored.getMessage());
+        } catch (final SQLException e) {
+            LOGGER.warning(e.getMessage());
         }
     }
 

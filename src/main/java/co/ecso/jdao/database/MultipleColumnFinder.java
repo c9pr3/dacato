@@ -66,29 +66,34 @@ interface MultipleColumnFinder extends ConfigGetter, StatementFiller {
         final List<List<?>> rvalList = new LinkedList<>();
         try (final ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                final List<Object> thisList = new LinkedList<>();
-                for (int i = 0; i < columnsToSelect.size(); i++) {
-                    final DatabaseField<?> selector = columnsToSelect.get(i);
-                    final Object rval = rs.getObject(i + 1, selector.valueClass());
-                    if (rval == null) {
-                        rvalList.add(null);
-                    } else {
-                        if (selector.valueClass() == String.class) {
-                            //noinspection unchecked
-                            thisList.add(rval.toString().trim());
-                        } else if (selector.valueClass() == Boolean.class) {
-                            final Boolean boolVal = rval.toString().trim().equals("1");
-                            //noinspection unchecked
-                            thisList.add(boolVal);
-                        } else {
-                            thisList.add(rval);
-                        }
-                    }
-                }
-                rvalList.add(thisList);
+                rvalList.add(fillResultList(columnsToSelect, rvalList, rs));
             }
         }
         return rvalList;
+    }
+
+    default List<?> fillResultList(final List<DatabaseField<?>> columnsToSelect, final List<List<?>> rvalList,
+                                        final ResultSet rs) throws SQLException {
+        final List<Object> thisList = new LinkedList<>();
+        for (int i = 0; i < columnsToSelect.size(); i++) {
+            final DatabaseField<?> selector = columnsToSelect.get(i);
+            final Object rval = rs.getObject(i + 1, selector.valueClass());
+            if (rval == null) {
+                rvalList.add(null);
+            } else {
+                if (selector.valueClass() == String.class) {
+                    //noinspection unchecked
+                    thisList.add(rval.toString().trim());
+                } else if (selector.valueClass() == Boolean.class) {
+                    final Boolean boolVal = "1".equals(rval.toString().trim());
+                    //noinspection unchecked
+                    thisList.add(boolVal);
+                } else {
+                    thisList.add(rval);
+                }
+            }
+        }
+        return thisList;
     }
 
 }
