@@ -115,7 +115,7 @@ public abstract class AbstractTest {
                 stmt.execute(lines);
             }
         } catch (final SQLException ignored) {
-            //
+            ignored.printStackTrace();
         }
     }
 

@@ -25,7 +25,7 @@ public final class ColumnList {
         return rValMap;
     }
 
-    public ColumnList keys(final DatabaseField<?> ...keys) {
+    public ColumnList keys(final DatabaseField<?>... keys) {
         this.keys.addAll(Arrays.asList(keys));
         return this;
     }
