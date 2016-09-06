@@ -77,27 +77,22 @@ public abstract class AbstractTest {
         }
 
         @Override
-        public ScheduledExecutorService getThreadPool() {
+        public synchronized ScheduledExecutorService getThreadPool() {
             //noinspection SynchronizeOnNonFinalField
-            synchronized (threadPool) {
-                if (threadPool == null) {
-                    threadPool = new ScheduledThreadPoolExecutor(this.getMaxPoolSize());
-                }
-                return threadPool;
+            if (threadPool == null) {
+                threadPool = new ScheduledThreadPoolExecutor(this.getMaxPoolSize());
             }
+            return threadPool;
         }
 
         @Override
-        public ConnectionPool<Connection> getConnectionPool() {
-            //noinspection SynchronizeOnNonFinalField
-            synchronized (connectionPool) {
-                if (connectionPool == null) {
-                    connectionPool = new snaq.db.ConnectionPool(getPoolName(), getMinPoolSize(),
-                            getMaxPoolSize(), getPoolMaxSize(), getPoolIdleTimeout(),
-                            getConnectString(), null);
-                }
-                return () -> connectionPool.getConnection();
+        public synchronized ConnectionPool<Connection> getConnectionPool() {
+            if (connectionPool == null) {
+                connectionPool = new snaq.db.ConnectionPool(getPoolName(), getMinPoolSize(),
+                        getMaxPoolSize(), getPoolMaxSize(), getPoolIdleTimeout(),
+                        getConnectString(), null);
             }
+            return () -> connectionPool.getConnection();
         }
     };
 
@@ -119,6 +114,8 @@ public abstract class AbstractTest {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute(lines);
             }
+        } catch (final SQLException ignored) {
+            //
         }
     }
 
