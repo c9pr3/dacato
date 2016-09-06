@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version $Id:$
  * @since 02.07.16
  */
+@SuppressWarnings({"unused", "FieldCanBeLocal"})
 public class CachingConnectionWrapper {
     private static final Object MUTEX = new Object();
     private static final Map<Integer, Cache<CacheKey<?>, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();
@@ -111,8 +112,8 @@ public class CachingConnectionWrapper {
 
         private final String tableName;
         private final DatabaseField<?> columnName;
-        private final CompletableFuture<T> whereId;
-        private final Map<DatabaseField<?>, ?> values;
+        private final transient CompletableFuture<T> whereId;
+        private final transient Map<DatabaseField<?>, ?> values;
 
         CacheKey(final String tableName, final DatabaseField<?> columnName, final CompletableFuture<T> whereId) {
             this.tableName = tableName;

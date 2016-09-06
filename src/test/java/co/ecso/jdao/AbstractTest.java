@@ -27,8 +27,8 @@ public abstract class AbstractTest {
 
 //    static final Cache<CachingDatabaseEntity.CacheKey<?>, CompletableFuture<?>> APPLICATION_CACHE =
 // new FakeCache();
-    private static snaq.db.ConnectionPool CONNECTION_POOL = null;
-    private static ScheduledThreadPoolExecutor THREAD_POOL = null;
+    private static snaq.db.ConnectionPool connectionPool = null;
+    private static ScheduledThreadPoolExecutor threadPool = null;
     static final ApplicationConfig APPLICATION_CONFIG = new ApplicationConfig() {
 
         @Override
@@ -78,20 +78,26 @@ public abstract class AbstractTest {
 
         @Override
         public ScheduledExecutorService getThreadPool() {
-            if (THREAD_POOL == null) {
-                THREAD_POOL = new ScheduledThreadPoolExecutor(this.getMaxPoolSize());
+            //noinspection SynchronizeOnNonFinalField
+            synchronized (threadPool) {
+                if (threadPool == null) {
+                    threadPool = new ScheduledThreadPoolExecutor(this.getMaxPoolSize());
+                }
+                return threadPool;
             }
-            return THREAD_POOL;
         }
 
         @Override
         public ConnectionPool<Connection> getConnectionPool() {
-            if (CONNECTION_POOL == null) {
-                    CONNECTION_POOL = new snaq.db.ConnectionPool(getPoolName(), getMinPoolSize(),
+            //noinspection SynchronizeOnNonFinalField
+            synchronized (connectionPool) {
+                if (connectionPool == null) {
+                    connectionPool = new snaq.db.ConnectionPool(getPoolName(), getMinPoolSize(),
                             getMaxPoolSize(), getPoolMaxSize(), getPoolIdleTimeout(),
                             getConnectString(), null);
+                }
+                return () -> connectionPool.getConnection();
             }
-            return () -> CONNECTION_POOL.getConnection();
         }
     };
 

@@ -7,13 +7,21 @@ import java.util.concurrent.ExecutionException;
 /**
  * Cache interface.
  *
+ * @param <K> Key Type.
+ * @param <V> Value Type.
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 25.08.16
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public interface Cache<K, V> {
-    V getIfPresent(final Object var1);
+    /**
+     * Get entry if present.
+     *
+     * @param key Key to get.
+     * @return Value.
+     */
+    V getIfPresent(final K key);
 
     V get(final K var1, final Callable<? extends V> var2) throws ExecutionException;
 

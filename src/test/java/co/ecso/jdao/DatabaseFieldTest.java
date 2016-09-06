@@ -16,13 +16,13 @@ import java.sql.Types;
 public final class DatabaseFieldTest {
 
     @Test
-    public void name() throws Exception {
+    public void name() {
         final DatabaseField<String> field = new DatabaseField<>("foo", "123", Types.VARCHAR);
         Assert.assertEquals("foo", field.toString());
     }
 
     @Test
-    public void defaultClass() throws Exception {
+    public void defaultClass() {
         final DatabaseField<String> field = new DatabaseField<>("foo", "123", Types.VARCHAR);
         Assert.assertEquals(String.class, field.valueClass());
     }
