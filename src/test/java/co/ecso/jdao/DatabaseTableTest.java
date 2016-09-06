@@ -66,8 +66,9 @@ public final class DatabaseTableTest extends AbstractTest {
 
     @Test
     public void testRemoveAll() throws Exception {
+        this.customers.removeAll().get();
         this.testFindAll();
-        this.customers.removeAll();
+        this.customers.removeAll().get();
         Assert.assertEquals(0, this.customers.findAll().get().size());
     }
 
