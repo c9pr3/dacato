@@ -5,7 +5,10 @@ import co.ecso.jdao.config.ConfigGetter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -50,7 +53,6 @@ interface Updater extends ConfigGetter, StatementFiller {
     }
 
     default boolean getResult(final PreparedStatement stmt) throws SQLException {
-        Objects.nonNull(stmt);
         stmt.executeUpdate();
         return true;
     }

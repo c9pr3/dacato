@@ -22,7 +22,7 @@ public final class ColumnList {
                                                                     final CompletableFuture<?> future) {
         final Map<DatabaseField<?>, CompletableFuture<?>> rValMap = new LinkedHashMap<>();
         rValMap.put(column, future);
-        return rValMap;
+        return Collections.unmodifiableMap(rValMap);
     }
 
     public ColumnList keys(final DatabaseField<?>... keys) {
@@ -45,6 +45,6 @@ public final class ColumnList {
         for (int i = 0; i < keys.size(); i++) {
             map.put(keys.get(i), values.get(i));
         }
-        return map;
+        return Collections.unmodifiableMap(map);
     }
 }

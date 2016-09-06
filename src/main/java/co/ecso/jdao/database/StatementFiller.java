@@ -15,14 +15,10 @@ interface StatementFiller {
 
     default PreparedStatement fillStatement(final List<DatabaseField<?>> columnsWhere, final List<?> valuesWhere,
                                             final PreparedStatement stmt) throws SQLException {
-        // System.out.println("SETTING : " + Arrays.toString(columnsWhere.toArray()) + ", values "
-        // + Arrays.toString(valuesWhere.toArray()));
         for (int i = 0; i < valuesWhere.size(); i++) {
             final Object valueToSet = valuesWhere.get(i);
             final int sqlType = columnsWhere.get(i).sqlType();
             try {
-                // System.out.println("SETTING " + columnsWhere.build(i) + " to " + valueToSet
-                // + ", sqlType " + sqlType);
                 stmt.setObject(i + 1, valueToSet, sqlType);
             } catch (final SQLException e) {
                 throw new SQLException(String.format("Could not set %s to %d: %s", valueToSet, sqlType, e));

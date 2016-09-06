@@ -38,8 +38,11 @@ interface SingleColumnFinder extends ConfigGetter, StatementFiller {
 
             try (final Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    returnValueFuture.complete(getListRowResult(finalQuery, columnToSelect,
-                            fillStatement(Collections.singletonList(columnToSelect), whereList, stmt)));
+                    returnValueFuture.complete(
+                            Collections.unmodifiableList(
+                                getListRowResult(finalQuery, columnToSelect,
+                                fillStatement(Collections.singletonList(columnToSelect), whereList, stmt))
+                            ));
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
@@ -68,8 +71,7 @@ interface SingleColumnFinder extends ConfigGetter, StatementFiller {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     final PreparedStatement filledStatement = fillStatement(
                             new LinkedList<>(whereFuture.keySet()), whereList, stmt);
-                    final R singleRowResult =  getSingleRowResult(finalQuery, columnToSelect, filledStatement);
-                    returnValueFuture.complete(singleRowResult);
+                    returnValueFuture.complete(getSingleRowResult(finalQuery, columnToSelect, filledStatement));
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);

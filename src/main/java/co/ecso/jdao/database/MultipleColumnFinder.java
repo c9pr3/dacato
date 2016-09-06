@@ -6,10 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -50,8 +47,8 @@ interface MultipleColumnFinder extends ConfigGetter, StatementFiller {
             final String finalQuery = String.format(query.query(), format.toArray());
             try (final Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    returnValueFuture.complete(getResult(finalQuery, columnsToSelect,
-                            fillStatement(new ArrayList<>(whereFuture.keySet()), whereList, stmt)));
+                    returnValueFuture.complete(Collections.unmodifiableList(getResult(finalQuery, columnsToSelect,
+                            fillStatement(new ArrayList<>(whereFuture.keySet()), whereList, stmt))));
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);

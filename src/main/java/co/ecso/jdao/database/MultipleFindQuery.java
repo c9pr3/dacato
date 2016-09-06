@@ -16,19 +16,19 @@ import java.util.concurrent.CompletableFuture;
 public final class MultipleFindQuery {
 
     private final List<DatabaseField<?>> columnsToSelect;
-    private final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere;
+    private final Map<DatabaseField<?>, CompletableFuture<?>> whereFutureMap;
     private final String query;
+
+    public MultipleFindQuery(final String query, final List<DatabaseField<?>> columnsToSelect) {
+        this.columnsToSelect = columnsToSelect;
+        this.whereFutureMap = new LinkedHashMap<>();
+        this.query = query;
+    }
 
     public MultipleFindQuery(final String query, final List<DatabaseField<?>> columnsToSelect,
                              final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere) {
         this.columnsToSelect = columnsToSelect;
-        this.columnsWhere = columnsWhere;
-        this.query = query;
-    }
-
-    public MultipleFindQuery(final String query, final List<DatabaseField<?>> columnsToSelect) {
-        this.columnsToSelect = columnsToSelect;
-        this.columnsWhere = new LinkedHashMap<>();
+        this.whereFutureMap = columnsWhere;
         this.query = query;
     }
 
@@ -37,7 +37,7 @@ public final class MultipleFindQuery {
     }
 
     public Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere() {
-        return columnsWhere;
+        return whereFutureMap;
     }
 
     public String query() {

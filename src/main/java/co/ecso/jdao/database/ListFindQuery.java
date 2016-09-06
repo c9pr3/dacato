@@ -19,9 +19,9 @@ public final class ListFindQuery<T> {
     private final Map<DatabaseField<?>, CompletableFuture<?>> whereFutureMap;
 
     public ListFindQuery(final String query, final DatabaseField<T> columnToSelect) {
-        this.query = query;
         this.columnToSelect = columnToSelect;
         this.whereFutureMap = new LinkedHashMap<>();
+        this.query = query;
     }
 
     public ListFindQuery(final String query, final DatabaseField<T> columnToSelect,
