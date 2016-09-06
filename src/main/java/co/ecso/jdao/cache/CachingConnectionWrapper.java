@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings({"unused", "FieldCanBeLocal"})
 public class CachingConnectionWrapper {
     private static final Object MUTEX = new Object();
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private static final Map<Integer, Cache<CacheKey<?>, CompletableFuture<?>>> CACHE_MAP = new ConcurrentHashMap<>();
     private static final Map<Integer, ConnectionPool<Connection>> CONNECTION_POOL_MAP = new ConcurrentHashMap<>();
     private final Connection databaseConnection;
@@ -39,72 +40,6 @@ public class CachingConnectionWrapper {
         }
     }
 
-//    public final CompletableFuture<Boolean> truncate(final String query) {
-//        return ((Truncater) () -> config).truncate(query)
-//                .thenApply(rVal -> {
-//                    if (rVal) {
-//                        synchronized (MUTEX) {
-//                            CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
-//                            CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
-//                        }
-//                    }
-//                    return rVal;
-//                });
-//    }
-//
-//    public final CompletableFuture<Long> insert(final String query, final Map<DatabaseField<?>, ?> map) {
-//        synchronized (MUTEX) {
-//            CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
-//            CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
-//        }
-//        return ((Inserter<Long>) () -> config).insert(query, map);
-//    }
-//
-//    /*
-//    public final CompletableFuture<?> findMany(final String query, final DatabaseField<?> column,
-//                                        final CompletableFuture<Long> whereIdFuture) throws ExecutionException {
-//        synchronized (MUTEX) {
-//            final CacheKey cacheKey = new CacheKey<>(query.getQuery(), column, whereIdFuture);
-//            return CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-//                    ((MultipleColumnFinder<Long>) () -> config)
-//                            .findMany(query, cacheKey.columnName(), cacheKey.whereId()));
-//        }
-//    }
-//    */
-//
-//    SELECT %s from customer
-//    public final CompletableFuture<List<?>> findMany(final String query,
-//                                                           final DatabaseField<?> columnToSelect,
-//                                                           final Map<DatabaseField<?>, CompletableFuture<?>>
-//                                                                   columnsWhere) throws ExecutionException {
-//        todo
-//        final CacheKey cacheKey = new CacheKey<>(query, null, CompletableFuture.completedFuture(columnsWhere));
-//        noinspection unchecked
-//        return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode()).get(cacheKey, () ->
-//                ((SingleColumnFinder) () -> config)
-//                        .find(new ListFindQuery(query, columnToSelect, columnsWhere)));
-//    }
-//
-//    /*
-//    public final CompletableFuture<List<?>> findMany(final Query query, final DatabaseField<?> selector,
-//                                               final LinkedHashMap<DatabaseField<?>, ?> map) throws SQLException,
-//            ExecutionException {
-//        synchronized (MUTEX) {
-//            final CacheKey cacheKey = new CacheKey(query.getQuery(), selector,
-// CompletableFuture.completedFuture(null));
-//            return (CompletableFuture<List<?>>) CACHE_MAP.get(databaseConnection.hashCode())
-//                    .get(cacheKey, () -> ((MultipleColumnFinder<Long>) () -> config).findMany(query, selector, map));
-//        }
-//    }
-//
-//    public CompletableFuture<Boolean> update(final Query query, final LinkedHashMap<DatabaseField<?>, ?> map,
-//                                             final CompletableFuture<?> whereId) {
-//        CACHE_MAP.get(databaseConnection.hashCode()).invalidateAll();
-//        CACHE_MAP.get(databaseConnection.hashCode()).cleanUp();
-//        return ((Updater) () -> config).update(query, map, whereId);
-//    }
-//    */
-//
     @SuppressWarnings("WeakerAccess")
     public static final class CacheKey<T> implements Serializable {
 

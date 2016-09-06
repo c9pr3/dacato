@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -25,8 +26,8 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractTest {
 
-//    static final Cache<CachingDatabaseEntity.CacheKey<?>, CompletableFuture<?>> APPLICATION_CACHE =
-// new FakeCache();
+    private static final Logger LOGGER = Logger.getLogger(AbstractTest.class.getName());
+
     private static snaq.db.ConnectionPool connectionPool = null;
     private static ScheduledThreadPoolExecutor threadPool = null;
     static final ApplicationConfig APPLICATION_CONFIG = new ApplicationConfig() {
@@ -115,30 +116,9 @@ public abstract class AbstractTest {
                 stmt.execute(lines);
             }
         } catch (final SQLException ignored) {
-            ignored.printStackTrace();
+            LOGGER.warning(ignored.getMessage());
         }
     }
-
-//    protected final void setUpLogger(final TestAppender.Output output) {
-//        this.addAppender(output.getWriter(), "wp");
-//    }
-//
-//    private void updateLoggers(final Appender appender, final Configuration APPLICATION_CONFIG) {
-//        for (final LoggerConfig loggerConfig : APPLICATION_CONFIG.getLoggers().values()) {
-//            loggerConfig.addAppender(appender, Level.ALL, null);
-//        }
-//        APPLICATION_CONFIG.getRootLogger().addAppender(appender, Level.ALL, null);
-//    }
-
-//    private void addAppender(final Writer writer, final String writerName) {
-//        LoggerContext context = (LoggerContext) LogManager.getContext(false);
-//        final Configuration APPLICATION_CONFIG = context.getConfiguration();
-//        final PatternLayout layout = PatternLayout.createDefaultLayout(APPLICATION_CONFIG);
-//        final Appender appender = WriterAppender.createAppender(layout, null, writer, writerName, false, true);
-//        appender.start();
-//        APPLICATION_CONFIG.addAppender(appender);
-//        updateLoggers(appender, APPLICATION_CONFIG);
-//    }
 
     private JDBCDataSource getDataSource() {
         final JDBCDataSource dataSource = new JDBCDataSource();
