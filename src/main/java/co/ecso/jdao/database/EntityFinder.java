@@ -15,33 +15,35 @@ import java.util.concurrent.CompletableFuture;
 /**
  * EntityFinder.
  *
- * @param <T> Type of this entity-row, p.e Long (auto_inc ID is usually type Long)
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 11.09.16
  */
 @SuppressWarnings("Duplicates")
-interface EntityFinder<T> extends StatementFiller, ConfigGetter {
+interface EntityFinder extends StatementFiller, ConfigGetter {
 
     /**
      * Find many.
      *
-     * @param <R> Type to select. P.e. String.
+     * @param <W> Type to select. P.e. String.
      * @param query Query.
-     * @return List of DatabaseResultFields with type to select (R), p.e. String
+     * @return List of DatabaseResultFields with type to select (W), p.e. String
      */
-    default <R> CompletableFuture<List<DatabaseResultField<R>>> findMany(final SingleColumnQuery<R, T> query) {
-        final DatabaseField<R> columnToSelect = query.columnToSelect();
-
-        final CompletableFuture<List<DatabaseResultField<R>>> returnValueFuture = new CompletableFuture<>();
-
+    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query) {
+        final CompletableFuture<List<DatabaseResultField<S>>> returnValueFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
-            final String finalQuery = String.format(query.query(), columnToSelect.name());
+            final DatabaseField<S> columnToSelect = query.columnToSelect();
+            final DatabaseField<W> columnWhere = query.columnWhere();
+
+            final String finalQuery = String.format(query.query(), columnToSelect.name(),
+                    columnWhere != null ? columnWhere.name() : null);
+
             try (final Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     final PreparedStatement filledStatement = fillStatement(
-                            Collections.singletonList(columnToSelect), Collections.emptyList(), stmt);
-                    final List<DatabaseResultField<R>> listRowResult = getListRowResult(finalQuery, columnToSelect,
+                            Collections.singletonList(columnWhere),
+                            Collections.singletonList(query.columnWhereValue()), stmt);
+                    final List<DatabaseResultField<S>> listRowResult = getListRowResult(finalQuery, columnToSelect,
                             filledStatement);
                     returnValueFuture.complete(listRowResult);
                 }
@@ -57,15 +59,15 @@ interface EntityFinder<T> extends StatementFiller, ConfigGetter {
      * We can find
      *
      * @param query Query.
-     * @param <R> Type to Select, p.e. String.
-     * @return DatabaseResultField with type to select (R), p.e. String
+     * @param <W> Type to return, p.e. String in select x from y where name = z.
+     * @return DatabaseResultField with type to select (W), p.e. String
      */
-    default <R> CompletableFuture<DatabaseResultField<R>> findOne(final SingleColumnQuery<R, T> query) {
-        final DatabaseField<R> columnToSelect = query.columnToSelect();
-        final DatabaseField<T> columnWhere = query.columnWhere();
-        final T whereValueToFind = query.columnWhereValue();
+    default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
+        final DatabaseField<S> columnToSelect = query.columnToSelect();
+        final DatabaseField<W> columnWhere = query.columnWhere();
+        final W whereValueToFind = query.columnWhereValue();
 
-        final CompletableFuture<DatabaseResultField<R>> returnValueFuture = new CompletableFuture<>();
+        final CompletableFuture<DatabaseResultField<S>> returnValueFuture = new CompletableFuture<>();
 
         final List<Object> format = new ArrayList<>();
         CompletableFuture.runAsync(() -> {
@@ -77,7 +79,7 @@ interface EntityFinder<T> extends StatementFiller, ConfigGetter {
                     final PreparedStatement filledStatement = fillStatement(
                             Collections.singletonList(columnToSelect),
                             Collections.singletonList(whereValueToFind), stmt);
-                    final DatabaseResultField<R> singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
+                    final DatabaseResultField<S> singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
                             filledStatement);
                     returnValueFuture.complete(singleRowResult);
                 }
@@ -95,7 +97,7 @@ interface EntityFinder<T> extends StatementFiller, ConfigGetter {
      * @param columnToSelect Column to select.
      * @param stmt Statement.
      * @param <R> Type to return, p.e. String. Must match Type of columnToSelect.
-     * @return List of DatabaseResultFields with type R, p.e. String.
+     * @return List of DatabaseResultFields with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */
     default <R> List<DatabaseResultField<R>> getListRowResult(final String finalQuery,
@@ -129,7 +131,7 @@ interface EntityFinder<T> extends StatementFiller, ConfigGetter {
      * @param columnToSelect Which column to select.
      * @param stmt Statement.
      * @param <R> Type to return, p.e. String.
-     * @return DatabaseResultField with type R, p.e. String.
+     * @return DatabaseResultField with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */
     default <R> DatabaseResultField<R> getSingleRowResult(final String finalQuery,

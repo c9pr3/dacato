@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 08.08.16
  */
 @SuppressWarnings("unused")
-public interface DatabaseEntity<T> extends EntityFinder<T>, Updater<T> {
+public interface DatabaseEntity<T> extends EntityFinder, Updater<T> {
     T id();
 
     CompletableFuture<Boolean> save(final SingleColumnUpdateQuery<T> query);

@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 03.09.16
  */
-public interface DatabaseTable<T, R extends DatabaseEntity<T>> extends EntityFinder<T>, Truncater, Inserter<T, R>,
+public interface DatabaseTable<T, R extends DatabaseEntity<T>> extends EntityFinder, Truncater, Inserter<T, R>,
         StatementFiller, ConfigGetter {
 
     CompletableFuture<R> findOne(final T id);

@@ -2,7 +2,6 @@ package co.ecso.jdao.database;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -19,8 +18,8 @@ interface StatementFiller {
         for (int i = 0; i < valuesWhere.size(); i++) {
             final Object valueToSet = valuesWhere.get(i);
             if (columnsWhere.get(i) == null) {
-                throw new SQLException(String.format("columnsWhere %d is null; %s", i,
-                        Arrays.toString(columnsWhere.toArray())));
+                // it may happen if no where is set
+                continue;
             }
             final int sqlType = columnsWhere.get(i).sqlType();
             try {

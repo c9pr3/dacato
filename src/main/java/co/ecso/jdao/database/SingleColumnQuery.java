@@ -39,12 +39,13 @@ public final class SingleColumnQuery<S, W> {
     }
 
     public DatabaseField<S> columnToSelect() {
+        // we *always* need to select
         Objects.requireNonNull(columnToSelect);
         return columnToSelect;
     }
 
     public DatabaseField<W> columnWhere() {
-        Objects.requireNonNull(columnWhere);
+        // we MAY have a where column
         return columnWhere;
     }
 

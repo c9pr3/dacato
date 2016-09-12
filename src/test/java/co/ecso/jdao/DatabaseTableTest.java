@@ -7,6 +7,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
 /**
  * DatabaseTableTest.
  *
@@ -49,16 +53,44 @@ public final class DatabaseTableTest extends AbstractTest {
         Assert.assertEquals(Long.valueOf(12345L), foundCustomer.number().get().value());
     }
 
+    @Test
+    public void testFindOneByFirstName() throws Exception {
+        final Customer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
+        Assert.assertNotNull(newCustomer);
+
+        final Customer foundCustomer = this.customers.findOneByFirstName(newCustomer.firstName().get().value()).get();
+        Assert.assertNotNull(foundCustomer);
+        Assert.assertEquals("foo1", foundCustomer.firstName().get().value());
+        Assert.assertEquals("foo2", foundCustomer.lastName().get().value());
+        Assert.assertEquals(Long.valueOf(12345L), foundCustomer.number().get().value());
+    }
+
+    @Test
+    public void testFindAllByFirstName() throws Exception {
+        CompletableFuture.allOf(
+        this.customers.create("foo1", "foo1", 12345L),
+        this.customers.create("foo1", "foo2", 12345L),
+        this.customers.create("foo1", "foo3", 12345L),
+        this.customers.create("foo2", "foo4", 12345L),
+        this.customers.create("foo2", "foo5", 12345L)).get();
+
+        final List<Customer> foundCustomer = this.customers.findAllByFirstName("foo1").get(5, TimeUnit.SECONDS);
+
+        Assert.assertNotNull(foundCustomer);
+        Assert.assertEquals(3, foundCustomer.size());
+    }
+
     @SuppressWarnings("Duplicates")
     @Test
     public void testFindAll() throws Exception {
-        this.customers.create("foo1", "foo2", 12345L).get();
-        this.customers.create("foo1", "foo2", 12345L).get();
-        this.customers.create("foo1", "foo2", 12345L).get();
-        this.customers.create("foo1", "foo2", 12345L).get();
-        this.customers.create("foo1", "foo2", 12345L).get();
+        CompletableFuture.allOf(
+        this.customers.create("foo1", "foo2", 12345L),
+        this.customers.create("foo1", "foo2", 12345L),
+        this.customers.create("foo1", "foo2", 12345L),
+        this.customers.create("foo1", "foo2", 12345L),
+        this.customers.create("foo1", "foo2", 12345L)).get();
 
-        Assert.assertEquals(5, this.customers.findAll().get().size());
+        Assert.assertEquals(5, this.customers.findAll().get(5, TimeUnit.SECONDS).size());
     }
 
     @Test

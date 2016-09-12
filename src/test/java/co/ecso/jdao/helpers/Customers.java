@@ -38,6 +38,21 @@ public final class Customers implements DatabaseTable<Long, Customer> {
                         .collect(Collectors.toList()));
     }
 
+    public CompletableFuture<Customer> findOneByFirstName(final String firstName) {
+        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
+                Customer.Fields.ID,
+                Customer.Fields.FIRST_NAME, firstName);
+        return this.findOne(query).thenApply(foundId -> new Customer(config, foundId.value()));
+    }
+
+    public CompletableFuture<List<Customer>> findAllByFirstName(final String firstName) {
+        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
+                Customer.Fields.ID,
+                Customer.Fields.FIRST_NAME, firstName);
+        return this.findMany(query).thenApply(list ->
+                list.stream().map(l -> new Customer(config, l.value())).collect(Collectors.toList()));
+    }
+
     public CompletableFuture<Boolean> removeAll() {
         return this.truncate("TRUNCATE TABLE customer");
     }
