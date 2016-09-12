@@ -7,9 +7,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
 /**
  * DatabaseTableTest.
  *
@@ -34,32 +31,32 @@ public final class DatabaseTableTest extends AbstractTest {
 
     @Test
     public void testAdd() throws Exception {
-        final Customer newCustomer = this.customers.add("foo1", "foo2", 12345L).get();
+        final Customer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
         Assert.assertNotNull(newCustomer);
-        Assert.assertEquals("foo1", newCustomer.firstName().get());
-        Assert.assertEquals("foo2", newCustomer.lastName().get());
+        Assert.assertEquals("foo1", newCustomer.firstName().get().value());
+        Assert.assertEquals("foo2", newCustomer.lastName().get().value());
     }
 
     @Test
     public void testFindOne() throws Exception {
-        final Customer newCustomer = this.customers.add("foo1", "foo2", 12345L).get();
+        final Customer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
         Assert.assertNotNull(newCustomer);
 
-        final Customer foundCustomer = this.customers.findOne(CompletableFuture.completedFuture(newCustomer.id()))
-                .get();
+        final Customer foundCustomer = this.customers.findOne(newCustomer.id()).get();
         Assert.assertNotNull(foundCustomer);
-        Assert.assertEquals("foo1", foundCustomer.firstName().get());
-        Assert.assertEquals("foo2", foundCustomer.lastName().get());
-        Assert.assertEquals(Long.valueOf(12345L), foundCustomer.number().get());
+        Assert.assertEquals("foo1", foundCustomer.firstName().get().value());
+        Assert.assertEquals("foo2", foundCustomer.lastName().get().value());
+        Assert.assertEquals(Long.valueOf(12345L), foundCustomer.number().get().value());
     }
 
+    @SuppressWarnings("Duplicates")
     @Test
     public void testFindAll() throws Exception {
-        this.customers.add("foo1", "foo2", 12345L).get();
-        this.customers.add("foo1", "foo2", 12345L).get();
-        this.customers.add("foo1", "foo2", 12345L).get();
-        this.customers.add("foo1", "foo2", 12345L).get();
-        this.customers.add("foo1", "foo2", 12345L).get();
+        this.customers.create("foo1", "foo2", 12345L).get();
+        this.customers.create("foo1", "foo2", 12345L).get();
+        this.customers.create("foo1", "foo2", 12345L).get();
+        this.customers.create("foo1", "foo2", 12345L).get();
+        this.customers.create("foo1", "foo2", 12345L).get();
 
         Assert.assertEquals(5, this.customers.findAll().get().size());
     }
@@ -72,15 +69,4 @@ public final class DatabaseTableTest extends AbstractTest {
         Assert.assertEquals(0, this.customers.findAll().get().size());
     }
 
-    @Test
-    public void testFindIdAndFirstNameByID() throws Exception {
-        final Customer newCustomer = this.customers.add("foo1", "foo2", 12345L).get();
-        final List<List<?>> result = this.customers.findIdAndFirstNameByID(
-                CompletableFuture.completedFuture(newCustomer.id()), newCustomer.firstName()).get();
-        Assert.assertEquals(1, result.size());
-        final List<?> subList = result.get(0);
-        Assert.assertEquals(2, subList.size());
-        Assert.assertEquals(0L, subList.get(0));
-        Assert.assertEquals("foo1", subList.get(1));
-    }
 }

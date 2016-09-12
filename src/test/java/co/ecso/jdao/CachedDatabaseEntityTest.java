@@ -1,31 +1,21 @@
 package co.ecso.jdao;
 
-import co.ecso.jdao.database.SingleColumnUpdateQuery;
-import co.ecso.jdao.helpers.Customer;
-import co.ecso.jdao.helpers.Customers;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.ConcurrentModificationException;
-import java.util.concurrent.TimeUnit;
-
 /**
- * DatabaseEntityTest.
+ * CachedDatabaseEntityTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
- * @since 03.09.16
+ * @since 06.09.16
  */
-public final class DatabaseEntityTest extends AbstractTest {
+public final class CachedDatabaseEntityTest extends AbstractTest {
 
-    private Customer customer = null;
+    /*
+    private CachedCustomer customer;
 
     @Before
     public void setUp() throws Exception {
         this.setUpDatabase();
-        this.customer = new Customers(APPLICATION_CONFIG).create("firstName", "lastName", 1234L).get();
+        this.customer = new CachedCustomers(APPLICATION_CONFIG).add("firstName", "lastName", 1234L).get();
     }
 
     @After
@@ -53,7 +43,8 @@ public final class DatabaseEntityTest extends AbstractTest {
         Assert.assertEquals(Long.valueOf(1234L), this.customer.number().get().value());
     }
 
-    @Test(expected = ConcurrentModificationException.class)
+    @SuppressWarnings("Duplicates")
+    @Test
     public void testSave() throws Exception {
         final Long id = this.customer.id();
         this.customer.save(new SingleColumnUpdateQuery<>(
@@ -61,9 +52,9 @@ public final class DatabaseEntityTest extends AbstractTest {
                 Customer.Fields.ID, this.customer.id())
                 .add(Customer.Fields.FIRST_NAME, "foo1")
                 .add(Customer.Fields.LAST_NAME, "bla1")
-        ).get(5, TimeUnit.SECONDS);
+        ).get();
 
-        this.customer = new Customers(APPLICATION_CONFIG).findOne(id).get();
+        this.customer = new CachedCustomers(APPLICATION_CONFIG).findOne(id).get();
         Assert.assertEquals("foo1", this.customer.firstName().get().value());
         Assert.assertEquals("bla1", this.customer.lastName().get().value());
 
@@ -71,8 +62,9 @@ public final class DatabaseEntityTest extends AbstractTest {
                 "UPDATE customer SET %s = ? WHERE %s = ?",
                 Customer.Fields.ID, this.customer.id())
                 .add(Customer.Fields.FIRST_NAME, "foo2")
-        ).get(5, TimeUnit.SECONDS);
+        ).get();
 
         Assert.assertEquals("foo2", this.customer.firstName().get().value());
     }
+    */
 }

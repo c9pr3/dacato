@@ -1,13 +1,11 @@
 package co.ecso.jdao.helpers;
 
 import co.ecso.jdao.config.ApplicationConfig;
-import co.ecso.jdao.database.DatabaseEntity;
-import co.ecso.jdao.database.DatabaseField;
+import co.ecso.jdao.database.*;
 
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ConcurrentModificationException;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,7 +24,7 @@ public final class Customer implements DatabaseEntity<Long> {
     private final ApplicationConfig config;
     private AtomicBoolean invalid = new AtomicBoolean(false);
 
-    public Customer(final ApplicationConfig config, final long id) {
+    public Customer(final ApplicationConfig config, final Long id) {
         this.id = id;
         this.config = config;
     }
@@ -37,28 +35,26 @@ public final class Customer implements DatabaseEntity<Long> {
         return this.id;
     }
 
-    public CompletableFuture<String> firstName() {
+    public CompletableFuture<DatabaseResultField<String>> firstName() {
         this.checkValidity();
-        return this.findById(QUERY, Fields.FIRST_NAME, Fields.ID);
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.id()));
     }
 
-    public CompletableFuture<String> lastName() {
+    public CompletableFuture<DatabaseResultField<String>> lastName() {
         this.checkValidity();
-        return this.findById(QUERY, Fields.LAST_NAME, Fields.ID);
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.LAST_NAME, Fields.ID, this.id()));
     }
 
-    public CompletableFuture<Long> number() {
+    public CompletableFuture<DatabaseResultField<Long>> number() {
         this.checkValidity();
-        return this.findById(QUERY, Fields.NUMBER, Fields.ID);
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.id()));
     }
 
     @Override
-    public CompletableFuture<Customer> save(final Map<DatabaseField<?>, ?> updateMap,
-                                            final Map<DatabaseField<?>, ?> whereMap) {
-        this.checkValidity();
-        return this.update(
-                "UPDATE customer SET %s WHERE %s", updateMap, whereMap)
-                .thenApply(b -> new Customer(this.config, this.id));
+    public CompletableFuture<Boolean> save(final SingleColumnUpdateQuery<Long> query) {
+        final CompletableFuture<Boolean> updated = this.update(query);
+        this.invalid.set(true);
+        return updated;
     }
 
     @Override
@@ -82,12 +78,12 @@ public final class Customer implements DatabaseEntity<Long> {
     }
 
     public static final class Fields {
-        public static final DatabaseField<Long> ID = new DatabaseField<>("id", -1L, Types.BIGINT);
+        public static final DatabaseField<Long> ID = new DatabaseField<>("id", Long.class, Types.BIGINT);
         public static final DatabaseField<Long> NUMBER =
-                new DatabaseField<>("customer_number", -1L, Types.BIGINT);
+                new DatabaseField<>("customer_number", Long.class, Types.BIGINT);
         public static final DatabaseField<String> FIRST_NAME =
-                new DatabaseField<>("customer_first_name", "", Types.VARCHAR);
+                new DatabaseField<>("customer_first_name", String.class, Types.VARCHAR);
         public static final DatabaseField<String> LAST_NAME =
-                new DatabaseField<>("customer_last_name", "", Types.VARCHAR);
+                new DatabaseField<>("customer_last_name", String.class, Types.VARCHAR);
     }
 }

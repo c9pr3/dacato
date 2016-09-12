@@ -2,6 +2,7 @@ package co.ecso.jdao.database;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,11 +18,16 @@ interface StatementFiller {
                                             final PreparedStatement stmt) throws SQLException {
         for (int i = 0; i < valuesWhere.size(); i++) {
             final Object valueToSet = valuesWhere.get(i);
+            if (columnsWhere.get(i) == null) {
+                throw new SQLException(String.format("columnsWhere %d is null; %s", i,
+                        Arrays.toString(columnsWhere.toArray())));
+            }
             final int sqlType = columnsWhere.get(i).sqlType();
             try {
                 stmt.setObject(i + 1, valueToSet, sqlType);
             } catch (final SQLException e) {
-                throw new SQLException(String.format("Could not set %s to %d: %s", valueToSet, sqlType, e));
+                throw new SQLException(String.format("Could not set %s (%s) to %d: %s", valueToSet,
+                        valueToSet.getClass().getSimpleName(), sqlType, e));
             }
         }
         return stmt;

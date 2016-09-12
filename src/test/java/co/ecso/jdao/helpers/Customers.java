@@ -1,12 +1,11 @@
 package co.ecso.jdao.helpers;
 
 import co.ecso.jdao.config.ApplicationConfig;
-import co.ecso.jdao.database.*;
+import co.ecso.jdao.database.DatabaseTable;
+import co.ecso.jdao.database.InsertQuery;
+import co.ecso.jdao.database.SingleColumnQuery;
 
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
  * @since 15.03.16
  */
 @SuppressWarnings("WeakerAccess")
-public final class Customers implements DatabaseTable<Long> {
+public final class Customers implements DatabaseTable<Long, Customer> {
 
     private final ApplicationConfig config;
 
@@ -26,45 +25,34 @@ public final class Customers implements DatabaseTable<Long> {
         this.config = config;
     }
 
-    public CompletableFuture<Boolean> removeAll() {
-        return this.truncate("TRUNCATE TABLE customer");
+    @Override
+    public CompletableFuture<Customer> findOne(final Long id) {
+        return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?", Customer.Fields.ID,
+                Customer.Fields.ID, id)).thenApply(foundId -> new Customer(config, foundId.value()));
     }
 
-    public CompletableFuture<Customer> findOne(final CompletableFuture<Long> id) {
-        return this.find(new SingleFindQuery<>("SELECT %s FROM customer WHERE id = ?", Customer.Fields.ID,
-                ColumnList.build(Customer.Fields.ID, id))).thenApply(id1 -> new Customer(config, id1));
-    }
-
-    public CompletableFuture<Customer> add(final String customerFirstName, final String customerLastName,
-                                           final long customerNumber) {
-        return this.insert("INSERT INTO customer VALUES (null, ?, ?, ?)",
-                new ColumnList().keys(Customer.Fields.FIRST_NAME, Customer.Fields.LAST_NAME, Customer.Fields.NUMBER)
-                        .values(customerFirstName, customerLastName, customerNumber).build())
-                .thenApply(id -> new Customer(config, id));
-    }
-
+    @Override
     public CompletableFuture<List<Customer>> findAll() {
-        return this.find(new ListFindQuery<>("SELECT %s FROM customer", Customer.Fields.ID))
-                .thenApply(idList -> idList.stream().map(id1 -> new Customer(config, id1))
+        return this.findMany(new SingleColumnQuery<>("SELECT %s FROM customer", Customer.Fields.ID))
+                .thenApply(list -> list.stream().map(foundId -> new Customer(config, foundId.value()))
                         .collect(Collectors.toList()));
     }
 
-    public CompletableFuture<List<List<?>>> findIdAndFirstNameByID(final CompletableFuture<Long> id,
-                                                                   final CompletableFuture<String> firstName) {
-
-        final List<DatabaseField<?>> columnsToSelect = new LinkedList<>();
-        columnsToSelect.add(Customer.Fields.ID);
-        columnsToSelect.add(Customer.Fields.FIRST_NAME);
-
-        final Map<DatabaseField<?>, CompletableFuture<?>> columnsWhere = new HashMap<>();
-        columnsWhere.put(Customer.Fields.ID, id);
-
-        return this.find(new MultipleFindQuery("SELECT %s, %s FROM customer WHERE %s = ?",
-                columnsToSelect, columnsWhere));
+    public CompletableFuture<Boolean> removeAll() {
+        return this.truncate("TRUNCATE TABLE customer");
     }
 
     @Override
     public ApplicationConfig config() {
         return config;
+    }
+
+    public CompletableFuture<Customer> create(final String firstName, final String lastName, final long number) {
+        final InsertQuery<Long> query = new InsertQuery<>(
+                "INSERT INTO customer (%s, %s, %s, %s) VALUES (null, ?, ?, ?)", Customer.Fields.ID);
+        query.add(Customer.Fields.FIRST_NAME, firstName)
+                .add(Customer.Fields.LAST_NAME, lastName)
+                .add(Customer.Fields.NUMBER, number);
+        return this.add(query).thenApply(newId -> new Customer(config, newId.value()));
     }
 }
