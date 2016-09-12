@@ -65,9 +65,9 @@ public final class Customers implements DatabaseTable<Long, Customer> {
     public CompletableFuture<Customer> create(final String firstName, final String lastName, final long number) {
         final InsertQuery<Long> query = new InsertQuery<>(
                 "INSERT INTO customer (%s, %s, %s, %s) VALUES (null, ?, ?, ?)", Customer.Fields.ID);
-        query.add(Customer.Fields.FIRST_NAME, firstName)
-                .add(Customer.Fields.LAST_NAME, lastName)
-                .add(Customer.Fields.NUMBER, number);
+        query.add(Customer.Fields.FIRST_NAME, firstName);
+        query.add(Customer.Fields.LAST_NAME, lastName);
+        query.add(Customer.Fields.NUMBER, number);
         return this.add(query).thenApply(newId -> new Customer(config, newId.value()));
     }
 }

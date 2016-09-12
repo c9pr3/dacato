@@ -22,9 +22,8 @@ public final class InsertQuery<T> {
         this.columnToReturn = columnToReturn;
     }
 
-    public <R> InsertQuery add(final DatabaseField<R> field, final R value) {
+    public <R> void add(final DatabaseField<R> field, final R value) {
         values.put(field, value);
-        return this;
     }
 
     public String query() {
