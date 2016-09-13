@@ -1,10 +1,9 @@
 package co.ecso.jdao.helpers;
 
 import co.ecso.jdao.config.ApplicationConfig;
-import co.ecso.jdao.database.DatabaseTable;
-import co.ecso.jdao.database.InsertQuery;
-import co.ecso.jdao.database.SingleColumnQuery;
+import co.ecso.jdao.database.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -39,9 +38,8 @@ public final class Customers implements DatabaseTable<Long, Customer> {
     }
 
     public CompletableFuture<Customer> findOneByFirstName(final String firstName) {
-        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
-                Customer.Fields.ID,
-                Customer.Fields.FIRST_NAME, firstName);
+        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ? " +
+                "LIMIT 1", Customer.Fields.ID, Customer.Fields.FIRST_NAME, firstName);
         return this.findOne(query).thenApply(foundId -> new Customer(config, foundId.value()));
     }
 
@@ -51,6 +49,17 @@ public final class Customers implements DatabaseTable<Long, Customer> {
                 Customer.Fields.FIRST_NAME, firstName);
         return this.findMany(query).thenApply(list ->
                 list.stream().map(l -> new Customer(config, l.value())).collect(Collectors.toList()));
+    }
+
+    public CompletableFuture<Customer> findOneByFirstNameAndLastName(final String firstName, final String lastName) {
+        final ColumnList values = () -> new HashMap<DatabaseField<?>, Object>() {
+            {
+                put(Customer.Fields.FIRST_NAME, "foo1");
+                put(Customer.Fields.LAST_NAME, "foo1");
+            }
+        };
+        return findOne(new MultiColumnQuery<>("SELECT %s FROM customer WHERE %s = ? AND %s = ?",
+                Customer.Fields.ID, values)).thenApply(id -> new Customer(config, id.value()));
     }
 
     public CompletableFuture<Boolean> removeAll() {

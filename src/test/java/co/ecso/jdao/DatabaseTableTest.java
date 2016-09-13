@@ -68,11 +68,12 @@ public final class DatabaseTableTest extends AbstractTest {
     @Test
     public void testFindAllByFirstName() throws Exception {
         CompletableFuture.allOf(
-        this.customers.create("foo1", "foo1", 12345L),
-        this.customers.create("foo1", "foo2", 12345L),
-        this.customers.create("foo1", "foo3", 12345L),
-        this.customers.create("foo2", "foo4", 12345L),
-        this.customers.create("foo2", "foo5", 12345L)).get();
+                this.customers.create("foo1", "foo1", 12345L),
+                this.customers.create("foo1", "foo2", 12345L),
+                this.customers.create("foo1", "foo3", 12345L),
+                this.customers.create("foo2", "foo4", 12345L),
+                this.customers.create("foo2", "foo5", 12345L)
+        ).get();
 
         final List<Customer> foundCustomer = this.customers.findAllByFirstName("foo1").get(5, TimeUnit.SECONDS);
 
@@ -84,13 +85,30 @@ public final class DatabaseTableTest extends AbstractTest {
     @Test
     public void testFindAll() throws Exception {
         CompletableFuture.allOf(
-        this.customers.create("foo1", "foo2", 12345L),
-        this.customers.create("foo1", "foo2", 12345L),
-        this.customers.create("foo1", "foo2", 12345L),
-        this.customers.create("foo1", "foo2", 12345L),
-        this.customers.create("foo1", "foo2", 12345L)).get();
+                this.customers.create("foo1", "foo2", 12345L),
+                this.customers.create("foo1", "foo2", 12345L),
+                this.customers.create("foo1", "foo2", 12345L),
+                this.customers.create("foo1", "foo2", 12345L),
+                this.customers.create("foo1", "foo2", 12345L)
+        ).get();
 
         Assert.assertEquals(5, this.customers.findAll().get(5, TimeUnit.SECONDS).size());
+    }
+
+    @Test
+    public void testFindOneByFirstNameAndLastName() throws Exception {
+        CompletableFuture.allOf(
+                this.customers.create("foo1", "foo1", 12345L),
+                this.customers.create("foo1", "foo2", 12345L),
+                this.customers.create("foo1", "foo3", 12345L),
+                this.customers.create("foo2", "foo4", 12345L),
+                this.customers.create("foo2", "foo5", 12345L)
+        ).get();
+
+        final Customer found = this.customers.findOneByFirstNameAndLastName("foo1", "foo1").get(5, TimeUnit.SECONDS);
+        Assert.assertNotNull(found);
+        Assert.assertEquals("foo1", found.firstName().get().value());
+        Assert.assertEquals("foo1", found.lastName().get().value());
     }
 
     @Test

@@ -54,6 +54,36 @@ interface EntityFinder extends StatementFiller, ConfigGetter {
         return returnValueFuture;
     }
 
+    default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query) {
+
+        final CompletableFuture<DatabaseResultField<S>> returnValueFuture = new CompletableFuture<>();
+
+        CompletableFuture.runAsync(() -> {
+            final DatabaseField<S> columnToSelect = query.columnToSelect();
+            final ColumnList valuesWhere = query.values();
+            final List<Object> format = new ArrayList<>();
+
+            format.add(columnToSelect.name());
+            format.addAll(valuesWhere.values().keySet());
+            final String finalQuery = String.format(query.query(), format.toArray());
+
+            try (final Connection c = config().getConnectionPool().getConnection()) {
+                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                    final PreparedStatement filledStatement = fillStatement(
+                            new LinkedList<>(valuesWhere.values().keySet()),
+                            new LinkedList<>(valuesWhere.values().values()), stmt);
+                    final DatabaseResultField<S> singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
+                            filledStatement);
+                    returnValueFuture.complete(singleRowResult);
+                }
+            } catch (final Exception e) {
+                returnValueFuture.completeExceptionally(e);
+            }
+        }, config().getThreadPool());
+
+        return returnValueFuture;
+    }
+
     /**
      * Find One.
      * We can find
@@ -63,14 +93,15 @@ interface EntityFinder extends StatementFiller, ConfigGetter {
      * @return DatabaseResultField with type to select (W), p.e. String
      */
     default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
-        final DatabaseField<S> columnToSelect = query.columnToSelect();
-        final DatabaseField<W> columnWhere = query.columnWhere();
-        final W whereValueToFind = query.columnWhereValue();
 
         final CompletableFuture<DatabaseResultField<S>> returnValueFuture = new CompletableFuture<>();
 
-        final List<Object> format = new ArrayList<>();
         CompletableFuture.runAsync(() -> {
+            final DatabaseField<S> columnToSelect = query.columnToSelect();
+            final DatabaseField<W> columnWhere = query.columnWhere();
+            final W whereValueToFind = query.columnWhereValue();
+            final List<Object> format = new ArrayList<>();
+
             format.add(columnToSelect.name());
             format.add(columnWhere.name());
             final String finalQuery = String.format(query.query(), format.toArray());
