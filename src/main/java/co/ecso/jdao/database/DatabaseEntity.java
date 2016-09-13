@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 public interface DatabaseEntity<T> extends EntityFinder, Updater<T> {
     T id();
 
-    CompletableFuture<Boolean> save(final SingleColumnUpdateQuery<T> query);
+    CompletableFuture<? extends DatabaseEntity<T>> save(final ColumnList values);
 
     String toJson() throws SQLException;
 

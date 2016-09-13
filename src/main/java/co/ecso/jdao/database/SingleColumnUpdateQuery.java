@@ -2,6 +2,7 @@ package co.ecso.jdao.database;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * SingleColumnUpdateQuery.
@@ -18,16 +19,25 @@ public final class SingleColumnUpdateQuery<T> {
     private final T whereValue;
     private final Map<DatabaseField<?>, Object> values = new LinkedHashMap<>();
 
-    public SingleColumnUpdateQuery(final String query, final DatabaseField<T> whereColumn, final T whereValue) {
-        this.query = query;
+//    public SingleColumnUpdateQuery(final String query, final DatabaseField<T> whereColumn, final T whereValue) {
+//        this.query = query;
+//        this.whereColumn = whereColumn;
+//        this.whereValue = whereValue;
+//    }
+
+    public SingleColumnUpdateQuery(final String query, final DatabaseField<T> whereColumn, final T whereValue,
+                                   final ColumnList values) {
         this.whereColumn = whereColumn;
         this.whereValue = whereValue;
+        this.values.putAll(values.values());
+        this.query = String.format(query, values.values().keySet().stream().map(l -> "%s = ?")
+                .collect(Collectors.joining(",")));
     }
 
-    public <R> SingleColumnUpdateQuery<T> add(final DatabaseField<R> field, final R value) {
-        values.put(field, value);
-        return this;
-    }
+//    public <R> SingleColumnUpdateQuery<T> add(final DatabaseField<R> field, final R value) {
+//        values.put(field, value);
+//        return this;
+//    }
 
     public String query() {
         return query;
