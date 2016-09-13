@@ -138,7 +138,9 @@ interface EntityFinder extends StatementFiller, ConfigGetter {
         try (final ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 final R rval = rs.getObject(1, columnToSelect.valueClass());
-                if (rval != null) {
+                if (rval == null) {
+                    result.add(new DatabaseResultField<>(columnToSelect, null));
+                } else {
                     if (columnToSelect.valueClass() == String.class) {
                         result.add(new DatabaseResultField<>(columnToSelect,
                                 columnToSelect.valueClass().cast(rval.toString().trim())));
@@ -168,13 +170,15 @@ interface EntityFinder extends StatementFiller, ConfigGetter {
     default <R> DatabaseResultField<R> getSingleRowResult(final String finalQuery,
                                                           final DatabaseField<R> columnToSelect,
                                                           final PreparedStatement stmt) throws SQLException {
-        DatabaseResultField<R> result = null;
+        final DatabaseResultField<R> result;
         try (final ResultSet rs = stmt.executeQuery()) {
             if (!rs.next()) {
                 throw new SQLException(String.format("No Results for %s", finalQuery));
             }
             final R rval = rs.getObject(1, columnToSelect.valueClass());
-            if (rval != null) {
+            if (rval == null) {
+                result = new DatabaseResultField<>(columnToSelect, null);
+            } else {
                 if (columnToSelect.valueClass() == String.class) {
                     result = new DatabaseResultField<>(columnToSelect,
                             columnToSelect.valueClass().cast(rval.toString().trim()));
