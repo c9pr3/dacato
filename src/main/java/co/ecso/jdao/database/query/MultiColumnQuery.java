@@ -1,4 +1,6 @@
-package co.ecso.jdao.database;
+package co.ecso.jdao.database.query;
+
+import co.ecso.jdao.database.ColumnList;
 
 /**
  * MultiColumnQuery.

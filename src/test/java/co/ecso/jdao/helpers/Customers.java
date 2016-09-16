@@ -2,6 +2,11 @@ package co.ecso.jdao.helpers;
 
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.*;
+import co.ecso.jdao.database.ColumnList;
+import co.ecso.jdao.database.query.DatabaseField;
+import co.ecso.jdao.database.query.InsertQuery;
+import co.ecso.jdao.database.query.MultiColumnQuery;
+import co.ecso.jdao.database.query.SingleColumnQuery;
 
 import java.util.HashMap;
 import java.util.List;

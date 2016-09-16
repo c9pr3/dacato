@@ -1,4 +1,4 @@
-package co.ecso.jdao.database;
+package co.ecso.jdao.database.internals;
 
 import co.ecso.jdao.config.ConfigGetter;
 
@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 11.09.16
  */
-interface Truncater extends ConfigGetter {
+public interface Truncater extends ConfigGetter {
     default CompletableFuture<Boolean> truncate(final String query) {
         final CompletableFuture<Boolean> retValFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {

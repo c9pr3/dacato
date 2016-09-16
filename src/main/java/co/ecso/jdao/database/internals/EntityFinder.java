@@ -1,6 +1,11 @@
-package co.ecso.jdao.database;
+package co.ecso.jdao.database.internals;
 
 import co.ecso.jdao.config.ConfigGetter;
+import co.ecso.jdao.database.ColumnList;
+import co.ecso.jdao.database.query.DatabaseField;
+import co.ecso.jdao.database.query.DatabaseResultField;
+import co.ecso.jdao.database.query.MultiColumnQuery;
+import co.ecso.jdao.database.query.SingleColumnQuery;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 11.09.16
  */
 @SuppressWarnings("Duplicates")
-interface EntityFinder extends StatementFiller, ConfigGetter {
+public interface EntityFinder extends StatementFiller, ConfigGetter {
 
     /**
      * Find many.

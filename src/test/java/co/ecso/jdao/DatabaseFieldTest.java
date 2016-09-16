@@ -1,6 +1,6 @@
 package co.ecso.jdao;
 
-import co.ecso.jdao.database.DatabaseField;
+import co.ecso.jdao.database.query.DatabaseField;
 import org.junit.Assert;
 import org.junit.Test;
 

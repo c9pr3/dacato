@@ -1,5 +1,7 @@
 package co.ecso.jdao.database;
 
+import co.ecso.jdao.database.query.DatabaseField;
+
 import java.util.Map;
 
 /**

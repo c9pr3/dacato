@@ -1,4 +1,6 @@
-package co.ecso.jdao.database;
+package co.ecso.jdao.database.internals;
+
+import co.ecso.jdao.database.query.DatabaseField;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -11,7 +13,7 @@ import java.util.List;
  * @version $Id:$
  * @since 02.09.16
  */
-interface StatementFiller {
+public interface StatementFiller {
 
     default PreparedStatement fillStatement(final List<DatabaseField<?>> columnsWhere, final List<?> valuesWhere,
                                             final PreparedStatement stmt) throws SQLException {

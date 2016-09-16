@@ -1,6 +1,8 @@
-package co.ecso.jdao.database;
+package co.ecso.jdao.database.internals;
 
 import co.ecso.jdao.config.ConfigGetter;
+import co.ecso.jdao.database.query.DatabaseField;
+import co.ecso.jdao.database.query.SingleColumnUpdateQuery;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 11.09.16
  */
-interface Updater<T> extends StatementFiller, ConfigGetter {
+public interface Updater<T> extends StatementFiller, ConfigGetter {
 
     default CompletableFuture<Boolean> update(final SingleColumnUpdateQuery<T> query) {
         final CompletableFuture<Boolean> returnValueFuture = new CompletableFuture<>();

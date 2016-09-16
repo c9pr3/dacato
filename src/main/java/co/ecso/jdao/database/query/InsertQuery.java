@@ -1,4 +1,4 @@
-package co.ecso.jdao.database;
+package co.ecso.jdao.database.query;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

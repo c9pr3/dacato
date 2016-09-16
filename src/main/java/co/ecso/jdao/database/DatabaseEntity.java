@@ -1,5 +1,8 @@
 package co.ecso.jdao.database;
 
+import co.ecso.jdao.database.internals.EntityFinder;
+import co.ecso.jdao.database.internals.Updater;
+
 import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
 

@@ -1,6 +1,10 @@
-package co.ecso.jdao.database;
+package co.ecso.jdao.database.internals;
 
 import co.ecso.jdao.config.ConfigGetter;
+import co.ecso.jdao.database.DatabaseEntity;
+import co.ecso.jdao.database.query.DatabaseField;
+import co.ecso.jdao.database.query.DatabaseResultField;
+import co.ecso.jdao.database.query.InsertQuery;
 
 import java.sql.*;
 import java.util.LinkedList;
@@ -15,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 12.09.16
  */
 @SuppressWarnings("Duplicates")
-interface Inserter<T, R extends DatabaseEntity<T>> extends StatementFiller, ConfigGetter {
+public interface Inserter<T, R extends DatabaseEntity<T>> extends StatementFiller, ConfigGetter {
 
     default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query) {
 
