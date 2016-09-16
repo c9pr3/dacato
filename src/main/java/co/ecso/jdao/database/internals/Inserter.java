@@ -52,7 +52,7 @@ public interface Inserter<T, R extends DatabaseEntity<T>> extends StatementFille
                 throw new SQLException(String.format("Query %s failed, resultset empty", finalQuery));
             }
             //noinspection unchecked
-            return new DatabaseResultField<T>(columnToSelect, generatedKeys.getObject(1, columnToSelect.valueClass()));
+            return new DatabaseResultField<>(columnToSelect, generatedKeys.getObject(1, columnToSelect.valueClass()));
         }
     }
 

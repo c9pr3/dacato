@@ -2,6 +2,7 @@ package co.ecso.jdao.database.internals;
 
 import co.ecso.jdao.config.ConfigGetter;
 import co.ecso.jdao.database.ColumnList;
+import co.ecso.jdao.database.SQLNoResultException;
 import co.ecso.jdao.database.query.DatabaseField;
 import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.database.query.MultiColumnQuery;
@@ -178,7 +179,7 @@ public interface EntityFinder extends StatementFiller, ConfigGetter {
         final DatabaseResultField<R> result;
         try (final ResultSet rs = stmt.executeQuery()) {
             if (!rs.next()) {
-                throw new SQLException(String.format("No Results for %s", finalQuery));
+                throw new SQLNoResultException(String.format("No Results for %s", finalQuery));
             }
             final R rval = rs.getObject(1, columnToSelect.valueClass());
             if (rval == null) {
