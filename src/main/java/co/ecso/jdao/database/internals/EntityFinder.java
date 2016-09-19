@@ -25,8 +25,11 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 11.09.16
  */
-@SuppressWarnings("Duplicates")
-public interface EntityFinder extends StatementFiller, ConfigGetter {
+public interface EntityFinder extends ConfigGetter {
+
+    default StatementFiller statementFiller() {
+        return new StatementFiller() { };
+    }
 
     /**
      * Find many.
@@ -46,7 +49,7 @@ public interface EntityFinder extends StatementFiller, ConfigGetter {
 
             try (final Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    final PreparedStatement filledStatement = fillStatement(
+                    final PreparedStatement filledStatement = statementFiller().fillStatement(
                             Collections.singletonList(columnWhere),
                             Collections.singletonList(query.columnWhereValue()), stmt);
                     final List<DatabaseResultField<S>> listRowResult = getListRowResult(finalQuery, columnToSelect,
@@ -75,7 +78,7 @@ public interface EntityFinder extends StatementFiller, ConfigGetter {
 
             try (final Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    final PreparedStatement filledStatement = fillStatement(
+                    final PreparedStatement filledStatement = statementFiller().fillStatement(
                             new LinkedList<>(valuesWhere.values().keySet()),
                             new LinkedList<>(valuesWhere.values().values()), stmt);
                     final DatabaseResultField<S> singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
@@ -113,7 +116,7 @@ public interface EntityFinder extends StatementFiller, ConfigGetter {
             final String finalQuery = String.format(query.query(), format.toArray());
             try (final Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    final PreparedStatement filledStatement = fillStatement(
+                    final PreparedStatement filledStatement = statementFiller().fillStatement(
                             Collections.singletonList(columnToSelect),
                             Collections.singletonList(whereValueToFind), stmt);
                     final DatabaseResultField<S> singleRowResult = getSingleRowResult(finalQuery, columnToSelect,

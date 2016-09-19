@@ -18,8 +18,11 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 12.09.16
  */
-@SuppressWarnings("Duplicates")
-public interface Inserter<T, R extends DatabaseEntity<T>> extends StatementFiller, ConfigGetter {
+public interface Inserter<T, R extends DatabaseEntity<T>> extends ConfigGetter {
+
+    default StatementFiller statementFiller() {
+        return new StatementFiller() { };
+    }
 
     default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query) {
 
@@ -32,7 +35,7 @@ public interface Inserter<T, R extends DatabaseEntity<T>> extends StatementFille
             final String finalQuery = String.format(query.query(), keys.toArray());
             try (final Connection c = config().getConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery, Statement.RETURN_GENERATED_KEYS)) {
-                    fillStatement(keys, new LinkedList<>(query.values().values()), stmt);
+                    statementFiller().fillStatement(keys, new LinkedList<>(query.values().values()), stmt);
                     returnValueFuture.complete(getResult(finalQuery, query.columnToReturn(), stmt));
                 }
             } catch (final SQLException e) {

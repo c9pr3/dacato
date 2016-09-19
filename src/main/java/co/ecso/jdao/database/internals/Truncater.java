@@ -14,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 11.09.16
  */
 public interface Truncater extends ConfigGetter {
+
     default CompletableFuture<Boolean> truncate(final String query) {
         final CompletableFuture<Boolean> retValFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {

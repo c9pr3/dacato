@@ -18,7 +18,11 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 11.09.16
  */
-public interface Updater<T> extends StatementFiller, ConfigGetter {
+public interface Updater<T> extends ConfigGetter {
+
+    default StatementFiller statementFiller() {
+        return new StatementFiller() { };
+    }
 
     default CompletableFuture<Boolean> update(final SingleColumnUpdateQuery<T> query) {
         final CompletableFuture<Boolean> returnValueFuture = new CompletableFuture<>();
@@ -33,7 +37,7 @@ public interface Updater<T> extends StatementFiller, ConfigGetter {
                         final List<Object> values = new LinkedList<>();
                         query.values().values().forEach(values::add);
                         values.add(query.whereValue());
-                        fillStatement(newArr, values, stmt);
+                        statementFiller().fillStatement(newArr, values, stmt);
                         returnValueFuture.complete(getResult(stmt));
                     }
                 }

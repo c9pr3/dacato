@@ -1,6 +1,6 @@
 package co.ecso.jdao;
 
-import co.ecso.jdao.cache.Cache;
+import co.ecso.jdao.database.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import java.util.Map;
