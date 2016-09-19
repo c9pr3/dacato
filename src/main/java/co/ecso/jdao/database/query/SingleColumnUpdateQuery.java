@@ -4,6 +4,7 @@ import co.ecso.jdao.database.ColumnList;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -44,5 +45,21 @@ public final class SingleColumnUpdateQuery<T> {
 
     public Map<DatabaseField<?>, ?> values() {
         return values;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SingleColumnUpdateQuery<?> that = (SingleColumnUpdateQuery<?>) o;
+        return Objects.equals(query, that.query) &&
+                Objects.equals(whereColumn, that.whereColumn) &&
+                Objects.equals(whereValue, that.whereValue) &&
+                Objects.equals(values, that.values);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(query, whereColumn, whereValue, values);
     }
 }

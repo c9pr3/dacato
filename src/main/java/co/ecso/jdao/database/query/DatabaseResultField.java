@@ -1,5 +1,7 @@
 package co.ecso.jdao.database.query;
 
+import java.util.Objects;
+
 /**
  * DatabaseResultField.
  *
@@ -23,5 +25,19 @@ public final class DatabaseResultField<T> {
 
     public T value() {
         return this.result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DatabaseResultField<?> that = (DatabaseResultField<?>) o;
+        return Objects.equals(selectedField, that.selectedField) &&
+                Objects.equals(result, that.result);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(selectedField, result);
     }
 }

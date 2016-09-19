@@ -50,7 +50,16 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public String query() {
+        return query;
+    }
+
+    public W columnWhereValue() {
+        return this.columnWhereValue;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SingleColumnQuery<?, ?> that = (SingleColumnQuery<?, ?>) o;
@@ -65,12 +74,4 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
         return Objects.hash(query, columnToSelect, columnWhere, columnWhereValue);
     }
 
-    @Override
-    public String query() {
-        return query;
-    }
-
-    public W columnWhereValue() {
-        return this.columnWhereValue;
-    }
 }

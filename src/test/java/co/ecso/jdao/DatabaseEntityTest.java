@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -57,22 +58,18 @@ public final class DatabaseEntityTest extends AbstractTest {
     @Test(expected = ConcurrentModificationException.class)
     public void testSave() throws Exception {
         final Long id = this.customer.id();
-        this.customer.save(() -> new HashMap<DatabaseField<?>, Object>() {
-            {
-                put(Customer.Fields.FIRST_NAME, "foo1");
-                put(Customer.Fields.LAST_NAME, "bla1");
-            }
-        }).get(5, TimeUnit.SECONDS);
+        Map<DatabaseField<?>, Object> map = new HashMap<>();
+        map.put(Customer.Fields.FIRST_NAME, "foo1");
+        map.put(Customer.Fields.LAST_NAME, "bla1");
+        this.customer.save(() -> map).get(5, TimeUnit.SECONDS);
 
         this.customer = new Customers(APPLICATION_CONFIG).findOne(id).get();
         Assert.assertEquals("foo1", this.customer.firstName().get().value());
         Assert.assertEquals("bla1", this.customer.lastName().get().value());
 
-        this.customer.save(() -> new HashMap<DatabaseField<?>, Object>() {
-            {
-                put(Customer.Fields.FIRST_NAME, "foo2");
-            }
-        }).get(5, TimeUnit.SECONDS);
+        map.clear();
+        map.put(Customer.Fields.FIRST_NAME, "foo2");
+        this.customer.save(() -> map).get(5, TimeUnit.SECONDS);
 
         Assert.assertEquals("foo2", this.customer.firstName().get().value());
     }

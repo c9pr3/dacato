@@ -10,4 +10,5 @@ package co.ecso.jdao.database.query;
 public interface Query<T> {
 
     String query();
+
 }

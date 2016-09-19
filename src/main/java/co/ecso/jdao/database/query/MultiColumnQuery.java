@@ -2,6 +2,8 @@ package co.ecso.jdao.database.query;
 
 import co.ecso.jdao.database.ColumnList;
 
+import java.util.Objects;
+
 /**
  * MultiColumnQuery.
  *
@@ -34,5 +36,20 @@ public final class MultiColumnQuery<T> implements Query<T> {
 
     public ColumnList values() {
         return values;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MultiColumnQuery<?> that = (MultiColumnQuery<?>) o;
+        return Objects.equals(query, that.query) &&
+                Objects.equals(columnToSelect, that.columnToSelect) &&
+                Objects.equals(values, that.values);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(query, columnToSelect, values);
     }
 }

@@ -1,13 +1,11 @@
 package co.ecso.jdao.helpers;
 
-import co.ecso.jdao.TestApplicationCache;
+import co.ecso.jdao.AbstractTest;
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.CachedDatabaseTable;
 import co.ecso.jdao.database.cache.Cache;
 import co.ecso.jdao.database.internals.Truncater;
-import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.database.query.InsertQuery;
-import co.ecso.jdao.database.query.Query;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -22,8 +20,6 @@ import java.util.concurrent.CompletableFuture;
 public final class CachedCustomers implements CachedDatabaseTable<Long, Customer> {
 
     private final ApplicationConfig config;
-    private static final Cache<Query<Long>, CompletableFuture<DatabaseResultField<Long>>> CACHE =
-            new TestApplicationCache<>();
 
     public CachedCustomers(final ApplicationConfig config) {
         this.config = config;
@@ -60,6 +56,6 @@ public final class CachedCustomers implements CachedDatabaseTable<Long, Customer
 
     @Override
     public <K, V> Cache<K, V> cache() {
-        return (Cache<K, V>) CACHE;
+        return (Cache<K, V>) AbstractTest.CACHE;
     }
 }

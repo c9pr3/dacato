@@ -1,7 +1,6 @@
 package co.ecso.jdao.helpers;
 
 import co.ecso.jdao.config.ApplicationConfig;
-import co.ecso.jdao.database.ColumnList;
 import co.ecso.jdao.database.DatabaseTable;
 import co.ecso.jdao.database.query.DatabaseField;
 import co.ecso.jdao.database.query.InsertQuery;
@@ -10,6 +9,7 @@ import co.ecso.jdao.database.query.SingleColumnQuery;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -57,14 +57,11 @@ public final class Customers implements DatabaseTable<Long, Customer> {
     }
 
     public CompletableFuture<Customer> findOneByFirstNameAndLastName(final String firstName, final String lastName) {
-        final ColumnList values = () -> new HashMap<DatabaseField<?>, Object>() {
-            {
-                put(Customer.Fields.FIRST_NAME, "foo1");
-                put(Customer.Fields.LAST_NAME, "foo1");
-            }
-        };
+        final Map<DatabaseField<?>, Object> map = new HashMap<>();
+        map.put(Customer.Fields.FIRST_NAME, "foo1");
+        map.put(Customer.Fields.LAST_NAME, "foo1");
         return findOne(new MultiColumnQuery<>("SELECT %s FROM customer WHERE %s = ? AND %s = ?",
-                Customer.Fields.ID, values)).thenApply(id -> new Customer(config, id.value()));
+                Customer.Fields.ID, () -> map)).thenApply(id -> new Customer(config, id.value()));
     }
 
     public CompletableFuture<Boolean> removeAll() {

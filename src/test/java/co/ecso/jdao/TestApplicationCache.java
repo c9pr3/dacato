@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
  * @version $Id:$
  * @since 04.09.16
  */
+@SuppressWarnings("WeakerAccess")
 public final class TestApplicationCache<K, V> implements Cache<K, V> {
     private final com.google.common.cache.Cache<K, V>
             CACHE = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).maximumSize(50).build();

@@ -1,6 +1,9 @@
 package co.ecso.jdao;
 
 import co.ecso.jdao.config.ApplicationConfig;
+import co.ecso.jdao.database.cache.Cache;
+import co.ecso.jdao.database.query.DatabaseResultField;
+import co.ecso.jdao.database.query.Query;
 import co.ecso.jdao.helpers.CreateTableOnlyFilter;
 import co.ecso.jdao.helpers.MysqlToHsqlMap;
 import org.hsqldb.jdbc.JDBCDataSource;
@@ -11,6 +14,7 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -25,6 +29,8 @@ public abstract class AbstractTest {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractTest.class.getName());
     static final ApplicationConfig APPLICATION_CONFIG = new TestApplicationConfig();
+    public static final Cache<Query<Long>, CompletableFuture<DatabaseResultField<Long>>> CACHE =
+            new TestApplicationCache<>();
 
     static {
         System.setProperty("APPLICATION_CONFIG.file", "src/test/APPLICATION_CONFIG/application.conf");

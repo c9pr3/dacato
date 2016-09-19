@@ -2,6 +2,7 @@ package co.ecso.jdao.database.query;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * InsertQuery.
@@ -37,5 +38,20 @@ public final class InsertQuery<T> implements Query<T> {
 
     public DatabaseField<T> columnToReturn() {
         return columnToReturn;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        InsertQuery<?> that = (InsertQuery<?>) o;
+        return Objects.equals(query, that.query) &&
+                Objects.equals(values, that.values) &&
+                Objects.equals(columnToReturn, that.columnToReturn);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(query, values, columnToReturn);
     }
 }

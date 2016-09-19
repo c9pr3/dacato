@@ -1,6 +1,6 @@
 package co.ecso.jdao.helpers;
 
-import co.ecso.jdao.TestApplicationCache;
+import co.ecso.jdao.AbstractTest;
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.CachedDatabaseEntity;
 import co.ecso.jdao.database.ColumnList;
@@ -26,8 +26,6 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
 
     private final ApplicationConfig config;
     private final Long id;
-    private static final Cache<Query<Long>, CompletableFuture<DatabaseResultField<Long>>> CACHE =
-            new TestApplicationCache<>();
     private static final String TABLE_NAME = "customer";
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
 
@@ -63,7 +61,7 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
 
     @Override
     public Cache<Query<Long>, CompletableFuture<DatabaseResultField<Long>>> cache() {
-        return CACHE;
+        return AbstractTest.CACHE;
     }
 
     public CompletableFuture<DatabaseResultField<String>> firstName() {
