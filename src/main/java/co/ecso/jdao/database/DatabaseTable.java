@@ -4,10 +4,11 @@ import co.ecso.jdao.config.ConfigGetter;
 import co.ecso.jdao.database.internals.EntityFinder;
 import co.ecso.jdao.database.internals.Inserter;
 import co.ecso.jdao.database.internals.Truncater;
-import co.ecso.jdao.database.query.*;
+import co.ecso.jdao.database.query.DatabaseResultField;
+import co.ecso.jdao.database.query.InsertQuery;
+import co.ecso.jdao.database.query.MultiColumnQuery;
+import co.ecso.jdao.database.query.SingleColumnQuery;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -56,18 +57,6 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
 
     default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
         return this.entityFinder().findOne(query);
-    }
-
-    default <R> List<DatabaseResultField<R>> getListRowResult(final String finalQuery,
-                                                              final DatabaseField<R> columnToSelect,
-                                                              final PreparedStatement stmt) throws SQLException {
-        return this.entityFinder().getListRowResult(finalQuery, columnToSelect, stmt);
-    }
-
-    default <R> DatabaseResultField<R> getSingleRowResult(final String finalQuery,
-                                                          final DatabaseField<R> columnToSelect,
-                                                          final PreparedStatement stmt) throws SQLException {
-        return this.entityFinder().getSingleRowResult(finalQuery, columnToSelect, stmt);
     }
 
 }

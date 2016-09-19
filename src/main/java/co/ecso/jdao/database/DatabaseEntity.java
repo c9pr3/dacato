@@ -3,11 +3,11 @@ package co.ecso.jdao.database;
 import co.ecso.jdao.config.ConfigGetter;
 import co.ecso.jdao.database.internals.EntityFinder;
 import co.ecso.jdao.database.internals.Updater;
-import co.ecso.jdao.database.query.*;
+import co.ecso.jdao.database.query.DatabaseResultField;
+import co.ecso.jdao.database.query.SingleColumnQuery;
+import co.ecso.jdao.database.query.SingleColumnUpdateQuery;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -18,7 +18,6 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 08.08.16
  */
-@SuppressWarnings("unused")
 public interface DatabaseEntity<T> extends ConfigGetter {
     T id();
 
@@ -40,27 +39,8 @@ public interface DatabaseEntity<T> extends ConfigGetter {
         return DatabaseEntity.this::config;
     }
 
-    default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query) {
-        return this.entityFinder().findOne(query);
-    }
-
-    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query) {
-        return this.entityFinder().findMany(query);
-    }
-
     default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
         return this.entityFinder().findOne(query);
     }
 
-    default <R> List<DatabaseResultField<R>> getListRowResult(final String finalQuery,
-                                                              final DatabaseField<R> columnToSelect,
-                                                              final PreparedStatement stmt) throws SQLException {
-        return this.entityFinder().getListRowResult(finalQuery, columnToSelect, stmt);
-    }
-
-    default <R> DatabaseResultField<R> getSingleRowResult(final String finalQuery,
-                                                          final DatabaseField<R> columnToSelect,
-                                                          final PreparedStatement stmt) throws SQLException {
-        return this.entityFinder().getSingleRowResult(finalQuery, columnToSelect, stmt);
-    }
 }
