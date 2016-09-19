@@ -11,7 +11,7 @@ import co.ecso.jdao.database.ColumnList;
  * @since 13.09.16
  */
 @SuppressWarnings("WeakerAccess")
-public final class MultiColumnQuery<T> {
+public final class MultiColumnQuery<T> implements Query<T> {
 
     private final String query;
     private final DatabaseField<T> columnToSelect;
@@ -23,6 +23,7 @@ public final class MultiColumnQuery<T> {
         this.values = values;
     }
 
+    @Override
     public String query() {
         return query;
     }

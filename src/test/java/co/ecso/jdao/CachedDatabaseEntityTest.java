@@ -38,17 +38,19 @@ public final class CachedDatabaseEntityTest extends AbstractTest {
 
     @Test
     public void testFirstName() throws Exception {
-//        Assert.assertEquals("firstName", this.customer.firstName().get().value());
+        Assert.assertEquals("firstName", this.customer.firstName().get().value());
     }
 
     @Test
     public void testLastName() throws Exception {
-//        Assert.assertEquals("lastName", this.customer.lastName().get().value());
+        Assert.assertEquals("lastName", this.customer.lastName().get().value());
+        Assert.assertEquals("lastName", this.customer.lastName().get().value());
+        Assert.assertEquals("lastName", this.customer.lastName().get().value());
     }
 
     @Test
     public void testNumber() throws Exception {
-//        Assert.assertEquals(Long.valueOf(1234L), this.customer.number().get().value());
+        Assert.assertEquals(Long.valueOf(1234L), this.customer.number().get().value());
     }
 
 }

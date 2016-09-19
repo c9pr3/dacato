@@ -81,4 +81,5 @@ class TestApplicationConfig implements ApplicationConfig {
         }
         return () -> connectionPool.getConnection();
     }
+
 }

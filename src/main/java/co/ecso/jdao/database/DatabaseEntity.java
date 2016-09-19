@@ -23,6 +23,7 @@ public interface DatabaseEntity<T> extends ConfigGetter {
 
     CompletableFuture<? extends DatabaseEntity<T>> save(final ColumnList values);
 
+    @SuppressWarnings("unused")
     String toJson() throws SQLException;
 
     void checkValidity();

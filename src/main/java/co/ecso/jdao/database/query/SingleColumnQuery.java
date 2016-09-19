@@ -12,7 +12,7 @@ import java.util.Objects;
  * @since 09.09.16
  */
 @SuppressWarnings("WeakerAccess")
-public final class SingleColumnQuery<S, W> {
+public final class SingleColumnQuery<S, W> implements Query<S> {
 
     private final String query;
     private final DatabaseField<S> columnToSelect;
@@ -49,6 +49,23 @@ public final class SingleColumnQuery<S, W> {
         return columnWhere;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SingleColumnQuery<?, ?> that = (SingleColumnQuery<?, ?>) o;
+        return Objects.equals(query, that.query) &&
+                Objects.equals(columnToSelect, that.columnToSelect) &&
+                Objects.equals(columnWhere, that.columnWhere) &&
+                Objects.equals(columnWhereValue, that.columnWhereValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(query, columnToSelect, columnWhere, columnWhereValue);
+    }
+
+    @Override
     public String query() {
         return query;
     }

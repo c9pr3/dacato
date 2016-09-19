@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutionException;
  * @version $Id:$
  * @since 25.08.16
  */
-@SuppressWarnings("unused")
 public interface Cache<K, V> {
     /**
      * Get entry if present.

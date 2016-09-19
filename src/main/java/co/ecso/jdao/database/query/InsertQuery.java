@@ -11,7 +11,7 @@ import java.util.Map;
  * @since 12.09.16
  */
 @SuppressWarnings("WeakerAccess")
-public final class InsertQuery<T> {
+public final class InsertQuery<T> implements Query<T> {
 
     private final String query;
     private final Map<DatabaseField<?>, Object> values = new LinkedHashMap<>();
@@ -26,6 +26,7 @@ public final class InsertQuery<T> {
         values.put(field, value);
     }
 
+    @Override
     public String query() {
         return query;
     }

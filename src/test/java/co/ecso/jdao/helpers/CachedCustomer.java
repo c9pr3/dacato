@@ -1,17 +1,22 @@
 package co.ecso.jdao.helpers;
 
+import co.ecso.jdao.TestApplicationCache;
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.CachedDatabaseEntity;
 import co.ecso.jdao.database.ColumnList;
 import co.ecso.jdao.database.DatabaseEntity;
+import co.ecso.jdao.database.cache.Cache;
 import co.ecso.jdao.database.query.DatabaseField;
+import co.ecso.jdao.database.query.DatabaseResultField;
+import co.ecso.jdao.database.query.Query;
+import co.ecso.jdao.database.query.SingleColumnQuery;
 
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * CLASS
+ * CachedCustomer.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
@@ -21,6 +26,10 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
 
     private final ApplicationConfig config;
     private final Long id;
+    private static final Cache<Query<Long>, CompletableFuture<DatabaseResultField<Long>>> CACHE =
+            new TestApplicationCache<>();
+    private static final String TABLE_NAME = "customer";
+    private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
 
     public CachedCustomer(final ApplicationConfig config, final Long id) {
         this.config = config;
@@ -50,6 +59,26 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
     @Override
     public void checkValidity() {
 
+    }
+
+    @Override
+    public Cache<Query<Long>, CompletableFuture<DatabaseResultField<Long>>> cache() {
+        return CACHE;
+    }
+
+    public CompletableFuture<DatabaseResultField<String>> firstName() {
+        this.checkValidity();
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.id()));
+    }
+
+    public CompletableFuture<DatabaseResultField<String>> lastName() {
+        this.checkValidity();
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.LAST_NAME, Fields.ID, this.id()));
+    }
+
+    public CompletableFuture<DatabaseResultField<Long>> number() {
+        this.checkValidity();
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.id()));
     }
 
     public static final class Fields {
