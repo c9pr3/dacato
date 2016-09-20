@@ -68,7 +68,6 @@ public final class Customer implements DatabaseEntity<Long> {
     public String toJson() throws SQLException {
         this.checkValidity();
 
-        //TODO
         return "";
     }
 
