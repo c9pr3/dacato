@@ -1,5 +1,7 @@
 package co.ecso.jdao.database.query;
 
+import co.ecso.jdao.database.cache.CacheKey;
+
 /**
  * Query.
  *
@@ -10,5 +12,7 @@ package co.ecso.jdao.database.query;
 public interface Query<T> {
 
     String query();
+
+    CacheKey<T> getCacheKey();
 
 }

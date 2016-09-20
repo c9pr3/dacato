@@ -1,5 +1,7 @@
 package co.ecso.jdao.database.query;
 
+import co.ecso.jdao.database.cache.CacheKey;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -30,6 +32,16 @@ public final class InsertQuery<T> implements Query<T> {
     @Override
     public String query() {
         return query;
+    }
+
+    @Override
+    public CacheKey<T> getCacheKey() {
+        return () -> String.valueOf(Objects.hash(
+                query,
+                columnToReturn.name(),
+                columnToReturn.valueClass().getName(),
+                columnToReturn.sqlType()
+        ));
     }
 
     public Map<DatabaseField<?>, ?> values() {

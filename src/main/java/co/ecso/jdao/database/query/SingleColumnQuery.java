@@ -1,5 +1,7 @@
 package co.ecso.jdao.database.query;
 
+import co.ecso.jdao.database.cache.CacheKey;
+
 import java.util.Objects;
 
 /**
@@ -52,6 +54,13 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
     @Override
     public String query() {
         return query;
+    }
+
+    @Override
+    public CacheKey<S> getCacheKey() {
+        return () -> String.valueOf(Objects.hash(query, columnToSelect.name(), columnToSelect.valueClass().getName(),
+                columnToSelect.sqlType(), columnWhere.name(), columnWhere.valueClass().getName(),
+                columnWhere.sqlType(), (columnWhereValue != null ? columnWhereValue.toString() : "")));
     }
 
     public W columnWhereValue() {

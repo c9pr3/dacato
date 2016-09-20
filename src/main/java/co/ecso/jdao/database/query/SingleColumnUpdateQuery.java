@@ -1,7 +1,9 @@
 package co.ecso.jdao.database.query;
 
 import co.ecso.jdao.database.ColumnList;
+import co.ecso.jdao.database.cache.CacheKey;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -15,7 +17,7 @@ import java.util.stream.Collectors;
  * @since 11.09.16
  */
 @SuppressWarnings("WeakerAccess")
-public final class SingleColumnUpdateQuery<T> {
+public final class SingleColumnUpdateQuery<T> implements Query<T> {
 
     private final String query;
     private final DatabaseField<T> whereColumn;
@@ -31,10 +33,23 @@ public final class SingleColumnUpdateQuery<T> {
                 .collect(Collectors.joining(",")));
     }
 
+    @Override
     public String query() {
         return query;
     }
 
+    @Override
+    public CacheKey<T> getCacheKey() {
+        return () -> String.valueOf(Objects.hash(
+                whereColumn.name(),
+                whereColumn.valueClass().getName(),
+                whereColumn.sqlType(),
+                (whereValue != null ? whereValue.toString() : ""),
+                query,
+                Arrays.toString(this.values().keySet().toArray()),
+                Arrays.toString(this.values().values().toArray())
+        ));
+    }
     public DatabaseField<T> whereColumn() {
         return whereColumn;
     }

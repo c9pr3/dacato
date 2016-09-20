@@ -24,8 +24,8 @@ public interface CachedEntityFinder extends EntityFinder {
     @Override
     default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query) {
         try {
-            final Cache<Query<S>, CompletableFuture<List<DatabaseResultField<S>>>> c = cache();
-            return c.get(query, () -> EntityFinder.super.findMany(query));
+            final Cache<CacheKey<S>, CompletableFuture<List<DatabaseResultField<S>>>> c = cache();
+            return c.get(query.getCacheKey(), () -> EntityFinder.super.findMany(query));
         } catch (final ExecutionException e) {
             final CompletableFuture<List<DatabaseResultField<S>>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);
@@ -37,8 +37,8 @@ public interface CachedEntityFinder extends EntityFinder {
     @Override
     default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query) {
         try {
-            final Cache<Query<S>, CompletableFuture<DatabaseResultField<S>>> c = cache();
-            return c.get(query, () -> EntityFinder.super.findOne(query));
+            final Cache<CacheKey<S>, CompletableFuture<DatabaseResultField<S>>> c = cache();
+            return c.get(query.getCacheKey(), () -> EntityFinder.super.findOne(query));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);
@@ -50,8 +50,8 @@ public interface CachedEntityFinder extends EntityFinder {
     @Override
     default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
         try {
-            final Cache<Query<S>, CompletableFuture<DatabaseResultField<S>>> c = cache();
-            return c.get(query, () -> EntityFinder.super.findOne(query));
+            final Cache<CacheKey<S>, CompletableFuture<DatabaseResultField<S>>> c = cache();
+            return c.get(query.getCacheKey(), () -> EntityFinder.super.findOne(query));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);

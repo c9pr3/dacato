@@ -1,7 +1,9 @@
 package co.ecso.jdao.database.query;
 
 import co.ecso.jdao.database.ColumnList;
+import co.ecso.jdao.database.cache.CacheKey;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -28,6 +30,18 @@ public final class MultiColumnQuery<T> implements Query<T> {
     @Override
     public String query() {
         return query;
+    }
+
+    @Override
+    public CacheKey<T> getCacheKey() {
+        return () -> String.valueOf(Objects.hash(
+                query,
+                columnToSelect.name(),
+                columnToSelect.valueClass().getName(),
+                columnToSelect.sqlType(),
+                Arrays.toString(this.values.values().keySet().toArray()),
+                Arrays.toString(this.values.values().values().toArray())
+        ));
     }
 
     public DatabaseField<T> columnToSelect() {
