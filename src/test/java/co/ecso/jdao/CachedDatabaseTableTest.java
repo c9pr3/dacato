@@ -107,15 +107,15 @@ public final class CachedDatabaseTableTest extends AbstractTest {
                 this.customers.create("foo1", "foo2", 12345L),
                 this.customers.create("foo1", "foo2", 12345L),
                 this.customers.create("foo1", "foo2", 12345L)
-        );
+        ).get();
 
         Assert.assertEquals(5, this.customers.findAll().get().size());
     }
 
     @Test
     public void testRemoveAll() throws Exception {
-//        this.customers.removeAll().get();
-//        this.testFindAll();
+        this.customers.removeAll().get();
+        this.testFindAll();
         this.customers.removeAll().get();
         Assert.assertEquals(0, this.customers.findAll().get().size());
     }
