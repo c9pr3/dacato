@@ -64,9 +64,9 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
                 columnToSelect.name(),
                 columnToSelect.valueClass().getName(),
                 columnToSelect.sqlType(),
-                columnWhere.name(),
-                columnWhere.valueClass().getName(),
-                columnWhere.sqlType(),
+                columnWhere != null ? columnWhere.name() : null,
+                columnWhere != null ? columnWhere.valueClass().getName() : null,
+                columnWhere != null ? columnWhere.sqlType() : null,
                 columnWhereValue);
     }
 
