@@ -6,9 +6,9 @@ import co.ecso.jdao.database.CachedDatabaseEntity;
 import co.ecso.jdao.database.ColumnList;
 import co.ecso.jdao.database.DatabaseEntity;
 import co.ecso.jdao.database.cache.Cache;
+import co.ecso.jdao.database.cache.CacheKey;
 import co.ecso.jdao.database.query.DatabaseField;
 import co.ecso.jdao.database.query.DatabaseResultField;
-import co.ecso.jdao.database.query.Query;
 import co.ecso.jdao.database.query.SingleColumnQuery;
 
 import java.sql.SQLException;
@@ -29,6 +29,7 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
     private static final String TABLE_NAME = "customer";
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
 
+    @SuppressWarnings("WeakerAccess")
     public CachedCustomer(final ApplicationConfig config, final Long id) {
         this.config = config;
         this.id = id;
@@ -60,7 +61,7 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
     }
 
     @Override
-    public Cache<Query<Long>, CompletableFuture<DatabaseResultField<Long>>> cache() {
+    public Cache<CacheKey<?>, CompletableFuture<?>> cache() {
         return AbstractTest.CACHE;
     }
 
@@ -79,13 +80,13 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
         return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.id()));
     }
 
-    public static final class Fields {
-        public static final DatabaseField<Long> ID = new DatabaseField<>("id", Long.class, Types.BIGINT);
-        public static final DatabaseField<Long> NUMBER =
+    static final class Fields {
+        static final DatabaseField<Long> ID = new DatabaseField<>("id", Long.class, Types.BIGINT);
+        static final DatabaseField<Long> NUMBER =
                 new DatabaseField<>("customer_number", Long.class, Types.BIGINT);
-        public static final DatabaseField<String> FIRST_NAME =
+        static final DatabaseField<String> FIRST_NAME =
                 new DatabaseField<>("customer_first_name", String.class, Types.VARCHAR);
-        public static final DatabaseField<String> LAST_NAME =
+        static final DatabaseField<String> LAST_NAME =
                 new DatabaseField<>("customer_last_name", String.class, Types.VARCHAR);
     }
 }

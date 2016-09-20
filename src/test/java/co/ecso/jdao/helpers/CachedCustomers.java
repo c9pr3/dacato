@@ -4,7 +4,9 @@ import co.ecso.jdao.AbstractTest;
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.CachedDatabaseTable;
 import co.ecso.jdao.database.cache.Cache;
+import co.ecso.jdao.database.cache.CacheKey;
 import co.ecso.jdao.database.internals.Truncater;
+import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.database.query.InsertQuery;
 import co.ecso.jdao.database.query.SingleColumnQuery;
 
@@ -59,7 +61,7 @@ public final class CachedCustomers implements CachedDatabaseTable<Long, CachedCu
     }
 
     @Override
-    public <K, V> Cache<K, V> cache() {
-        return (Cache<K, V>) AbstractTest.CACHE;
+    public Cache<CacheKey<?>, CompletableFuture<?>> cache() {
+        return AbstractTest.CACHE;
     }
 }

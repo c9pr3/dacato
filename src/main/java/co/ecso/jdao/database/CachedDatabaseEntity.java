@@ -2,12 +2,11 @@ package co.ecso.jdao.database;
 
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.cache.Cache;
+import co.ecso.jdao.database.cache.CacheKey;
 import co.ecso.jdao.database.cache.CachedEntityFinder;
 import co.ecso.jdao.database.cache.CachedUpdater;
 import co.ecso.jdao.database.internals.EntityFinder;
 import co.ecso.jdao.database.internals.Updater;
-import co.ecso.jdao.database.query.DatabaseResultField;
-import co.ecso.jdao.database.query.Query;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,13 +21,14 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface CachedDatabaseEntity<T> extends DatabaseEntity<T> {
 
-    Cache<Query<T>, CompletableFuture<DatabaseResultField<T>>> cache();
+    Cache<CacheKey<?>, CompletableFuture<?>> cache();
 
     @Override
     default Updater<T> updater() {
         return new CachedUpdater<T>() {
+
             @Override
-            public Cache<Query<T>, CompletableFuture<DatabaseResultField<T>>> cache() {
+            public Cache<CacheKey<?>, CompletableFuture<?>> cache() {
                 return CachedDatabaseEntity.this.cache();
             }
 
@@ -45,7 +45,7 @@ public interface CachedDatabaseEntity<T> extends DatabaseEntity<T> {
         return new CachedEntityFinder() {
 
             @Override
-            public Cache<Query<T>, CompletableFuture<DatabaseResultField<T>>> cache() {
+            public Cache<CacheKey<?>, CompletableFuture<?>> cache() {
                 return CachedDatabaseEntity.this.cache();
             }
 

@@ -3,7 +3,6 @@ package co.ecso.jdao.database.cache;
 import co.ecso.jdao.database.internals.EntityFinder;
 import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.database.query.MultiColumnQuery;
-import co.ecso.jdao.database.query.Query;
 import co.ecso.jdao.database.query.SingleColumnQuery;
 
 import java.util.List;
@@ -19,13 +18,12 @@ import java.util.concurrent.ExecutionException;
  */
 public interface CachedEntityFinder extends EntityFinder {
 
-    <K, V> Cache<K, V> cache();
+    Cache<CacheKey<?>, CompletableFuture<?>> cache();
 
     @Override
     default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query) {
         try {
-            final Cache<CacheKey<S>, CompletableFuture<List<DatabaseResultField<S>>>> c = cache();
-            return c.get(query.getCacheKey(), () -> EntityFinder.super.findMany(query));
+            return (CompletableFuture<List<DatabaseResultField<S>>>) cache().get(query.getCacheKey(), () -> EntityFinder.super.findMany(query));
         } catch (final ExecutionException e) {
             final CompletableFuture<List<DatabaseResultField<S>>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);
@@ -37,8 +35,7 @@ public interface CachedEntityFinder extends EntityFinder {
     @Override
     default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query) {
         try {
-            final Cache<CacheKey<S>, CompletableFuture<DatabaseResultField<S>>> c = cache();
-            return c.get(query.getCacheKey(), () -> EntityFinder.super.findOne(query));
+            return (CompletableFuture<DatabaseResultField<S>>) cache().get(query.getCacheKey(), () -> EntityFinder.super.findOne(query));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);
@@ -50,8 +47,7 @@ public interface CachedEntityFinder extends EntityFinder {
     @Override
     default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
         try {
-            final Cache<CacheKey<S>, CompletableFuture<DatabaseResultField<S>>> c = cache();
-            return c.get(query.getCacheKey(), () -> EntityFinder.super.findOne(query));
+            return (CompletableFuture<DatabaseResultField<S>>) cache().get(query.getCacheKey(), () -> EntityFinder.super.findOne(query));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);

@@ -1,8 +1,10 @@
 package co.ecso.jdao.database.cache;
 
 import co.ecso.jdao.database.internals.Updater;
+import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.database.query.SingleColumnUpdateQuery;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -21,6 +23,6 @@ public interface CachedUpdater<T> extends Updater<T> {
         return Updater.super.update(query);
     }
 
-    <K, V> Cache<K, V> cache();
+    Cache<CacheKey<?>, CompletableFuture<?>> cache();
 
 }

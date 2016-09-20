@@ -2,6 +2,7 @@ package co.ecso.jdao.database;
 
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.cache.Cache;
+import co.ecso.jdao.database.cache.CacheKey;
 import co.ecso.jdao.database.cache.CachedEntityFinder;
 import co.ecso.jdao.database.cache.CachedTruncater;
 import co.ecso.jdao.database.internals.EntityFinder;
@@ -25,11 +26,13 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends DatabaseTable<T, E> {
 
+    Cache<CacheKey<?>, CompletableFuture<?>> cache();
+
     @Override
     default Truncater truncater() {
         return new CachedTruncater() {
             @Override
-            public <K, V> Cache<K, V> cache() {
+            public Cache<CacheKey<?>, CompletableFuture<?>> cache() {
                 return CachedDatabaseTable.this.cache();
             }
 
@@ -56,7 +59,7 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
     default EntityFinder entityFinder() {
         return new CachedEntityFinder() {
             @Override
-            public <K, V> Cache<K, V> cache() {
+            public Cache<CacheKey<?>, CompletableFuture<?>> cache() {
                 return CachedDatabaseTable.this.cache();
             }
 
@@ -66,7 +69,5 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
             }
         };
     }
-
-    <K, V> Cache<K,V> cache();
 
 }

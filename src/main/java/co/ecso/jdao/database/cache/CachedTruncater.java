@@ -13,6 +13,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface CachedTruncater extends Truncater {
 
+    Cache<CacheKey<?>, CompletableFuture<?>> cache();
+
     @Override
     default CompletableFuture<Boolean> truncate(final String query) {
         cache().invalidateAll();
@@ -20,5 +22,4 @@ public interface CachedTruncater extends Truncater {
         return Truncater.super.truncate(query);
     }
 
-    <K, V> Cache<K, V> cache();
 }
