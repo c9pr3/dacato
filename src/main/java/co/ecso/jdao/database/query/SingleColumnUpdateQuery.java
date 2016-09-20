@@ -40,7 +40,8 @@ public final class SingleColumnUpdateQuery<T> implements Query<T> {
 
     @Override
     public CacheKey<T> getCacheKey() {
-        return () -> String.valueOf(Objects.hash(
+        return new CacheKey<>(
+                whereColumn.valueClass(),
                 whereColumn.name(),
                 whereColumn.valueClass().getName(),
                 whereColumn.sqlType(),
@@ -48,8 +49,9 @@ public final class SingleColumnUpdateQuery<T> implements Query<T> {
                 query,
                 Arrays.toString(this.values().keySet().toArray()),
                 Arrays.toString(this.values().values().toArray())
-        ));
+        );
     }
+
     public DatabaseField<T> whereColumn() {
         return whereColumn;
     }

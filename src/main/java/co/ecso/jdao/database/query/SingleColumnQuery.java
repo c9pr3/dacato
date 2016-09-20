@@ -58,9 +58,16 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
 
     @Override
     public CacheKey<S> getCacheKey() {
-        return () -> String.valueOf(Objects.hash(query, columnToSelect.name(), columnToSelect.valueClass().getName(),
-                columnToSelect.sqlType(), columnWhere.name(), columnWhere.valueClass().getName(),
-                columnWhere.sqlType(), (columnWhereValue != null ? columnWhereValue.toString() : "")));
+        return new CacheKey<>(
+                columnToSelect.valueClass(),
+                query,
+                columnToSelect.name(),
+                columnToSelect.valueClass().getName(),
+                columnToSelect.sqlType(),
+                columnWhere.name(),
+                columnWhere.valueClass().getName(),
+                columnWhere.sqlType(),
+                columnWhereValue);
     }
 
     public W columnWhereValue() {

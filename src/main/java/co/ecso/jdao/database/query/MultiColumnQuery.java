@@ -34,14 +34,15 @@ public final class MultiColumnQuery<T> implements Query<T> {
 
     @Override
     public CacheKey<T> getCacheKey() {
-        return () -> String.valueOf(Objects.hash(
+        return new CacheKey<>(
+                columnToSelect.valueClass(),
                 query,
                 columnToSelect.name(),
                 columnToSelect.valueClass().getName(),
                 columnToSelect.sqlType(),
                 Arrays.toString(this.values.values().keySet().toArray()),
                 Arrays.toString(this.values.values().values().toArray())
-        ));
+        );
     }
 
     public DatabaseField<T> columnToSelect() {

@@ -36,12 +36,13 @@ public final class InsertQuery<T> implements Query<T> {
 
     @Override
     public CacheKey<T> getCacheKey() {
-        return () -> String.valueOf(Objects.hash(
+        return  new CacheKey<>(
+                columnToReturn.valueClass(),
                 query,
                 columnToReturn.name(),
                 columnToReturn.valueClass().getName(),
                 columnToReturn.sqlType()
-        ));
+        );
     }
 
     public Map<DatabaseField<?>, ?> values() {
