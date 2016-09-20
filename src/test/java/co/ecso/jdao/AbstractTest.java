@@ -70,6 +70,8 @@ public abstract class AbstractTest {
                 stmt.execute("TRUNCATE SCHEMA PUBLIC RESTART IDENTITY AND COMMIT NO CHECK");
             }
         }
+        CACHE.invalidateAll();
+        CACHE.cleanUp();
     }
 
 }

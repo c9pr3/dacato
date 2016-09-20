@@ -3,7 +3,6 @@ package co.ecso.jdao.database;
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.cache.Cache;
 import co.ecso.jdao.database.cache.CachedEntityFinder;
-import co.ecso.jdao.database.cache.CachedInserter;
 import co.ecso.jdao.database.cache.CachedTruncater;
 import co.ecso.jdao.database.internals.EntityFinder;
 import co.ecso.jdao.database.internals.Inserter;
@@ -38,23 +37,12 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
 
     @Override
     default Inserter<T, E> inserter() {
-        return new CachedInserter<T, E>() {
-            @Override
-            public <S, W> Cache<S, W> cache() {
-                return CachedDatabaseTable.this.cache();
-            }
-
-            @Override
-            public ApplicationConfig config() {
-                return CachedDatabaseTable.this.config();
-            }
-        };
+        return CachedDatabaseTable.this::config;
     }
 
     @Override
     default EntityFinder entityFinder() {
         return new CachedEntityFinder() {
-
             @Override
             public <K, V> Cache<K, V> cache() {
                 return CachedDatabaseTable.this.cache();

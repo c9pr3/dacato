@@ -5,7 +5,6 @@ import co.ecso.jdao.database.cache.CacheKey;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 
 /**
  * InsertQuery.
@@ -37,7 +36,7 @@ public final class InsertQuery<T> implements Query<T> {
 
     @Override
     public CacheKey<T> getCacheKey() {
-        return new CacheKey<>(columnToReturn.valueClass(), new Random().nextLong());
+        throw new RuntimeException("CacheKey for insertQuery doesnt make sense.");
     }
 
     public Map<DatabaseField<?>, ?> values() {
@@ -50,9 +49,13 @@ public final class InsertQuery<T> implements Query<T> {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        InsertQuery<?> that = (InsertQuery<?>) o;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final InsertQuery<?> that = (InsertQuery<?>) o;
         return Objects.equals(query, that.query) &&
                 Objects.equals(values, that.values) &&
                 Objects.equals(columnToReturn, that.columnToReturn);

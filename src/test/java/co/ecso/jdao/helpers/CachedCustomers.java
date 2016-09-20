@@ -6,9 +6,11 @@ import co.ecso.jdao.database.CachedDatabaseTable;
 import co.ecso.jdao.database.cache.Cache;
 import co.ecso.jdao.database.internals.Truncater;
 import co.ecso.jdao.database.query.InsertQuery;
+import co.ecso.jdao.database.query.SingleColumnQuery;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * CachedCustomers.
@@ -17,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 17.09.16
  */
-public final class CachedCustomers implements CachedDatabaseTable<Long, Customer> {
+public final class CachedCustomers implements CachedDatabaseTable<Long, CachedCustomer> {
 
     private final ApplicationConfig config;
 
@@ -34,24 +36,26 @@ public final class CachedCustomers implements CachedDatabaseTable<Long, Customer
         return this.add(query).thenApply(newId -> new CachedCustomer(config, newId.value()));
     }
 
+    public CompletableFuture<Boolean> removeAll() {
+        return truncate("TRUNCATE TABLE customer");
+    }
+
+    @Override
+    public CompletableFuture<CachedCustomer> findOne(final Long id) {
+        return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?", Customer.Fields.ID,
+                Customer.Fields.ID, id)).thenApply(foundId -> new CachedCustomer(config, foundId.value()));
+    }
+
+    @Override
+    public CompletableFuture<List<CachedCustomer>> findAll() {
+        return this.findMany(new SingleColumnQuery<>("SELECT %s FROM customer", Customer.Fields.ID))
+                .thenApply(list -> list.stream().map(foundId -> new CachedCustomer(config, foundId.value()))
+                        .collect(Collectors.toList()));
+    }
+
     @Override
     public ApplicationConfig config() {
         return config;
-    }
-
-    @Override
-    public CompletableFuture<Customer> findOne(final Long id) {
-        return null;
-    }
-
-    @Override
-    public CompletableFuture<List<Customer>> findAll() {
-        return null;
-    }
-
-    @Override
-    public Truncater truncater() {
-        return () -> config;
     }
 
     @Override
