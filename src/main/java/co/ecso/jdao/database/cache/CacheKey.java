@@ -12,10 +12,16 @@ import java.util.Objects;
 public final class CacheKey<T> {
     private final int key;
     private final Class<T> type;
+    private final StringBuilder textKey = new StringBuilder();
 
     public CacheKey(final Class<T> type, final Object ...values) {
         this.type = type;
         this.key = Objects.hash(values);
+        for (final Object value : values) {
+            if (value != null) {
+                this.textKey.append(value.toString());
+            }
+        }
     }
 
     @Override
@@ -34,5 +40,20 @@ public final class CacheKey<T> {
     @Override
     public int hashCode() {
         return Objects.hash(key, type);
+    }
+
+    @SuppressWarnings("unused")
+    public int key() {
+        return key;
+    }
+
+    @SuppressWarnings("unused")
+    public Class<T> type() {
+        return type;
+    }
+
+    @SuppressWarnings("unused")
+    public StringBuilder textKey() {
+        return textKey;
     }
 }
