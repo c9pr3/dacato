@@ -37,7 +37,7 @@ public final class Customers implements DatabaseTable<Long, Customer> {
 
     @Override
     public CompletableFuture<List<Customer>> findAll() {
-        return this.findMany(new SingleColumnQuery<>("SELECT %s FROM customer", Customer.Fields.ID))
+        return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", Customer.Fields.ID))
                 .thenApply(list -> list.stream().map(foundId -> new Customer(config, foundId.value()))
                         .collect(Collectors.toList()));
     }

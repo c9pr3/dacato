@@ -48,7 +48,7 @@ public final class CachedCustomers implements CachedDatabaseTable<Long, CachedCu
 
     @Override
     public CompletableFuture<List<CachedCustomer>> findAll() {
-        return this.findMany(new SingleColumnQuery<>("SELECT %s FROM customer", Customer.Fields.ID))
+        return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", Customer.Fields.ID))
                 .thenApply(list -> list.stream().map(foundId -> new CachedCustomer(config, foundId.value()))
                         .collect(Collectors.toList()));
     }

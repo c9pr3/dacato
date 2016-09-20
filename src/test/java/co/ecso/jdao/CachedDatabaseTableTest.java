@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -98,6 +99,8 @@ public final class CachedDatabaseTableTest extends AbstractTest {
     @SuppressWarnings("Duplicates")
     @Test
     public void testFindAll() throws Exception {
+        Assert.assertEquals(Integer.valueOf(0), this.customers.findAll().thenApply(List::size).get());
+
         CompletableFuture.allOf(
                 this.customers.create("foo1", "foo2", 12345L),
                 this.customers.create("foo1", "foo2", 12345L),

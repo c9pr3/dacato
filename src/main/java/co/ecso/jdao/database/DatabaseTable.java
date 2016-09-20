@@ -27,6 +27,10 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
 
     CompletableFuture<List<E>> findAll();
 
+    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findAll(final SingleColumnQuery<S, W> query) {
+        return this.findMany(query);
+    }
+
     default Truncater truncater() {
         return DatabaseTable.this::config;
     }
