@@ -161,7 +161,7 @@ public interface EntityFinder extends ConfigGetter {
                         result.add(new DatabaseResultField<>(columnToSelect,
                                 columnToSelect.valueClass().cast(rval.toString().trim())));
                     } else if (columnToSelect.valueClass() == Boolean.class) {
-                        final Boolean boolVal = rval.toString().trim().equals("1");
+                        final Boolean boolVal = "1".equals(rval.toString().trim());
                         result.add(new DatabaseResultField<>(columnToSelect,
                                 columnToSelect.valueClass().cast(boolVal)));
                     } else {
@@ -199,7 +199,7 @@ public interface EntityFinder extends ConfigGetter {
                     result = new DatabaseResultField<>(columnToSelect,
                             columnToSelect.valueClass().cast(rval.toString().trim()));
                 } else if (columnToSelect.valueClass() == Boolean.class) {
-                    final Boolean boolVal = rval.toString().trim().equals("1");
+                    final Boolean boolVal = "1".equals(rval.toString().trim());
                     result = new DatabaseResultField<>(columnToSelect, columnToSelect.valueClass().cast(boolVal));
                 } else {
                     result = new DatabaseResultField<>(columnToSelect, rval);
