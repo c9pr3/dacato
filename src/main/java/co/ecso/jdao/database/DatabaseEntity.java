@@ -40,7 +40,7 @@ public interface DatabaseEntity<T> extends ConfigGetter {
      * The idea behind this is that after save, validity shall throw an exception.
      * Inside any execution, p.e. primaryKey(), the first statement has to be checkValidity.
      */
-    //todo find better solution.
+    //todo find better solution than check validity.
     void checkValidity() throws ConcurrentModificationException;
 
     /**

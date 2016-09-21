@@ -1,7 +1,6 @@
 package co.ecso.jdao.database.query;
 
-import co.ecso.jdao.database.cache.CacheKey;
-
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -88,24 +87,35 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
     }
 
     @Override
-    public CacheKey<S> getCacheKey() {
-        final DatabaseField<W> where;
+    public Class<S> queryType() {
+        return columnToSelect.valueClass();
+    }
+
+    @Override
+    public String toString() {
+        final Class<?> whereClass;
+        final String whereName;
+        final int whereSqlType;
         if (columnWhere == null) {
-            //noinspection unchecked
-            where = new DatabaseField<>("", (Class<W>) Object.class, -1);
+            whereClass = Object.class;
+            whereName = Object.class.getName();
+            whereSqlType = -1;
         } else {
-            where = columnWhere;
+            whereClass = columnWhere.valueClass();
+            whereName = columnWhere.valueClass().getName();
+            whereSqlType = columnWhere.sqlType();
         }
-        return new CacheKey<>(
+        return String.valueOf(Arrays.asList(
                 columnToSelect.valueClass(),
                 query,
                 columnToSelect.name(),
                 columnToSelect.valueClass().getName(),
                 columnToSelect.sqlType(),
-                where.name(),
-                where.valueClass().getName(),
-                where.sqlType(),
-                columnWhereValue);
+                whereName,
+                whereClass,
+                whereSqlType,
+                columnWhereValue
+        ));
     }
 
     /**

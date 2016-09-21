@@ -1,17 +1,14 @@
 package co.ecso.jdao.database.query;
 
-import co.ecso.jdao.database.cache.CacheKeyGetter;
-
 /**
  * Query.
  *
- * @param <T> Needed for CacheKeyGetter only.
+ * @param <T> Type of Query.
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 19.09.16
  */
-//@TODO CacheKeyGetter is usually not needed for queries. Only if cached. Find a better solution.
-interface Query<T> extends CacheKeyGetter<T> {
+public interface Query<T> {
 
     /**
      * Get query.
@@ -20,4 +17,10 @@ interface Query<T> extends CacheKeyGetter<T> {
      */
     String query();
 
+    /**
+     * Query type.
+     *
+     * @return Query type.
+     */
+    Class<T> queryType();
 }

@@ -1,7 +1,6 @@
 package co.ecso.jdao.database.query;
 
 import co.ecso.jdao.database.ColumnList;
-import co.ecso.jdao.database.cache.CacheKey;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -47,14 +46,19 @@ public final class SingleColumnUpdateQuery<T> implements Query<T> {
     }
 
     @Override
-    public CacheKey<T> getCacheKey() {
+    public Class<T> queryType() {
+        return whereColumn.valueClass();
+    }
+
+    @Override
+    public String toString() {
         final String value;
         if (whereValue != null) {
             value = whereValue.toString();
         } else {
             value = "";
         }
-        return new CacheKey<>(
+        return String.valueOf(Arrays.asList(
                 whereColumn.valueClass(),
                 whereColumn.name(),
                 whereColumn.valueClass().getName(),
@@ -63,7 +67,7 @@ public final class SingleColumnUpdateQuery<T> implements Query<T> {
                 query,
                 Arrays.toString(this.columnValuesToSet().keySet().toArray()),
                 Arrays.toString(this.columnValuesToSet().values().toArray())
-        );
+        ));
     }
 
     /**

@@ -1,7 +1,5 @@
 package co.ecso.jdao.database.query;
 
-import co.ecso.jdao.database.cache.CacheKey;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -57,7 +55,13 @@ public final class InsertQuery<T> implements Query<T> {
     }
 
     @Override
-    public CacheKey<T> getCacheKey() {
+    public Class<T> queryType() {
+        return columnToReturn.valueClass();
+    }
+
+    @Override
+    public String toString() {
+        // TODO: 21.09.16 wanted?
         throw new RuntimeException("CacheKey for insertQuery doesnt make sense.");
     }
 
