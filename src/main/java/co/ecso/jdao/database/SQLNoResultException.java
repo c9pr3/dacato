@@ -12,6 +12,9 @@ import java.sql.SQLException;
  * @since 16.09.16
  */
 public final class SQLNoResultException extends SQLException {
+    /**
+     * Serial version UID.
+     */
     private static final long serialVersionUID = -3725636639523022220L;
 
     /**

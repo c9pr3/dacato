@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 public interface CachedUpdater<T> extends Updater<T>, CacheGetter {
 
     @Override
-    default CompletableFuture<Boolean> update(final SingleColumnUpdateQuery<T> query) {
+    default CompletableFuture<Integer> update(final SingleColumnUpdateQuery<T> query) {
         cache().invalidateAll();
         cache().cleanUp();
         return Updater.super.update(query);

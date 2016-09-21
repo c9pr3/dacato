@@ -16,8 +16,17 @@ import java.util.Objects;
  */
 public final class MultiColumnQuery<T> implements Query<T> {
 
+    /**
+     * Query string.
+     */
     private final String query;
+    /**
+     * Column to select.
+     */
     private final DatabaseField<T> columnToSelect;
+    /**
+     * Where columns and values.
+     */
     private final ColumnList whereColumnValues;
 
     /**
@@ -72,9 +81,13 @@ public final class MultiColumnQuery<T> implements Query<T> {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MultiColumnQuery<?> that = (MultiColumnQuery<?>) o;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final MultiColumnQuery<?> that = (MultiColumnQuery<?>) o;
         return Objects.equals(query, that.query) &&
                 Objects.equals(columnToSelect, that.columnToSelect) &&
                 Objects.equals(whereColumnValues, that.whereColumnValues);

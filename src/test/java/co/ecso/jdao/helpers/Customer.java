@@ -59,7 +59,7 @@ public final class Customer implements DatabaseEntity<Long> {
     public CompletableFuture<Customer> save(final ColumnList columnValuesToSet) {
         final SingleColumnUpdateQuery<Long> query =
                 new SingleColumnUpdateQuery<>("UPDATE customer SET %s WHERE %%s = ?", Fields.ID, id, columnValuesToSet);
-        final CompletableFuture<Boolean> updated = this.update(query);
+        final CompletableFuture<Integer> updated = this.update(query);
         this.invalid.set(true);
         return updated.thenApply(t -> new Customer(config, id));
     }

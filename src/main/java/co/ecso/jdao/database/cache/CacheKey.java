@@ -11,8 +11,18 @@ import java.util.Objects;
  * @since 20.09.16
  */
 public final class CacheKey<T> {
+
+    /**
+     * Key.
+     */
     private final int key;
+    /**
+     * Type Class.
+     */
     private final Class<T> type;
+    /**
+     * Textual representation.
+     */
     private final StringBuilder textKey = new StringBuilder();
 
     /**

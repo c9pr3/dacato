@@ -12,7 +12,13 @@ import java.util.Objects;
  */
 public final class DatabaseResultField<T> {
 
+    /**
+     * Selected field.
+     */
     private final DatabaseField<T> selectedField;
+    /**
+     * Result value.
+     */
     private final T resultValue;
 
     /**
@@ -45,7 +51,7 @@ public final class DatabaseResultField<T> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }

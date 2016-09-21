@@ -47,9 +47,9 @@ public interface DatabaseEntity<T> extends ConfigGetter {
      * Wrapper for updater().update, usually called within save().
      *
      * @param query Query to execute.
-     * @return True or false.
+     * @return Number of affected rows.
      */
-    default CompletableFuture<Boolean> update(final SingleColumnUpdateQuery<T> query) {
+    default CompletableFuture<Integer> update(final SingleColumnUpdateQuery<T> query) {
         return updater().update(query);
     }
 

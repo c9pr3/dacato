@@ -15,9 +15,21 @@ import java.util.Objects;
  */
 public final class SingleColumnQuery<S, W> implements Query<S> {
 
+    /**
+     * Query string.
+     */
     private final String query;
+    /**
+     * Column to select.
+     */
     private final DatabaseField<S> columnToSelect;
+    /**
+     * Column where.
+     */
     private final DatabaseField<W> columnWhere;
+    /**
+     * Where value.
+     */
     private final W columnWhereValue;
 
     /**
@@ -78,15 +90,20 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
 
     @Override
     public CacheKey<S> getCacheKey() {
+        DatabaseField<W> where = columnWhere;
+        if (where == null) {
+            //noinspection unchecked
+            where = new DatabaseField<>("", (Class<W>) Object.class, -1);
+        }
         return new CacheKey<>(
                 columnToSelect.valueClass(),
                 query,
                 columnToSelect.name(),
                 columnToSelect.valueClass().getName(),
                 columnToSelect.sqlType(),
-                columnWhere != null ? columnWhere.name() : null,
-                columnWhere != null ? columnWhere.valueClass().getName() : null,
-                columnWhere != null ? columnWhere.sqlType() : null,
+                where.name(),
+                where.valueClass().getName(),
+                where.sqlType(),
                 columnWhereValue);
     }
 
@@ -107,7 +124,7 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SingleColumnQuery<?, ?> that = (SingleColumnQuery<?, ?>) o;
+        final SingleColumnQuery<?, ?> that = (SingleColumnQuery<?, ?>) o;
         return Objects.equals(query, that.query) &&
                 Objects.equals(columnToSelect, that.columnToSelect) &&
                 Objects.equals(columnWhere, that.columnWhere) &&

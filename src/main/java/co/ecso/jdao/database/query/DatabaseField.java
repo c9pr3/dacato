@@ -12,8 +12,17 @@ import java.util.Objects;
  */
 public final class DatabaseField<T> {
 
+    /**
+     * Field name.
+     */
     private final String name;
+    /**
+     * Field value class.
+     */
     private final Class<T> valueClass;
+    /**
+     * Field SQL Type.
+     */
     private final int sqlType;
 
     /**
@@ -64,7 +73,7 @@ public final class DatabaseField<T> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }

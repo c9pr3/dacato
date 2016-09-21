@@ -35,10 +35,10 @@ public interface Updater<T> extends ConfigGetter {
      * Update entry.
      *
      * @param query Query.
-     * @return True or false.
+     * @return Number of affected rows.
      */
-    default CompletableFuture<Boolean> update(final SingleColumnUpdateQuery<T> query) {
-        final CompletableFuture<Boolean> returnValueFuture = new CompletableFuture<>();
+    default CompletableFuture<Integer> update(final SingleColumnUpdateQuery<T> query) {
+        final CompletableFuture<Integer> returnValueFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {
                 final List<DatabaseField<?>> newArr = new LinkedList<>();
@@ -68,9 +68,8 @@ public interface Updater<T> extends ConfigGetter {
      * @return Result.
      * @throws SQLException if query fails.
      */
-    default boolean getResult(final PreparedStatement stmt) throws SQLException {
-        stmt.executeUpdate();
-        return true;
+    default int getResult(final PreparedStatement stmt) throws SQLException {
+        return stmt.executeUpdate();
     }
 
 }

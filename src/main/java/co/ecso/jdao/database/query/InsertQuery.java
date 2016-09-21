@@ -16,8 +16,17 @@ import java.util.Objects;
  */
 public final class InsertQuery<T> implements Query<T> {
 
+    /**
+     * Query string.
+     */
     private final String query;
-    private final Map<DatabaseField<?>, Object> values = new LinkedHashMap<>();
+    /**
+     * Column and columnValueMap to insert.
+     */
+    private final Map<DatabaseField<?>, Object> columnValueMap = new LinkedHashMap<>();
+    /**
+     * Column to return.
+     */
     private final DatabaseField<T> columnToReturn;
 
     /**
@@ -39,7 +48,7 @@ public final class InsertQuery<T> implements Query<T> {
      * @param <R> Field-type and resultValue needs to be the same but not necessarily <T>.
      */
     public <R> void add(final DatabaseField<R> field, final R value) {
-        values.put(field, value);
+        columnValueMap.put(field, value);
     }
 
     @Override
@@ -58,7 +67,7 @@ public final class InsertQuery<T> implements Query<T> {
      * @return Values.
      */
     public Map<DatabaseField<?>, ?> values() {
-        return values;
+        return columnValueMap;
     }
 
     /**
@@ -80,12 +89,12 @@ public final class InsertQuery<T> implements Query<T> {
         }
         final InsertQuery<?> that = (InsertQuery<?>) o;
         return Objects.equals(query, that.query) &&
-                Objects.equals(values, that.values) &&
+                Objects.equals(columnValueMap, that.columnValueMap) &&
                 Objects.equals(columnToReturn, that.columnToReturn);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(query, values, columnToReturn);
+        return Objects.hash(query, columnValueMap, columnToReturn);
     }
 }
