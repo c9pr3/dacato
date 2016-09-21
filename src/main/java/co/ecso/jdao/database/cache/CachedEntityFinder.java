@@ -23,8 +23,8 @@ public interface CachedEntityFinder extends EntityFinder, CacheGetter {
         try {
             //@TODO find better solution than unchecked cast
             //noinspection unchecked
-            return (CompletableFuture<List<DatabaseResultField<S>>>) cache().get(query.getCacheKey(),
-                    () -> EntityFinder.super.findMany(query));
+            return (CompletableFuture<List<DatabaseResultField<S>>>) cache().get(query.getCacheKey(), () ->
+                    EntityFinder.super.findMany(query));
         } catch (final ExecutionException e) {
             final CompletableFuture<List<DatabaseResultField<S>>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);
@@ -38,8 +38,8 @@ public interface CachedEntityFinder extends EntityFinder, CacheGetter {
         try {
             //@TODO find better solution than unchecked cast
             //noinspection unchecked
-            return (CompletableFuture<DatabaseResultField<S>>) cache().get(query.getCacheKey(),
-                    () -> EntityFinder.super.findOne(query));
+            return (CompletableFuture<DatabaseResultField<S>>) cache().get(query.getCacheKey(), () ->
+                    EntityFinder.super.findOne(query));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);
@@ -53,8 +53,8 @@ public interface CachedEntityFinder extends EntityFinder, CacheGetter {
         try {
             //@TODO find better solution than unchecked cast
             //noinspection unchecked
-            return (CompletableFuture<DatabaseResultField<S>>) cache().get(query.getCacheKey(),
-                    () -> EntityFinder.super.findOne(query));
+            return (CompletableFuture<DatabaseResultField<S>>) cache().get(query.getCacheKey(), () ->
+                    EntityFinder.super.findOne(query));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);

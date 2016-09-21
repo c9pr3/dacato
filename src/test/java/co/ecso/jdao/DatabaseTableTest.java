@@ -58,7 +58,8 @@ public final class DatabaseTableTest extends AbstractTest {
         final Customer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
         Assert.assertNotNull(newCustomer);
 
-        final Customer foundCustomer = this.customers.findOneByFirstName(newCustomer.firstName().get().resultValue()).get();
+        final Customer foundCustomer = this.customers.findOneByFirstName(newCustomer.firstName().get()
+                .resultValue()).get();
         Assert.assertNotNull(foundCustomer);
         Assert.assertEquals("foo1", foundCustomer.firstName().get().resultValue());
         Assert.assertEquals("foo2", foundCustomer.lastName().get().resultValue());

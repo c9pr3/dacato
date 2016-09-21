@@ -48,12 +48,18 @@ public final class SingleColumnUpdateQuery<T> implements Query<T> {
 
     @Override
     public CacheKey<T> getCacheKey() {
+        final String value;
+        if (whereValue != null) {
+            value = whereValue.toString();
+        } else {
+            value = "";
+        }
         return new CacheKey<>(
                 whereColumn.valueClass(),
                 whereColumn.name(),
                 whereColumn.valueClass().getName(),
                 whereColumn.sqlType(),
-                (whereValue != null ? whereValue.toString() : ""),
+                value,
                 query,
                 Arrays.toString(this.columnValuesToSet().keySet().toArray()),
                 Arrays.toString(this.columnValuesToSet().values().toArray())

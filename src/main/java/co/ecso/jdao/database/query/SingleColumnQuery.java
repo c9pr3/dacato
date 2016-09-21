@@ -72,7 +72,6 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
         return columnToSelect;
     }
 
-
     /**
      * Column where.
      *
@@ -90,10 +89,12 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
 
     @Override
     public CacheKey<S> getCacheKey() {
-        DatabaseField<W> where = columnWhere;
-        if (where == null) {
+        final DatabaseField<W> where;
+        if (columnWhere == null) {
             //noinspection unchecked
             where = new DatabaseField<>("", (Class<W>) Object.class, -1);
+        } else {
+            where = columnWhere;
         }
         return new CacheKey<>(
                 columnToSelect.valueClass(),

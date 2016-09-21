@@ -43,7 +43,8 @@ public final class CachedCustomers implements CachedDatabaseTable<Long, CachedCu
     @Override
     public CompletableFuture<CachedCustomer> findOne(final Long primaryKey) {
         return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?", Customer.Fields.ID,
-                Customer.Fields.ID, primaryKey)).thenApply(foundId -> new CachedCustomer(config, foundId.resultValue()));
+                Customer.Fields.ID, primaryKey)).thenApply(foundId ->
+                new CachedCustomer(config, foundId.resultValue()));
     }
 
     @Override

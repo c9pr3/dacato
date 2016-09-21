@@ -11,7 +11,6 @@ import co.ecso.jdao.database.query.DatabaseField;
 import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.database.query.SingleColumnQuery;
 
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.CompletableFuture;
