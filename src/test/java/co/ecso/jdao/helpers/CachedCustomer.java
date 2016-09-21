@@ -13,6 +13,7 @@ import co.ecso.jdao.database.query.SingleColumnQuery;
 
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ConcurrentModificationException;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -41,22 +42,17 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
     }
 
     @Override
-    public Long id() {
+    public Long primaryKey() {
         return id;
     }
 
     @Override
-    public CompletableFuture<? extends DatabaseEntity<Long>> save(final ColumnList values) {
+    public CompletableFuture<? extends DatabaseEntity<Long>> save(final ColumnList columnValuesToSet) {
         return null;
     }
 
     @Override
-    public String toJson() throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void checkValidity() {
+    public void checkValidity() throws ConcurrentModificationException {
 
     }
 
@@ -67,17 +63,17 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
 
     public CompletableFuture<DatabaseResultField<String>> firstName() {
         this.checkValidity();
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.id()));
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.primaryKey()));
     }
 
     public CompletableFuture<DatabaseResultField<String>> lastName() {
         this.checkValidity();
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.LAST_NAME, Fields.ID, this.id()));
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.LAST_NAME, Fields.ID, this.primaryKey()));
     }
 
     public CompletableFuture<DatabaseResultField<Long>> number() {
         this.checkValidity();
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.id()));
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()));
     }
 
     static final class Fields {

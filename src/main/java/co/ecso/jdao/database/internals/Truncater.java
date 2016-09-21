@@ -15,17 +15,23 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface Truncater extends ConfigGetter {
 
+    /**
+     * Truncate.
+     *
+     * @param query Query.
+     * @return True if truncation succeeded, false if not.
+     */
     default CompletableFuture<Boolean> truncate(final String query) {
         final CompletableFuture<Boolean> retValFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
-            try (final Connection c = config().getConnectionPool().getConnection()) {
+            try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(query)) {
                     retValFuture.complete(stmt.execute());
                 }
             } catch (final Exception e) {
                 retValFuture.completeExceptionally(e);
             }
-        }, config().getThreadPool());
+        }, config().threadPool());
         return retValFuture;
     }
 

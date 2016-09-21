@@ -14,70 +14,54 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * @version $Id:$
  * @since 06.09.16
  */
-class TestApplicationConfig implements ApplicationConfig {
+final class TestApplicationConfig implements ApplicationConfig {
     private static snaq.db.ConnectionPool connectionPool = null;
     private static ScheduledThreadPoolExecutor threadPool = null;
 
     @Override
-    public String getMysqlHost() {
-        return null;
-    }
-
-    @Override
-    public int getMysqlPort() {
-        return 3306;
-    }
-
-    @Override
-    public int getMaxConnections() {
-        return 10;
-    }
-
-    @Override
-    public String getPoolName() {
+    public String databasePoolName() {
         return "dbpool";
     }
 
     @Override
-    public int getMinPoolSize() {
+    public int databasePoolMin() {
         return 1;
     }
 
     @Override
-    public int getMaxPoolSize() {
+    public int databasePoolMax() {
         return 10;
     }
 
     @Override
-    public int getPoolMaxSize() {
+    public int databasePoolMaxSize() {
         return 100;
     }
 
     @Override
-    public long getPoolIdleTimeout() {
+    public long databasePoolIdleTimeout() {
         return 1000;
     }
 
     @Override
-    public String getConnectString() {
+    public String connectionString() {
         return "jdbc:hsqldb:mem:jdao";
     }
 
     @Override
-    public synchronized ScheduledExecutorService getThreadPool() {
-        //noinspection SynchronizeOnNonFinalField
+    public synchronized ScheduledExecutorService threadPool() {
         if (threadPool == null) {
-            threadPool = new ScheduledThreadPoolExecutor(this.getMaxPoolSize());
+            threadPool = new ScheduledThreadPoolExecutor(this.databasePoolMax());
         }
         return threadPool;
     }
 
     @Override
-    public synchronized ConnectionPool<Connection> getConnectionPool() {
+    public synchronized ConnectionPool<Connection> databaseConnectionPool() {
         if (connectionPool == null) {
-            connectionPool = new snaq.db.ConnectionPool(getPoolName(), getMinPoolSize(),
-                    getMaxPoolSize(), getPoolMaxSize(), getPoolIdleTimeout(),
-                    getConnectString(), null);
+            connectionPool = new snaq.db.ConnectionPool(databasePoolName(), databasePoolMin(),
+                    databasePoolMax(), databasePoolMaxSize(), databasePoolIdleTimeout(),
+                    connectionString(), null);
         }
         return () -> connectionPool.getConnection();
     }

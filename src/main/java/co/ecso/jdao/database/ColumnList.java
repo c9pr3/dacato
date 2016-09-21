@@ -13,5 +13,10 @@ import java.util.Map;
  */
 @FunctionalInterface
 public interface ColumnList {
+    /**
+     * Get column list columnValuesToSet.
+     *
+     * @return Values.
+     */
     Map<DatabaseField<?>, Object> values();
 }

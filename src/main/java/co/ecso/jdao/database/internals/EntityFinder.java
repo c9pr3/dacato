@@ -28,13 +28,14 @@ import java.util.concurrent.CompletableFuture;
 public interface EntityFinder extends ConfigGetter {
 
     default StatementFiller statementFiller() {
-        return new StatementFiller() { };
+        return new StatementFiller() {
+        };
     }
 
     /**
      * Find many.
      *
-     * @param <W> Type to select. P.e. String.
+     * @param <W>   Type to select. P.e. String.
      * @param query Query.
      * @return List of DatabaseResultFields with type to select (W), p.e. String
      */
@@ -47,7 +48,7 @@ public interface EntityFinder extends ConfigGetter {
             final String finalQuery = String.format(query.query(), columnToSelect.name(),
                     columnWhere != null ? columnWhere.name() : null);
 
-            try (final Connection c = config().getConnectionPool().getConnection()) {
+            try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(
                             Collections.singletonList(columnWhere),
@@ -59,10 +60,17 @@ public interface EntityFinder extends ConfigGetter {
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
             }
-        }, config().getThreadPool());
+        }, config().threadPool());
         return returnValueFuture;
     }
 
+    /**
+     * Find one.
+     *
+     * @param query Query.
+     * @param <S>   Type to return, p.e. String in select x from y where name = z.
+     * @return DatabaseResultField with type to select (S), p.e. String
+     */
     default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query) {
 
         final CompletableFuture<DatabaseResultField<S>> returnValueFuture = new CompletableFuture<>();
@@ -76,7 +84,7 @@ public interface EntityFinder extends ConfigGetter {
             format.addAll(valuesWhere.values().keySet());
             final String finalQuery = String.format(query.query(), format.toArray());
 
-            try (final Connection c = config().getConnectionPool().getConnection()) {
+            try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(
                             new LinkedList<>(valuesWhere.values().keySet()),
@@ -88,17 +96,16 @@ public interface EntityFinder extends ConfigGetter {
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
             }
-        }, config().getThreadPool());
+        }, config().threadPool());
 
         return returnValueFuture;
     }
 
     /**
      * Find One.
-     * We can find
      *
      * @param query Query.
-     * @param <W> Type to return, p.e. String in select x from y where name = z.
+     * @param <W>   Type to return, p.e. String in select x from y where name = z.
      * @return DatabaseResultField with type to select (W), p.e. String
      */
     default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
@@ -114,7 +121,7 @@ public interface EntityFinder extends ConfigGetter {
             format.add(columnToSelect.name());
             format.add(columnWhere.name());
             final String finalQuery = String.format(query.query(), format.toArray());
-            try (final Connection c = config().getConnectionPool().getConnection()) {
+            try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(
                             Collections.singletonList(columnToSelect),
@@ -126,17 +133,17 @@ public interface EntityFinder extends ConfigGetter {
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
             }
-        }, config().getThreadPool());
+        }, config().threadPool());
         return returnValueFuture;
     }
 
     /**
      * Get list row result.
      *
-     * @param finalQuery Query.
+     * @param finalQuery     Query.
      * @param columnToSelect Column to select.
-     * @param stmt Statement.
-     * @param <R> Type to return, p.e. String. Must match Type of columnToSelect.
+     * @param stmt           Statement.
+     * @param <R>            Type to return, p.e. String. Must match Type of columnToSelect.
      * @return List of DatabaseResultFields with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */
@@ -169,10 +176,10 @@ public interface EntityFinder extends ConfigGetter {
     /**
      * Get single row result.
      *
-     * @param finalQuery Query.
+     * @param finalQuery     Query.
      * @param columnToSelect Which column to select.
-     * @param stmt Statement.
-     * @param <R> Type to return, p.e. String.
+     * @param stmt           Statement.
+     * @param <R>            Type to return, p.e. String.
      * @return DatabaseResultField with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */

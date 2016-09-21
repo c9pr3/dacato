@@ -13,7 +13,6 @@ import java.util.Objects;
  * @version $Id:$
  * @since 09.09.16
  */
-@SuppressWarnings("WeakerAccess")
 public final class SingleColumnQuery<S, W> implements Query<S> {
 
     private final String query;
@@ -21,6 +20,14 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
     private final DatabaseField<W> columnWhere;
     private final W columnWhereValue;
 
+    /**
+     * Construct.
+     *
+     * @param query            Query to execute, p.e. Select %s from table_x where %s = ?
+     * @param select           Column to select.
+     * @param where            Column where, p.e. "id".
+     * @param columnWhereValue Where resultValue, p.e. 10.
+     */
     public SingleColumnQuery(final String query, final DatabaseField<S> select, final DatabaseField<W> where,
                              final W columnWhereValue) {
         this.query = query;
@@ -29,23 +36,36 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
         this.columnWhereValue = columnWhereValue;
     }
 
-    public SingleColumnQuery(final String query, final DatabaseField<S> select, final DatabaseField<W> where) {
+    /**
+     * Construct.
+     *
+     * @param query  Query to execute, p.e. Select %s from table_x
+     * @param select Column to select.
+     */
+    public SingleColumnQuery(final String query, final DatabaseField<S> select) {
         this.query = query;
         this.columnToSelect = select;
-        this.columnWhere = where;
+        this.columnWhere = null;
         this.columnWhereValue = null;
     }
 
-    public SingleColumnQuery(final String query, final DatabaseField<S> select) {
-       this(query, select, null);
-    }
-
+    /**
+     * Column to select.
+     *
+     * @return Column to select.
+     */
     public DatabaseField<S> columnToSelect() {
         // we *always* need to select
         Objects.requireNonNull(columnToSelect);
         return columnToSelect;
     }
 
+
+    /**
+     * Column where.
+     *
+     * @return Column where.
+     */
     public DatabaseField<W> columnWhere() {
         // we MAY have a where column
         return columnWhere;
@@ -70,14 +90,23 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
                 columnWhereValue);
     }
 
+    /**
+     * Where resultValue.
+     *
+     * @return Where resultValue.
+     */
     public W columnWhereValue() {
         return this.columnWhereValue;
     }
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         SingleColumnQuery<?, ?> that = (SingleColumnQuery<?, ?>) o;
         return Objects.equals(query, that.query) &&
                 Objects.equals(columnToSelect, that.columnToSelect) &&

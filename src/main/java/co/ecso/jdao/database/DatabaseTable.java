@@ -23,44 +23,113 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGetter {
 
-    CompletableFuture<E> findOne(final T id);
-
-    CompletableFuture<List<E>> findAll();
-
-    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findAll(final SingleColumnQuery<S, W> query) {
-        return this.findMany(query);
-    }
-
-    default Truncater truncater() {
-        return DatabaseTable.this::config;
-    }
-
-    default CompletableFuture<Boolean> truncate(final String query) {
-        return this.truncater().truncate(query);
-    }
-
-    default Inserter<T, E> inserter() {
-        return DatabaseTable.this::config;
-    }
-
-    default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query) {
-        return inserter().add(query);
-    }
-
+    /**
+     * Get EntityFinder.
+     *
+     * @return Entity finder
+     */
     default EntityFinder entityFinder() {
         return DatabaseTable.this::config;
     }
 
+    /**
+     * Find one by primary key.
+     *
+     * @param primaryKey Primary key.
+     * @return DatabasEntity (E) of type T.
+     */
+    CompletableFuture<E> findOne(final T primaryKey);
+
+    /**
+     * Find one with single column query.
+     *
+     * @param query Query.
+     * @param <S> Type of select, therefore type of return.
+     * @param <W> Type of where.
+     * @return DatabaseResultField of type S.
+     */
+    default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
+        return this.entityFinder().findOne(query);
+    }
+
+    /**
+     * Find one with multi column query.
+     *
+     * @param query Query.
+     * @param <S> Type of query and therefore result.
+     * @return DatabaseResultField of type S.
+     */
     default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query) {
         return this.entityFinder().findOne(query);
     }
 
+    /**
+     * Find many.
+     *
+     * @param query Query.
+     * @param <S> Type of select, therefore type of return.
+     * @param <W> Type of where.
+     * @return List of DatabaseResultFields of type S.
+     */
     default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query) {
         return this.entityFinder().findMany(query);
     }
 
-    default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
-        return this.entityFinder().findOne(query);
+    /**
+     * Find all entries.
+     *
+     * @return List of DatabasEntity (E) of type T.
+     */
+    CompletableFuture<List<E>> findAll();
+
+    /**
+     * Find all, usually called within findAll().
+     *
+     * @param query Query to execute.
+     * @param <S> Type to select.
+     * @param <W> Type of where.
+     * @return List of DatabaseResultFields of type S.
+     */
+    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findAll(final SingleColumnQuery<S, W> query) {
+        return this.findMany(query);
+    }
+
+    /**
+     * Get truncater.
+     *
+     * @return Truncater.
+     */
+    default Truncater truncater() {
+        return DatabaseTable.this::config;
+    }
+
+    /**
+     * Truncate a table.
+     *
+     * @param query Query to execute.
+     * @return True or false.
+     */
+    default CompletableFuture<Boolean> truncate(final String query) {
+        return this.truncater().truncate(query);
+    }
+
+    /**
+     * Get Inserter.
+     *
+     * @return Inserter.
+     */
+    default Inserter<T, E> inserter() {
+        return DatabaseTable.this::config;
+    }
+
+    /**
+     * Add a row.
+     *
+     * @param query Query to execute.
+     * @return DatbaseResultField of type T.
+     */
+    default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query) {
+        return inserter().add(query);
     }
 
 }

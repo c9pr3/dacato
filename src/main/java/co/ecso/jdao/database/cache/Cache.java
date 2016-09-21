@@ -23,21 +23,67 @@ public interface Cache<K, V> {
      */
     V getIfPresent(final K key);
 
-    V get(final K var1, final Callable<? extends V> var2) throws ExecutionException;
+    /**
+     * Get entry.
+     *
+     * @param key Key to get.
+     * @param callback Callback to call when key is not yet in cache.
+     * @return Value.
+     * @throws ExecutionException if callback fails.
+     */
+    V get(final K key, final Callable<? extends V> callback) throws ExecutionException;
 
-    Map<K, V> getAllPresent(final Iterable<?> var1);
+    /**
+     * Get all entries which currently exist.
+     *
+     * @param key Key.
+     * @return Values.
+     */
+    Map<K, V> getAllPresent(final Iterable<?> key);
 
-    void put(final K var1, final V var2);
+    /**
+     * Add a new entry.
+     *
+     * @param key Key.
+     * @param value Value.
+     */
+    void put(final K key, final V value);
 
-    void putAll(final Map<? extends K, ? extends V> var1);
+    /**
+     * Add all from this map..
+     *
+     * @param keyValues Key columnValuesToSet to add.
+     */
+    void putAll(final Map<? extends K, ? extends V> keyValues);
 
-    void invalidate(final Object var1);
+    /**
+     * Invalidate an entry.
+     *
+     * @param key Key to invalidate.
+     */
+    void invalidate(final K key);
 
-    void invalidateAll(final Iterable<?> var1);
+    /**
+     * Invalidate list of keys.
+     *
+     * @param keys Keys to invalidate.
+     */
+    void invalidateAll(final Iterable<K> keys);
 
+    /**
+     * Invalidate all entries.
+     */
     void invalidateAll();
 
+    /**
+     * Number of entries.
+     *
+     * @return Number of entries..
+     */
     long size();
 
+    /**
+     * Cleanup invalidated entries.
+     */
     void cleanUp();
 }

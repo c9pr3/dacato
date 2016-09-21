@@ -11,9 +11,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 19.09.16
  */
-public interface CachedTruncater extends Truncater {
-
-    Cache<CacheKey<?>, CompletableFuture<?>> cache();
+public interface CachedTruncater extends Truncater, CacheGetter {
 
     @Override
     default CompletableFuture<Boolean> truncate(final String query) {

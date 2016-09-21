@@ -14,28 +14,41 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Updater.
  *
+ * @param <T> Type of update, p.e. Long -> Type of query.
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 11.09.16
  */
 public interface Updater<T> extends ConfigGetter {
 
+    /**
+     * Statement filler.
+     *
+     * @return Statement filler.
+     */
     default StatementFiller statementFiller() {
-        return new StatementFiller() { };
+        return new StatementFiller() {
+        };
     }
 
+    /**
+     * Update entry.
+     *
+     * @param query Query.
+     * @return True or false.
+     */
     default CompletableFuture<Boolean> update(final SingleColumnUpdateQuery<T> query) {
         final CompletableFuture<Boolean> returnValueFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {
                 final List<DatabaseField<?>> newArr = new LinkedList<>();
-                newArr.addAll(query.values().keySet());
+                newArr.addAll(query.columnValuesToSet().keySet());
                 newArr.add(query.whereColumn());
                 final String finalQuery = String.format(query.query(), newArr.toArray());
-                try (final Connection c = config().getConnectionPool().getConnection()) {
+                try (final Connection c = config().databaseConnectionPool().getConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                         final List<Object> values = new LinkedList<>();
-                        query.values().values().forEach(values::add);
+                        query.columnValuesToSet().values().forEach(values::add);
                         values.add(query.whereValue());
                         statementFiller().fillStatement(newArr, values, stmt);
                         returnValueFuture.complete(getResult(stmt));
@@ -44,10 +57,17 @@ public interface Updater<T> extends ConfigGetter {
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
             }
-        }, config().getThreadPool());
+        }, config().threadPool());
         return returnValueFuture;
     }
 
+    /**
+     * Get result.
+     *
+     * @param stmt Statement.
+     * @return Result.
+     * @throws SQLException if query fails.
+     */
     default boolean getResult(final PreparedStatement stmt) throws SQLException {
         stmt.executeUpdate();
         return true;

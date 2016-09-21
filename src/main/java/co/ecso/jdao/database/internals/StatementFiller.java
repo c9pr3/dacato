@@ -13,8 +13,18 @@ import java.util.List;
  * @version $Id:$
  * @since 02.09.16
  */
+@SuppressWarnings("WeakerAccess")
 public interface StatementFiller {
 
+    /**
+     * Fill statement with columnValuesToSet. Replace all ?.
+     *
+     * @param columnsWhere Where columns.
+     * @param valuesWhere Where columnValuesToSet.
+     * @param stmt Statement.
+     * @return Prepared statement.
+     * @throws SQLException if fill fails.
+     */
     default PreparedStatement fillStatement(final List<DatabaseField<?>> columnsWhere, final List<?> valuesWhere,
                                             final PreparedStatement stmt) throws SQLException {
         for (int i = 0; i < valuesWhere.size(); i++) {

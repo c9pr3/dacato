@@ -9,5 +9,10 @@ package co.ecso.jdao.config;
  */
 @FunctionalInterface
 public interface ConfigGetter {
+    /**
+     * Get application config.
+     *
+     * @return Application config.
+     */
     ApplicationConfig config();
 }

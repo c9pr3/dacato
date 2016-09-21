@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
  * @version $Id:$
  * @since 15.03.16
  */
-@SuppressWarnings("WeakerAccess")
 public final class Customers implements DatabaseTable<Long, Customer> {
 
     private final ApplicationConfig config;
@@ -30,22 +29,22 @@ public final class Customers implements DatabaseTable<Long, Customer> {
     }
 
     @Override
-    public CompletableFuture<Customer> findOne(final Long id) {
+    public CompletableFuture<Customer> findOne(final Long primaryKey) {
         return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?", Customer.Fields.ID,
-                Customer.Fields.ID, id)).thenApply(foundId -> new Customer(config, foundId.value()));
+                Customer.Fields.ID, primaryKey)).thenApply(foundId -> new Customer(config, foundId.resultValue()));
     }
 
     @Override
     public CompletableFuture<List<Customer>> findAll() {
         return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", Customer.Fields.ID))
-                .thenApply(list -> list.stream().map(foundId -> new Customer(config, foundId.value()))
+                .thenApply(list -> list.stream().map(foundId -> new Customer(config, foundId.resultValue()))
                         .collect(Collectors.toList()));
     }
 
     public CompletableFuture<Customer> findOneByFirstName(final String firstName) {
         final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ? " +
                 "LIMIT 1", Customer.Fields.ID, Customer.Fields.FIRST_NAME, firstName);
-        return this.findOne(query).thenApply(foundId -> new Customer(config, foundId.value()));
+        return this.findOne(query).thenApply(foundId -> new Customer(config, foundId.resultValue()));
     }
 
     public CompletableFuture<List<Customer>> findAllByFirstName(final String firstName) {
@@ -53,7 +52,7 @@ public final class Customers implements DatabaseTable<Long, Customer> {
                 Customer.Fields.ID,
                 Customer.Fields.FIRST_NAME, firstName);
         return this.findMany(query).thenApply(list ->
-                list.stream().map(l -> new Customer(config, l.value())).collect(Collectors.toList()));
+                list.stream().map(l -> new Customer(config, l.resultValue())).collect(Collectors.toList()));
     }
 
     public CompletableFuture<Customer> findOneByFirstNameAndLastName(final String firstName, final String lastName) {
@@ -61,7 +60,7 @@ public final class Customers implements DatabaseTable<Long, Customer> {
         map.put(Customer.Fields.FIRST_NAME, "foo1");
         map.put(Customer.Fields.LAST_NAME, "foo1");
         return findOne(new MultiColumnQuery<>("SELECT %s FROM customer WHERE %s = ? AND %s = ?",
-                Customer.Fields.ID, () -> map)).thenApply(id -> new Customer(config, id.value()));
+                Customer.Fields.ID, () -> map)).thenApply(id -> new Customer(config, id.resultValue()));
     }
 
     public CompletableFuture<Boolean> removeAll() {
@@ -79,7 +78,7 @@ public final class Customers implements DatabaseTable<Long, Customer> {
         query.add(Customer.Fields.FIRST_NAME, firstName);
         query.add(Customer.Fields.LAST_NAME, lastName);
         query.add(Customer.Fields.NUMBER, number);
-        return this.add(query).thenApply(newId -> new Customer(config, newId.value()));
+        return this.add(query).thenApply(newId -> new Customer(config, newId.resultValue()));
     }
 
 }

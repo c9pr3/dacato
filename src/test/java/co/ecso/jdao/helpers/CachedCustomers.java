@@ -5,8 +5,6 @@ import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.CachedDatabaseTable;
 import co.ecso.jdao.database.cache.Cache;
 import co.ecso.jdao.database.cache.CacheKey;
-import co.ecso.jdao.database.internals.Truncater;
-import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.database.query.InsertQuery;
 import co.ecso.jdao.database.query.SingleColumnQuery;
 
@@ -35,7 +33,7 @@ public final class CachedCustomers implements CachedDatabaseTable<Long, CachedCu
         query.add(CachedCustomer.Fields.FIRST_NAME, firstName);
         query.add(CachedCustomer.Fields.LAST_NAME, lastName);
         query.add(CachedCustomer.Fields.NUMBER, number);
-        return this.add(query).thenApply(newId -> new CachedCustomer(config, newId.value()));
+        return this.add(query).thenApply(newId -> new CachedCustomer(config, newId.resultValue()));
     }
 
     public CompletableFuture<Boolean> removeAll() {
@@ -43,15 +41,15 @@ public final class CachedCustomers implements CachedDatabaseTable<Long, CachedCu
     }
 
     @Override
-    public CompletableFuture<CachedCustomer> findOne(final Long id) {
+    public CompletableFuture<CachedCustomer> findOne(final Long primaryKey) {
         return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?", Customer.Fields.ID,
-                Customer.Fields.ID, id)).thenApply(foundId -> new CachedCustomer(config, foundId.value()));
+                Customer.Fields.ID, primaryKey)).thenApply(foundId -> new CachedCustomer(config, foundId.resultValue()));
     }
 
     @Override
     public CompletableFuture<List<CachedCustomer>> findAll() {
         return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", Customer.Fields.ID))
-                .thenApply(list -> list.stream().map(foundId -> new CachedCustomer(config, foundId.value()))
+                .thenApply(list -> list.stream().map(foundId -> new CachedCustomer(config, foundId.resultValue()))
                         .collect(Collectors.toList()));
     }
 

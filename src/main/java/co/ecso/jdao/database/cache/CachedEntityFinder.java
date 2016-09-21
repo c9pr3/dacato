@@ -16,14 +16,15 @@ import java.util.concurrent.ExecutionException;
  * @version $Id:$
  * @since 19.09.16
  */
-public interface CachedEntityFinder extends EntityFinder {
-
-    Cache<CacheKey<?>, CompletableFuture<?>> cache();
+public interface CachedEntityFinder extends EntityFinder, CacheGetter {
 
     @Override
     default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query) {
         try {
-            return (CompletableFuture<List<DatabaseResultField<S>>>) cache().get(query.getCacheKey(), () -> EntityFinder.super.findMany(query));
+            //@TODO find better solution than unchecked cast
+            //noinspection unchecked
+            return (CompletableFuture<List<DatabaseResultField<S>>>) cache().get(query.getCacheKey(),
+                    () -> EntityFinder.super.findMany(query));
         } catch (final ExecutionException e) {
             final CompletableFuture<List<DatabaseResultField<S>>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);
@@ -35,7 +36,10 @@ public interface CachedEntityFinder extends EntityFinder {
     @Override
     default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query) {
         try {
-            return (CompletableFuture<DatabaseResultField<S>>) cache().get(query.getCacheKey(), () -> EntityFinder.super.findOne(query));
+            //@TODO find better solution than unchecked cast
+            //noinspection unchecked
+            return (CompletableFuture<DatabaseResultField<S>>) cache().get(query.getCacheKey(),
+                    () -> EntityFinder.super.findOne(query));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);
@@ -47,7 +51,10 @@ public interface CachedEntityFinder extends EntityFinder {
     @Override
     default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
         try {
-            return (CompletableFuture<DatabaseResultField<S>>) cache().get(query.getCacheKey(), () -> EntityFinder.super.findOne(query));
+            //@TODO find better solution than unchecked cast
+            //noinspection unchecked
+            return (CompletableFuture<DatabaseResultField<S>>) cache().get(query.getCacheKey(),
+                    () -> EntityFinder.super.findOne(query));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);

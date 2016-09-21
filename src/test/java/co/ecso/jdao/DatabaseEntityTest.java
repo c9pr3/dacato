@@ -37,40 +37,40 @@ public final class DatabaseEntityTest extends AbstractTest {
 
     @Test
     public void testId() throws Exception {
-        Assert.assertEquals(Long.valueOf(0L), this.customer.id());
+        Assert.assertEquals(Long.valueOf(0L), this.customer.primaryKey());
     }
 
     @Test
     public void testFirstName() throws Exception {
-        Assert.assertEquals("firstName", this.customer.firstName().get().value());
+        Assert.assertEquals("firstName", this.customer.firstName().get().resultValue());
     }
 
     @Test
     public void testLastName() throws Exception {
-        Assert.assertEquals("lastName", this.customer.lastName().get().value());
+        Assert.assertEquals("lastName", this.customer.lastName().get().resultValue());
     }
 
     @Test
     public void testNumber() throws Exception {
-        Assert.assertEquals(Long.valueOf(1234L), this.customer.number().get().value());
+        Assert.assertEquals(Long.valueOf(1234L), this.customer.number().get().resultValue());
     }
 
     @Test(expected = ConcurrentModificationException.class)
     public void testSave() throws Exception {
-        final Long id = this.customer.id();
+        final Long id = this.customer.primaryKey();
         Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(Customer.Fields.FIRST_NAME, "foo1");
         map.put(Customer.Fields.LAST_NAME, "bla1");
         this.customer.save(() -> map).get(5, TimeUnit.SECONDS);
 
         this.customer = new Customers(APPLICATION_CONFIG).findOne(id).get();
-        Assert.assertEquals("foo1", this.customer.firstName().get().value());
-        Assert.assertEquals("bla1", this.customer.lastName().get().value());
+        Assert.assertEquals("foo1", this.customer.firstName().get().resultValue());
+        Assert.assertEquals("bla1", this.customer.lastName().get().resultValue());
 
         map.clear();
         map.put(Customer.Fields.FIRST_NAME, "foo2");
         this.customer.save(() -> map).get(5, TimeUnit.SECONDS);
 
-        Assert.assertEquals("foo2", this.customer.firstName().get().value());
+        Assert.assertEquals("foo2", this.customer.firstName().get().resultValue());
     }
 }

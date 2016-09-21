@@ -14,17 +14,24 @@ import java.util.Objects;
  * @version $Id:$
  * @since 13.09.16
  */
-@SuppressWarnings("WeakerAccess")
 public final class MultiColumnQuery<T> implements Query<T> {
 
     private final String query;
     private final DatabaseField<T> columnToSelect;
-    private final ColumnList values;
+    private final ColumnList whereColumnValues;
 
-    public MultiColumnQuery(final String query, final DatabaseField<T> columnToSelect, final ColumnList values) {
+    /**
+     * Construct.
+     *
+     * @param query Query to execute, p.e. select %s from table_x where %s = ? and (%s = ? or %s = ?)
+     * @param columnToSelect Column to select.
+     * @param whereColumnValues Column plus columnValuesToSet - map.
+     */
+    public MultiColumnQuery(final String query, final DatabaseField<T> columnToSelect,
+                            final ColumnList whereColumnValues) {
         this.query = query;
         this.columnToSelect = columnToSelect;
-        this.values = values;
+        this.whereColumnValues = whereColumnValues;
     }
 
     @Override
@@ -40,17 +47,27 @@ public final class MultiColumnQuery<T> implements Query<T> {
                 columnToSelect.name(),
                 columnToSelect.valueClass().getName(),
                 columnToSelect.sqlType(),
-                Arrays.toString(this.values.values().keySet().toArray()),
-                Arrays.toString(this.values.values().values().toArray())
+                Arrays.toString(this.whereColumnValues.values().keySet().toArray()),
+                Arrays.toString(this.whereColumnValues.values().values().toArray())
         );
     }
 
+    /**
+     * Column to select.
+     *
+     * @return Column to select.
+     */
     public DatabaseField<T> columnToSelect() {
         return columnToSelect;
     }
 
+    /**
+     * Where column resultValue map.
+     *
+     * @return Where column resultValue map
+     */
     public ColumnList values() {
-        return values;
+        return whereColumnValues;
     }
 
     @Override
@@ -60,11 +77,11 @@ public final class MultiColumnQuery<T> implements Query<T> {
         MultiColumnQuery<?> that = (MultiColumnQuery<?>) o;
         return Objects.equals(query, that.query) &&
                 Objects.equals(columnToSelect, that.columnToSelect) &&
-                Objects.equals(values, that.values);
+                Objects.equals(whereColumnValues, that.whereColumnValues);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(query, columnToSelect, values);
+        return Objects.hash(query, columnToSelect, whereColumnValues);
     }
 }

@@ -63,7 +63,7 @@ public abstract class AbstractTest {
      * Clean up Database.
      */
     protected final void cleanupDatabase() throws SQLException {
-        try (final Connection connection = APPLICATION_CONFIG.getConnectionPool().getConnection()) {
+        try (final Connection connection = APPLICATION_CONFIG.databaseConnectionPool().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("TRUNCATE SCHEMA PUBLIC RESTART IDENTITY AND COMMIT NO CHECK");
             }

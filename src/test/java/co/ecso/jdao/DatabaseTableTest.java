@@ -37,8 +37,8 @@ public final class DatabaseTableTest extends AbstractTest {
     public void testAdd() throws Exception {
         final Customer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
         Assert.assertNotNull(newCustomer);
-        Assert.assertEquals("foo1", newCustomer.firstName().get().value());
-        Assert.assertEquals("foo2", newCustomer.lastName().get().value());
+        Assert.assertEquals("foo1", newCustomer.firstName().get().resultValue());
+        Assert.assertEquals("foo2", newCustomer.lastName().get().resultValue());
     }
 
     @Test
@@ -46,11 +46,11 @@ public final class DatabaseTableTest extends AbstractTest {
         final Customer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
         Assert.assertNotNull(newCustomer);
 
-        final Customer foundCustomer = this.customers.findOne(newCustomer.id()).get();
+        final Customer foundCustomer = this.customers.findOne(newCustomer.primaryKey()).get();
         Assert.assertNotNull(foundCustomer);
-        Assert.assertEquals("foo1", foundCustomer.firstName().get().value());
-        Assert.assertEquals("foo2", foundCustomer.lastName().get().value());
-        Assert.assertEquals(Long.valueOf(12345L), foundCustomer.number().get().value());
+        Assert.assertEquals("foo1", foundCustomer.firstName().get().resultValue());
+        Assert.assertEquals("foo2", foundCustomer.lastName().get().resultValue());
+        Assert.assertEquals(Long.valueOf(12345L), foundCustomer.number().get().resultValue());
     }
 
     @Test
@@ -58,11 +58,11 @@ public final class DatabaseTableTest extends AbstractTest {
         final Customer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
         Assert.assertNotNull(newCustomer);
 
-        final Customer foundCustomer = this.customers.findOneByFirstName(newCustomer.firstName().get().value()).get();
+        final Customer foundCustomer = this.customers.findOneByFirstName(newCustomer.firstName().get().resultValue()).get();
         Assert.assertNotNull(foundCustomer);
-        Assert.assertEquals("foo1", foundCustomer.firstName().get().value());
-        Assert.assertEquals("foo2", foundCustomer.lastName().get().value());
-        Assert.assertEquals(Long.valueOf(12345L), foundCustomer.number().get().value());
+        Assert.assertEquals("foo1", foundCustomer.firstName().get().resultValue());
+        Assert.assertEquals("foo2", foundCustomer.lastName().get().resultValue());
+        Assert.assertEquals(Long.valueOf(12345L), foundCustomer.number().get().resultValue());
     }
 
     @Test
@@ -107,8 +107,8 @@ public final class DatabaseTableTest extends AbstractTest {
 
         final Customer found = this.customers.findOneByFirstNameAndLastName("foo1", "foo1").get(5, TimeUnit.SECONDS);
         Assert.assertNotNull(found);
-        Assert.assertEquals("foo1", found.firstName().get().value());
-        Assert.assertEquals("foo1", found.lastName().get().value());
+        Assert.assertEquals("foo1", found.firstName().get().resultValue());
+        Assert.assertEquals("foo1", found.lastName().get().resultValue());
     }
 
     @Test

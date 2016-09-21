@@ -12,28 +12,61 @@ import java.util.concurrent.ScheduledExecutorService;
  * @version $Id:$
  * @since 25.08.16
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
 public interface ApplicationConfig {
 
-    String getMysqlHost();
+    /**
+     * Database Pool name.
+     *
+     * @return Database pool name.
+     */
+    String databasePoolName();
 
-    int getMysqlPort();
+    /**
+     * Database minimum pool size.
+     *
+     * @return Minimum pool.
+     */
+    int databasePoolMin();
 
-    int getMaxConnections();
+    /**
+     * Database maximum pool size.
+     *
+     * @return Maximum pool.
+     */
+    int databasePoolMax();
 
-    String getPoolName();
+    /**
+     * Pool max size.
+     *
+     * @return Maximum pool size.
+     */
+    int databasePoolMaxSize();
 
-    int getMinPoolSize();
+    /**
+     * Database pool/connection idle timeout.
+     *
+     * @return Idle timeout in milliseconds.
+     */
+    long databasePoolIdleTimeout();
 
-    int getMaxPoolSize();
+    /**
+     * Database connection string.
+     *
+     * @return Database connection string.
+     */
+    String connectionString();
 
-    int getPoolMaxSize();
+    /**
+     * Thread pool to use for database queries.
+     *
+     * @return Thread pool.
+     */
+    ScheduledExecutorService threadPool();
 
-    long getPoolIdleTimeout();
-
-    String getConnectString();
-
-    ScheduledExecutorService getThreadPool();
-
-    ConnectionPool<Connection> getConnectionPool();
+    /**
+     * Database connection pool to use.
+     *
+     * @return Database connection pool.
+     */
+    ConnectionPool<Connection> databaseConnectionPool();
 }

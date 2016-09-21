@@ -26,33 +26,33 @@ public final class TestApplicationCache<K, V> implements Cache<K, V> {
     }
 
     @Override
-    public V get(final K var1, final Callable<? extends V> var2) throws ExecutionException {
-        return CACHE.get(var1, var2);
+    public V get(final K key, final Callable<? extends V> callback) throws ExecutionException {
+        return CACHE.get(key, callback);
     }
 
     @Override
-    public Map<K, V> getAllPresent(final Iterable<?> var1) {
-        return CACHE.getAllPresent(var1);
+    public Map<K, V> getAllPresent(final Iterable<?> key) {
+        return CACHE.getAllPresent(key);
     }
 
     @Override
-    public void put(final K var1, final V var2) {
-        CACHE.put(var1, var2);
+    public void put(final K key, final V value) {
+        CACHE.put(key, value);
     }
 
     @Override
-    public void putAll(final Map<? extends K, ? extends V> var1) {
-        CACHE.putAll(var1);
+    public void putAll(final Map<? extends K, ? extends V> keyValues) {
+        CACHE.putAll(keyValues);
     }
 
     @Override
-    public void invalidate(final Object var1) {
-        CACHE.invalidate(var1);
+    public void invalidate(final K key) {
+        CACHE.invalidate(key);
     }
 
     @Override
-    public void invalidateAll(final Iterable<?> var1) {
-        CACHE.invalidateAll(var1);
+    public void invalidateAll(final Iterable<K> keys) {
+        CACHE.invalidateAll(keys);
     }
 
     @Override

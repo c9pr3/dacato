@@ -38,8 +38,8 @@ public final class CachedDatabaseTableTest extends AbstractTest {
     public void testAdd() throws Exception {
         final CachedCustomer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
         Assert.assertNotNull(newCustomer);
-        Assert.assertEquals("foo1", newCustomer.firstName().get().value());
-        Assert.assertEquals("foo2", newCustomer.lastName().get().value());
+        Assert.assertEquals("foo1", newCustomer.firstName().get().resultValue());
+        Assert.assertEquals("foo2", newCustomer.lastName().get().resultValue());
     }
 
     @Test
@@ -47,26 +47,26 @@ public final class CachedDatabaseTableTest extends AbstractTest {
         final CachedCustomer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
         Assert.assertNotNull(newCustomer);
 
-        final CachedCustomer foundCustomer1 = this.customers.findOne(newCustomer.id())
+        final CachedCustomer foundCustomer1 = this.customers.findOne(newCustomer.primaryKey())
                 .get();
         Assert.assertNotNull(foundCustomer1);
-        Assert.assertEquals("foo1", foundCustomer1.firstName().get().value());
-        Assert.assertEquals("foo2", foundCustomer1.lastName().get().value());
-        Assert.assertEquals(Long.valueOf(12345L), foundCustomer1.number().get().value());
+        Assert.assertEquals("foo1", foundCustomer1.firstName().get().resultValue());
+        Assert.assertEquals("foo2", foundCustomer1.lastName().get().resultValue());
+        Assert.assertEquals(Long.valueOf(12345L), foundCustomer1.number().get().resultValue());
 
 //        System.out.println("Getting by cache...");
 
-        final CachedCustomer foundCustomer2 = this.customers.findOne(newCustomer.id()).get();
-        final CachedCustomer foundCustomer3 = this.customers.findOne(newCustomer.id()).get();
-        final CachedCustomer foundCustomer4 = this.customers.findOne(newCustomer.id()).get();
-        final CachedCustomer foundCustomer5 = this.customers.findOne(newCustomer.id()).get();
-        final CachedCustomer foundCustomer6 = this.customers.findOne(newCustomer.id()).get();
+        final CachedCustomer foundCustomer2 = this.customers.findOne(newCustomer.primaryKey()).get();
+        final CachedCustomer foundCustomer3 = this.customers.findOne(newCustomer.primaryKey()).get();
+        final CachedCustomer foundCustomer4 = this.customers.findOne(newCustomer.primaryKey()).get();
+        final CachedCustomer foundCustomer5 = this.customers.findOne(newCustomer.primaryKey()).get();
+        final CachedCustomer foundCustomer6 = this.customers.findOne(newCustomer.primaryKey()).get();
 
-        Assert.assertEquals(foundCustomer1.id(), foundCustomer2.id());
-        Assert.assertEquals(foundCustomer2.id(), foundCustomer3.id());
-        Assert.assertEquals(foundCustomer3.id(), foundCustomer4.id());
-        Assert.assertEquals(foundCustomer4.id(), foundCustomer5.id());
-        Assert.assertEquals(foundCustomer5.id(), foundCustomer6.id());
+        Assert.assertEquals(foundCustomer1.primaryKey(), foundCustomer2.primaryKey());
+        Assert.assertEquals(foundCustomer2.primaryKey(), foundCustomer3.primaryKey());
+        Assert.assertEquals(foundCustomer3.primaryKey(), foundCustomer4.primaryKey());
+        Assert.assertEquals(foundCustomer4.primaryKey(), foundCustomer5.primaryKey());
+        Assert.assertEquals(foundCustomer5.primaryKey(), foundCustomer6.primaryKey());
     }
 
     @Test
