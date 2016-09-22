@@ -47,8 +47,8 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
     }
 
     @Override
-    public CompletableFuture<? extends DatabaseEntity<Long>> save(final ColumnList columnValuesToSet) {
-        return null;
+    public CompletableFuture<DatabaseEntity<Long>> save(final ColumnList columnValuesToSet) {
+        return CompletableFuture.completedFuture(this);
     }
 
     @Override

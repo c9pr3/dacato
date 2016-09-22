@@ -53,7 +53,7 @@ public final class Customer implements DatabaseEntity<Long> {
     }
 
     @Override
-    public CompletableFuture<Customer> save(final ColumnList columnValuesToSet) {
+    public CompletableFuture<DatabaseEntity<Long>> save(final ColumnList columnValuesToSet) {
         final SingleColumnUpdateQuery<Long> query =
                 new SingleColumnUpdateQuery<>("UPDATE customer SET %s WHERE %%s = ?", Fields.ID, id, columnValuesToSet);
         final CompletableFuture<Integer> updated = this.update(query, () -> this.objectValid);
