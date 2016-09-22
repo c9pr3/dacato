@@ -53,20 +53,19 @@ public interface Updater<T> extends ConfigGetter {
             returnValueFuture.completeExceptionally(e);
             return returnValueFuture;
         }
+        final List<DatabaseField<?>> newArr = new LinkedList<>();
+        newArr.addAll(query.columnValuesToSet().keySet());
+        newArr.add(query.whereColumn());
+        final List<Object> values = new LinkedList<>();
 
         CompletableFuture.runAsync(() -> {
             try {
-                final List<DatabaseField<?>> newArr = new LinkedList<>();
-                newArr.addAll(query.columnValuesToSet().keySet());
-                newArr.add(query.whereColumn());
                 final String finalQuery = String.format(query.query(), newArr.toArray());
                 try (final Connection c = config().databaseConnectionPool().getConnection()) {
                     try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                        final List<Object> values = new LinkedList<>();
                         query.columnValuesToSet().values().forEach(values::add);
                         values.add(query.whereValue());
-                        statementFiller().fillStatement(newArr, values, stmt);
-                        returnValueFuture.complete(getResult(stmt));
+                        returnValueFuture.complete(getResult(statementFiller().fillStatement(newArr, values, stmt)));
                     }
                 }
             } catch (final Exception e) {

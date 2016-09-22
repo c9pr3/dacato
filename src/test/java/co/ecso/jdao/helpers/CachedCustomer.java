@@ -52,7 +52,7 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
     }
 
     @Override
-    public Cache<CacheKey, CompletableFuture<?>> cache() {
+    public Cache<CacheKey, CompletableFuture> cache() {
         return AbstractTest.CACHE;
     }
 

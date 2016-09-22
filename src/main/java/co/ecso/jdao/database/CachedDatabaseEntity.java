@@ -22,7 +22,7 @@ public interface CachedDatabaseEntity<T> extends DatabaseEntity<T>, CacheGetter 
         return new CachedUpdater<T>() {
 
             @Override
-            public Cache<CacheKey, CompletableFuture<?>> cache() {
+            public Cache<CacheKey, CompletableFuture> cache() {
                 return CachedDatabaseEntity.this.cache();
             }
 
@@ -39,7 +39,7 @@ public interface CachedDatabaseEntity<T> extends DatabaseEntity<T>, CacheGetter 
         return new CachedEntityFinder() {
 
             @Override
-            public Cache<CacheKey, CompletableFuture<?>> cache() {
+            public Cache<CacheKey, CompletableFuture> cache() {
                 return CachedDatabaseEntity.this.cache();
             }
 

@@ -123,7 +123,7 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      *
      * @return Inserter.
      */
-    default Inserter<T, E> inserter() {
+    default Inserter<T> inserter() {
         return DatabaseTable.this::config;
     }
 

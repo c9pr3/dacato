@@ -26,7 +26,7 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
     default Truncater truncater() {
         return new CachedTruncater() {
             @Override
-            public Cache<CacheKey, CompletableFuture<?>> cache() {
+            public Cache<CacheKey, CompletableFuture> cache() {
                 return CachedDatabaseTable.this.cache();
             }
 
@@ -38,7 +38,7 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
     }
 
     @Override
-    default Inserter<T, E> inserter() {
+    default Inserter<T> inserter() {
         return CachedDatabaseTable.this::config;
     }
 
@@ -53,7 +53,7 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
     default EntityFinder entityFinder() {
         return new CachedEntityFinder() {
             @Override
-            public Cache<CacheKey, CompletableFuture<?>> cache() {
+            public Cache<CacheKey, CompletableFuture> cache() {
                 return CachedDatabaseTable.this.cache();
             }
 

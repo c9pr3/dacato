@@ -33,7 +33,7 @@ public interface DatabaseEntity<T> extends ConfigGetter {
      * @param columnValuesToSet Column and values to save.
      * @return DatabaseEntity of type T.
      */
-    CompletableFuture<? extends DatabaseEntity<T>> save(final ColumnList columnValuesToSet);
+    <E extends DatabaseEntity<T>> CompletableFuture<E> save(final ColumnList columnValuesToSet);
 
     /**
      * Wrapper for updater().update, usually called within save().

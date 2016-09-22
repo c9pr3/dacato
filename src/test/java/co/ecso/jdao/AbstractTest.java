@@ -28,7 +28,7 @@ public abstract class AbstractTest {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractTest.class.getName());
     static final ApplicationConfig APPLICATION_CONFIG = new TestApplicationConfig();
-    public static final Cache<CacheKey, CompletableFuture<?>> CACHE = new TestApplicationCache<>();
+    public static final Cache<CacheKey, CompletableFuture> CACHE = new TestApplicationCache<>();
 
     static {
         System.setProperty("APPLICATION_CONFIG.file", "src/test/APPLICATION_CONFIG/application.conf");

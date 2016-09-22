@@ -1,7 +1,6 @@
 package co.ecso.jdao.database.internals;
 
 import co.ecso.jdao.config.ConfigGetter;
-import co.ecso.jdao.database.DatabaseEntity;
 import co.ecso.jdao.database.query.DatabaseField;
 import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.database.query.InsertQuery;
@@ -15,12 +14,11 @@ import java.util.concurrent.CompletableFuture;
  * Inserter.
  *
  * @param <T> Type of insert, p.e. Long -> type to return.
- * @param <R> DatabaseEntity which is being returned. For future use.
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 12.09.16
  */
-public interface Inserter<T, R extends DatabaseEntity<T>> extends ConfigGetter {
+public interface Inserter<T> extends ConfigGetter {
 
     /**
      * Statement filler.
