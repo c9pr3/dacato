@@ -16,5 +16,5 @@ public interface CacheGetter {
      *
      * @return Cache.
      */
-    Cache<CacheKey<?>, CompletableFuture<?>> cache();
+    Cache<CacheKey, CompletableFuture<?>> cache();
 }

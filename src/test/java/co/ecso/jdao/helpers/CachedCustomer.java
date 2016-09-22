@@ -12,8 +12,8 @@ import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.database.query.SingleColumnQuery;
 
 import java.sql.Types;
-import java.util.ConcurrentModificationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * CachedCustomer.
@@ -28,6 +28,7 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
     private final Long id;
     private static final String TABLE_NAME = "customer";
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
+    private AtomicBoolean objectValid = new AtomicBoolean(true);
 
     @SuppressWarnings("WeakerAccess")
     public CachedCustomer(final ApplicationConfig config, final Long id) {
@@ -51,28 +52,23 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
     }
 
     @Override
-    public void checkValidity() throws ConcurrentModificationException {
-
-    }
-
-    @Override
-    public Cache<CacheKey<?>, CompletableFuture<?>> cache() {
+    public Cache<CacheKey, CompletableFuture<?>> cache() {
         return AbstractTest.CACHE;
     }
 
     public CompletableFuture<DatabaseResultField<String>> firstName() {
-        this.checkValidity();
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.primaryKey()));
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.primaryKey()), () ->
+                this.objectValid);
     }
 
     public CompletableFuture<DatabaseResultField<String>> lastName() {
-        this.checkValidity();
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.LAST_NAME, Fields.ID, this.primaryKey()));
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.LAST_NAME, Fields.ID, this.primaryKey()), () ->
+                this.objectValid);
     }
 
     public CompletableFuture<DatabaseResultField<Long>> number() {
-        this.checkValidity();
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()));
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()), () ->
+                this.objectValid);
     }
 
     static final class Fields {

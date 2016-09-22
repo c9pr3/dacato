@@ -5,12 +5,11 @@ import java.util.Objects;
 /**
  * CacheKey.
  *
- * @param <T> Type of key; todo: needed?
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 20.09.16
  */
-public final class CacheKey<T> {
+public final class CacheKey {
 
     /**
      * Key.
@@ -19,7 +18,7 @@ public final class CacheKey<T> {
     /**
      * Type Class.
      */
-    private final Class<T> type;
+    private final Class<?> type;
     /**
      * Textual representation.
      */
@@ -31,7 +30,7 @@ public final class CacheKey<T> {
      * @param type Type of cacheKey.
      * @param values Value-Objects to hash in order to make this cache key individual.
      */
-    public CacheKey(final Class<T> type, final Object... values) {
+    public CacheKey(final Class<?> type, final Object... values) {
         this.type = type;
         this.key = Objects.hash(values);
         for (final Object value : values) {
@@ -49,7 +48,7 @@ public final class CacheKey<T> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final CacheKey<?> cacheKey = (CacheKey<?>) o;
+        final CacheKey cacheKey = (CacheKey) o;
         return key == cacheKey.key &&
                 Objects.equals(type, cacheKey.type);
     }
@@ -73,7 +72,7 @@ public final class CacheKey<T> {
      *
      * @return Type class.
      */
-    public Class<T> type() {
+    public Class<?> type() {
         return type;
     }
 

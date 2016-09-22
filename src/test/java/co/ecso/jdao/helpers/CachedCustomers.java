@@ -60,7 +60,7 @@ public final class CachedCustomers implements CachedDatabaseTable<Long, CachedCu
     }
 
     @Override
-    public Cache<CacheKey<?>, CompletableFuture<?>> cache() {
+    public Cache<CacheKey, CompletableFuture<?>> cache() {
         return AbstractTest.CACHE;
     }
 }

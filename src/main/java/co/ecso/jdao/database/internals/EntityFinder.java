@@ -16,7 +16,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * EntityFinder.
@@ -37,10 +39,18 @@ public interface EntityFinder extends ConfigGetter {
      *
      * @param <W>   Type to select. P.e. String.
      * @param query Query.
+     * @param validityCheck Validity check callback.
      * @return List of DatabaseResultFields with type to select (W), p.e. String
      */
-    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query) {
+    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query,
+                                                                            final Callable<AtomicBoolean>
+                                                                                    validityCheck) {
         final CompletableFuture<List<DatabaseResultField<S>>> returnValueFuture = new CompletableFuture<>();
+
+        if (validityFails(validityCheck, returnValueFuture)) {
+            return returnValueFuture;
+        }
+
         CompletableFuture.runAsync(() -> {
             final DatabaseField<S> columnToSelect = query.columnToSelect();
             final DatabaseField<W> columnWhere = query.columnWhere();
@@ -64,16 +74,36 @@ public interface EntityFinder extends ConfigGetter {
         return returnValueFuture;
     }
 
+    default boolean validityFails(final Callable<AtomicBoolean> validityCheck,
+                                  final CompletableFuture<?> returnValueFuture) {
+        try {
+            if (!validityCheck.call().get()) {
+                returnValueFuture.completeExceptionally(new IllegalArgumentException("Object already destroyed"));
+                return true;
+            }
+        } catch (final Exception e) {
+            returnValueFuture.completeExceptionally(e);
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Find one.
      *
      * @param query Query.
+     * @param validityCheck Validity check callback.
      * @param <S>   Type to return, p.e. String in select x from y where name = z.
      * @return DatabaseResultField with type to select (S), p.e. String
      */
-    default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query) {
+    default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query,
+                                                                  final Callable<AtomicBoolean> validityCheck) {
 
         final CompletableFuture<DatabaseResultField<S>> returnValueFuture = new CompletableFuture<>();
+
+        if (validityFails(validityCheck, returnValueFuture)) {
+            return returnValueFuture;
+        }
 
         CompletableFuture.runAsync(() -> {
             final DatabaseField<S> columnToSelect = query.columnToSelect();
@@ -104,13 +134,19 @@ public interface EntityFinder extends ConfigGetter {
     /**
      * Find One.
      *
-     * @param query Query.
      * @param <W>   Type to return, p.e. String in select x from y where name = z.
+     * @param query Query.
+     * @param validityCheck Validity check callback.
      * @return DatabaseResultField with type to select (W), p.e. String
      */
-    default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
+    default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query,
+                                                                     final Callable<AtomicBoolean> validityCheck) {
 
         final CompletableFuture<DatabaseResultField<S>> returnValueFuture = new CompletableFuture<>();
+
+        if (validityFails(validityCheck, returnValueFuture)) {
+            return returnValueFuture;
+        }
 
         CompletableFuture.runAsync(() -> {
             final DatabaseField<S> columnToSelect = query.columnToSelect();

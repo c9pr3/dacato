@@ -8,9 +8,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -55,7 +55,7 @@ public final class DatabaseEntityTest extends AbstractTest {
         Assert.assertEquals(Long.valueOf(1234L), this.customer.number().get().resultValue());
     }
 
-    @Test(expected = ConcurrentModificationException.class)
+    @Test(expected = ExecutionException.class)
     public void testSave() throws Exception {
         final Long id = this.customer.primaryKey();
         Map<DatabaseField<?>, Object> map = new HashMap<>();

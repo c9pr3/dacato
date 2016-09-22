@@ -59,12 +59,6 @@ public final class InsertQuery<T> implements Query<T> {
         return columnToReturn.valueClass();
     }
 
-    @Override
-    public String toString() {
-        // TODO: 21.09.16 wanted?
-        throw new RuntimeException("CacheKey for insertQuery doesnt make sense.");
-    }
-
     /**
      * Values.
      *

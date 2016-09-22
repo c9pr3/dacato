@@ -11,6 +11,7 @@ import co.ecso.jdao.database.query.SingleColumnQuery;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * DatabaseTable.
@@ -49,7 +50,11 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @return DatabaseResultField of type S.
      */
     default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
-        return this.entityFinder().findOne(query);
+        return this.entityFinder().findOne(query, this::alwaysValid);
+    }
+
+    default AtomicBoolean alwaysValid() {
+        return new AtomicBoolean(true);
     }
 
     /**
@@ -60,7 +65,7 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @return DatabaseResultField of type S.
      */
     default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query) {
-        return this.entityFinder().findOne(query);
+        return this.entityFinder().findOne(query, this::alwaysValid);
     }
 
     /**
@@ -72,7 +77,7 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @return List of DatabaseResultFields of type S.
      */
     default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query) {
-        return this.entityFinder().findMany(query);
+        return this.entityFinder().findMany(query, this::alwaysValid);
     }
 
     /**

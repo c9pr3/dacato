@@ -9,7 +9,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Updater.
@@ -35,10 +37,23 @@ public interface Updater<T> extends ConfigGetter {
      * Update entry.
      *
      * @param query Query.
+     * @param validityCheck Validity check callback.
      * @return Number of affected rows.
      */
-    default CompletableFuture<Integer> update(final SingleColumnUpdateQuery<T> query) {
+    default CompletableFuture<Integer> update(final SingleColumnUpdateQuery<T> query,
+                                              final Callable<AtomicBoolean> validityCheck) {
         final CompletableFuture<Integer> returnValueFuture = new CompletableFuture<>();
+
+        try {
+            if (!validityCheck.call().get()) {
+                returnValueFuture.completeExceptionally(new IllegalArgumentException("Object already destroyed"));
+                return returnValueFuture;
+            }
+        } catch (final Exception e) {
+            returnValueFuture.completeExceptionally(e);
+            return returnValueFuture;
+        }
+
         CompletableFuture.runAsync(() -> {
             try {
                 final List<DatabaseField<?>> newArr = new LinkedList<>();

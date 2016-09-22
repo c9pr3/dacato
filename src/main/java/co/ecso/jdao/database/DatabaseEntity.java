@@ -7,8 +7,9 @@ import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.database.query.SingleColumnQuery;
 import co.ecso.jdao.database.query.SingleColumnUpdateQuery;
 
-import java.util.ConcurrentModificationException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * DatabaseEntity.
@@ -35,22 +36,15 @@ public interface DatabaseEntity<T> extends ConfigGetter {
     CompletableFuture<? extends DatabaseEntity<T>> save(final ColumnList columnValuesToSet);
 
     /**
-     * Check validity.
-     *
-     * The idea behind this is that after save, validity shall throw an exception.
-     * Inside any execution, p.e. primaryKey(), the first statement has to be checkValidity.
-     */
-    //todo find better solution than check validity.
-    void checkValidity() throws ConcurrentModificationException;
-
-    /**
      * Wrapper for updater().update, usually called within save().
      *
      * @param query Query to execute.
+     * @param validityCheck Validity check callback.
      * @return Number of affected rows.
      */
-    default CompletableFuture<Integer> update(final SingleColumnUpdateQuery<T> query) {
-        return updater().update(query);
+    default CompletableFuture<Integer> update(final SingleColumnUpdateQuery<T> query,
+                                              final Callable<AtomicBoolean> validityCheck) {
+        return updater().update(query, validityCheck);
     }
 
     /**
@@ -75,11 +69,13 @@ public interface DatabaseEntity<T> extends ConfigGetter {
      * Find one entry.
      *
      * @param query Query to execute.
+     * @param validityCheck Validity check callback.
      * @param <S> Type to select, p.e. Long.
      * @param <W> Type of where, p.e. String.
      * @return DatabaseResultField of type s.
      */
-    default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
-        return this.entityFinder().findOne(query);
+    default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query,
+                                                                     final Callable<AtomicBoolean> validityCheck) {
+        return this.entityFinder().findOne(query, validityCheck);
     }
 }

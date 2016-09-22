@@ -9,7 +9,6 @@ import co.ecso.jdao.database.query.SingleColumnQuery;
 import co.ecso.jdao.database.query.SingleColumnUpdateQuery;
 
 import java.sql.Types;
-import java.util.ConcurrentModificationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,7 +25,7 @@ public final class Customer implements DatabaseEntity<Long> {
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
     private final Long id;
     private final ApplicationConfig config;
-    private AtomicBoolean invalid = new AtomicBoolean(false);
+    private AtomicBoolean objectValid = new AtomicBoolean(true);
 
     public Customer(final ApplicationConfig config, final Long id) {
         this.id = id;
@@ -35,39 +34,31 @@ public final class Customer implements DatabaseEntity<Long> {
 
     @Override
     public Long primaryKey() {
-        this.checkValidity();
         return this.id;
     }
 
     public CompletableFuture<DatabaseResultField<String>> firstName() {
-        this.checkValidity();
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.primaryKey()));
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.primaryKey()), () ->
+                this.objectValid);
     }
 
     public CompletableFuture<DatabaseResultField<String>> lastName() {
-        this.checkValidity();
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.LAST_NAME, Fields.ID, this.primaryKey()));
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.LAST_NAME, Fields.ID, this.primaryKey()), () ->
+                this.objectValid);
     }
 
     public CompletableFuture<DatabaseResultField<Long>> number() {
-        this.checkValidity();
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()));
+        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()), () ->
+                this.objectValid);
     }
 
     @Override
     public CompletableFuture<Customer> save(final ColumnList columnValuesToSet) {
         final SingleColumnUpdateQuery<Long> query =
                 new SingleColumnUpdateQuery<>("UPDATE customer SET %s WHERE %%s = ?", Fields.ID, id, columnValuesToSet);
-        final CompletableFuture<Integer> updated = this.update(query);
-        this.invalid.set(true);
+        final CompletableFuture<Integer> updated = this.update(query, () -> this.objectValid);
+        this.objectValid.set(false);
         return updated.thenApply(t -> new Customer(config, id));
-    }
-
-    @Override
-    public void checkValidity() throws ConcurrentModificationException {
-        if (this.invalid.get()) {
-            throw new ConcurrentModificationException("Object destroyed");
-        }
     }
 
     @Override
