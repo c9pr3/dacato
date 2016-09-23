@@ -4,12 +4,12 @@ import co.ecso.jdao.AbstractTest;
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.CachedDatabaseEntity;
 import co.ecso.jdao.database.ColumnList;
-import co.ecso.jdao.database.DatabaseEntity;
 import co.ecso.jdao.database.cache.Cache;
 import co.ecso.jdao.database.cache.CacheKey;
 import co.ecso.jdao.database.query.DatabaseField;
 import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.database.query.SingleColumnQuery;
+import co.ecso.jdao.database.query.SingleColumnUpdateQuery;
 
 import java.sql.Types;
 import java.util.concurrent.CompletableFuture;
@@ -47,8 +47,10 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
     }
 
     @Override
-    public CompletableFuture<DatabaseEntity<Long>> save(final ColumnList columnValuesToSet) {
-        return CompletableFuture.completedFuture(this);
+    public CompletableFuture<CachedCustomer> save(final ColumnList columnValuesToSet) {
+        return update(new SingleColumnUpdateQuery<>("UPDATE " + TABLE_NAME + " SET %%s WHERE %s = ?",
+                        Fields.ID, this.id, columnValuesToSet),
+                () -> objectValid).thenApply(newId -> new CachedCustomer(config, Long.valueOf(newId)));
     }
 
     @Override
@@ -71,11 +73,11 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
                 this.objectValid);
     }
 
-    static final class Fields {
+    public static final class Fields {
         static final DatabaseField<Long> ID = new DatabaseField<>("id", Long.class, Types.BIGINT);
         static final DatabaseField<Long> NUMBER =
                 new DatabaseField<>("customer_number", Long.class, Types.BIGINT);
-        static final DatabaseField<String> FIRST_NAME =
+        public static final DatabaseField<String> FIRST_NAME =
                 new DatabaseField<>("customer_first_name", String.class, Types.VARCHAR);
         static final DatabaseField<String> LAST_NAME =
                 new DatabaseField<>("customer_last_name", String.class, Types.VARCHAR);

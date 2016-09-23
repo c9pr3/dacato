@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * CachedDatabaseTableTest.
@@ -70,13 +71,13 @@ public final class CachedDatabaseTableTest extends AbstractTest {
     }
 
     @Test
-    public void testCache() throws ExecutionException {
+    public void testCache() throws ExecutionException, InterruptedException {
         final Cache<String, CompletableFuture<Long>> myCache = new TestApplicationCache<>();
-        final CompletableFuture<Long> longValue = myCache.get("foo", this::getLong);
-        final CompletableFuture<Long> longValue2 = myCache.get("foo", this::getLong);
-        final CompletableFuture<Long> longValue3 = myCache.get("foo", this::getLong);
-        final CompletableFuture<Long> longValue4 = myCache.get("foo", this::getLong);
-        final CompletableFuture<Long> longValue5 = myCache.get("foo", this::getLong);
+        final Long longValue = myCache.get("foo", this::getLong).get();
+        final Long longValue2 = myCache.get("foo", this::getLong).get();
+        final Long longValue3 = myCache.get("foo", this::getLong).get();
+        final Long longValue4 = myCache.get("foo", this::getLong).get();
+        final Long longValue5 = myCache.get("foo", this::getLong).get();
 
         Assert.assertEquals(longValue, longValue2);
         Assert.assertEquals(longValue, longValue3);
@@ -88,7 +89,7 @@ public final class CachedDatabaseTableTest extends AbstractTest {
         CompletableFuture<Long> c = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {
-                Thread.sleep(1000L);
+                TimeUnit.SECONDS.sleep(5);
                 c.complete(System.currentTimeMillis());
             } catch (final InterruptedException ignored) {
             }

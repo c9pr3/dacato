@@ -1,11 +1,19 @@
 package co.ecso.jdao;
 
+import co.ecso.jdao.database.ColumnList;
+import co.ecso.jdao.database.DatabaseEntity;
+import co.ecso.jdao.database.query.DatabaseField;
 import co.ecso.jdao.helpers.CachedCustomer;
 import co.ecso.jdao.helpers.CachedCustomers;
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.MultiHashtable;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * CachedDatabaseEntityTest.
@@ -53,4 +61,10 @@ public final class CachedDatabaseEntityTest extends AbstractTest {
         Assert.assertEquals(Long.valueOf(1234L), this.customer.number().get().resultValue());
     }
 
+    @Test
+    public void testSave() throws Exception {
+        final Map<DatabaseField<?>, Object> map = new HashMap<>();
+        map.put(CachedCustomer.Fields.FIRST_NAME, "foobar1");
+        CompletableFuture<? extends DatabaseEntity<Long>> newCustomer = this.customer.save(() -> map);
+    }
 }
