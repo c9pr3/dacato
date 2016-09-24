@@ -43,6 +43,13 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
     }
 
     @Override
+    default CompletableFuture<Boolean> truncate(final String query) {
+        cache().invalidateAll();
+        cache().cleanUp();
+        return DatabaseTable.super.truncate(query);
+    }
+
+    @Override
     default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findAll(final SingleColumnQuery<S, W> query) {
         cache().invalidateAll();
         cache().cleanUp();
