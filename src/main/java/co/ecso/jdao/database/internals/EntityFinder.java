@@ -3,19 +3,13 @@ package co.ecso.jdao.database.internals;
 import co.ecso.jdao.config.ConfigGetter;
 import co.ecso.jdao.database.ColumnList;
 import co.ecso.jdao.database.SQLNoResultException;
-import co.ecso.jdao.database.query.DatabaseField;
-import co.ecso.jdao.database.query.DatabaseResultField;
-import co.ecso.jdao.database.query.MultiColumnQuery;
-import co.ecso.jdao.database.query.SingleColumnQuery;
+import co.ecso.jdao.database.query.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,46 +26,6 @@ public interface EntityFinder extends ConfigGetter {
     default StatementFiller statementFiller() {
         return new StatementFiller() {
         };
-    }
-
-    /**
-     * Find many.
-     *
-     * @param <W>   Type to select. P.e. String.
-     * @param query Query.
-     * @param validityCheck Validity check callback.
-     * @return List of DatabaseResultFields with type to select (W), p.e. String
-     */
-    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query,
-                                                                            final Callable<AtomicBoolean>
-                                                                                    validityCheck) {
-        final CompletableFuture<List<DatabaseResultField<S>>> returnValueFuture = new CompletableFuture<>();
-
-        if (validityFails(validityCheck, returnValueFuture)) {
-            return returnValueFuture;
-        }
-
-        CompletableFuture.runAsync(() -> {
-            final DatabaseField<S> columnToSelect = query.columnToSelect();
-            final DatabaseField<W> columnWhere = query.columnWhere();
-
-            final String finalQuery = String.format(query.query(), columnToSelect.name(),
-                    columnWhere != null ? columnWhere.name() : null);
-
-            try (final Connection c = config().databaseConnectionPool().getConnection()) {
-                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    final PreparedStatement filledStatement = statementFiller().fillStatement(
-                            Collections.singletonList(columnWhere),
-                            Collections.singletonList(query.columnWhereValue()), stmt);
-                    final List<DatabaseResultField<S>> listRowResult = getListRowResult(columnToSelect,
-                            filledStatement);
-                    returnValueFuture.complete(listRowResult);
-                }
-            } catch (final Exception e) {
-                returnValueFuture.completeExceptionally(e);
-            }
-        }, config().threadPool());
-        return returnValueFuture;
     }
 
     /**
@@ -120,7 +74,6 @@ public interface EntityFinder extends ConfigGetter {
         final String finalQuery = String.format(query.query(), format.toArray());
 
         CompletableFuture.runAsync(() -> {
-
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(
@@ -178,6 +131,173 @@ public interface EntityFinder extends ConfigGetter {
             }
         }, config().threadPool());
         return returnValueFuture;
+    }
+
+    /**
+     * Find one.
+     *
+     * @param query Query.
+     * @param validityCheck Validity Check.
+     * @return List of DatabaseResultFields.
+     */
+    default CompletableFuture<Map<DatabaseField, DatabaseResultField>> findOne(final MultiColumnSelectQuery<?> query,
+                                                                               final Callable<AtomicBoolean>
+                                                                                       validityCheck) {
+
+        final CompletableFuture<Map<DatabaseField, DatabaseResultField>> returnValueFuture = new CompletableFuture<>();
+
+        if (validityFails(validityCheck, returnValueFuture)) {
+            return returnValueFuture;
+        }
+        final List<DatabaseField> columnsToSelect = query.columnsToSelect();
+        final ColumnList valuesWhere = query.values();
+        final List<Object> format = new ArrayList<>();
+
+        columnsToSelect.forEach(c -> format.add(c.name()));
+        format.addAll(valuesWhere.values().keySet());
+        final String finalQuery = String.format(query.query(), format.toArray());
+
+        CompletableFuture.runAsync(() -> {
+            try (final Connection c = config().databaseConnectionPool().getConnection()) {
+                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                    final PreparedStatement filledStatement = statementFiller().fillStatement(
+                            new LinkedList<>(valuesWhere.values().keySet()),
+                            new LinkedList<>(valuesWhere.values().values()), stmt);
+
+                    final Map<DatabaseField, DatabaseResultField> listRowResult = getMapRowResult(finalQuery,
+                            columnsToSelect, filledStatement);
+                    returnValueFuture.complete(listRowResult);
+                }
+            } catch (final Exception e) {
+                returnValueFuture.completeExceptionally(e);
+            }
+        }, config().threadPool());
+
+        return returnValueFuture;
+    }
+
+    /**
+     * Find one.
+     *
+     * @param query Query.
+     * @param validityCheck Validity Check.
+     * @return List of DatabaseResultFields.
+     */
+    default CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findMany(
+            final MultiColumnSelectQuery<?> query, final Callable<AtomicBoolean> validityCheck) {
+
+        final CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> returnValueFuture =
+                new CompletableFuture<>();
+
+        if (validityFails(validityCheck, returnValueFuture)) {
+            return returnValueFuture;
+        }
+        final List<DatabaseField> columnsToSelect = query.columnsToSelect();
+        final ColumnList valuesWhere = query.values();
+        final List<Object> format = new ArrayList<>();
+
+        columnsToSelect.forEach(c -> format.add(c.name()));
+        format.addAll(valuesWhere.values().keySet());
+        final String finalQuery = String.format(query.query(), format.toArray());
+
+        CompletableFuture.runAsync(() -> {
+            try (final Connection c = config().databaseConnectionPool().getConnection()) {
+                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                    final PreparedStatement filledStatement = statementFiller().fillStatement(
+                            new LinkedList<>(valuesWhere.values().keySet()),
+                            new LinkedList<>(valuesWhere.values().values()), stmt);
+
+                    final List<Map<DatabaseField, DatabaseResultField>> listRowResult =
+                            getListMapRowResult(columnsToSelect, filledStatement);
+                    returnValueFuture.complete(listRowResult);
+                }
+            } catch (final Exception e) {
+                returnValueFuture.completeExceptionally(e);
+            }
+        }, config().threadPool());
+
+        return returnValueFuture;
+    }
+
+    /**
+     * Find many.
+     *
+     * @param <W>   Type to select. P.e. String.
+     * @param query Query.
+     * @param validityCheck Validity check callback.
+     * @return List of DatabaseResultFields with type to select (W), p.e. String
+     */
+    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query,
+                                                                            final Callable<AtomicBoolean>
+                                                                                    validityCheck) {
+        final CompletableFuture<List<DatabaseResultField<S>>> returnValueFuture = new CompletableFuture<>();
+
+        if (validityFails(validityCheck, returnValueFuture)) {
+            return returnValueFuture;
+        }
+
+        final DatabaseField<S> columnToSelect = query.columnToSelect();
+        final DatabaseField<W> columnWhere = query.columnWhere();
+
+        final String finalQuery = String.format(query.query(), columnToSelect.name(),
+                columnWhere != null ? columnWhere.name() : null);
+
+        CompletableFuture.runAsync(() -> {
+            try (final Connection c = config().databaseConnectionPool().getConnection()) {
+                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                    final PreparedStatement filledStatement = statementFiller().fillStatement(
+                            Collections.singletonList(columnWhere),
+                            Collections.singletonList(query.columnWhereValue()), stmt);
+                    final List<DatabaseResultField<S>> listRowResult = getListRowResult(columnToSelect,
+                            filledStatement);
+                    returnValueFuture.complete(listRowResult);
+                }
+            } catch (final Exception e) {
+                returnValueFuture.completeExceptionally(e);
+            }
+        }, config().threadPool());
+        return returnValueFuture;
+    }
+
+    default Map<DatabaseField, DatabaseResultField> getMapRowResult(final String finalQuery,
+                                                                    final List<DatabaseField> columnsToSelect,
+                                                                    final PreparedStatement stmt) throws SQLException {
+        final Map<DatabaseField, DatabaseResultField> result = new LinkedHashMap<>();
+        try (final ResultSet rs = stmt.executeQuery()) {
+            if (!rs.next()) {
+                throw new SQLNoResultException(String.format("No Results for %s", finalQuery));
+            }
+            listMapColumns(columnsToSelect, rs, result);
+        }
+        return result;
+    }
+
+    default List<Map<DatabaseField, DatabaseResultField>> getListMapRowResult(final List<DatabaseField> columnsToSelect,
+                                                                              final PreparedStatement stmt)
+            throws SQLException {
+        final List<Map<DatabaseField, DatabaseResultField>> result = new LinkedList<>();
+        try (final ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Map<DatabaseField, DatabaseResultField> map = new HashMap<>();
+                listMapColumns(columnsToSelect, rs, map);
+                result.add(map);
+            }
+        }
+        return result;
+    }
+
+    default void listMapColumns(final List<DatabaseField> columnsToSelect, final ResultSet rs,
+                                final Map<DatabaseField, DatabaseResultField> map) throws SQLException {
+        for (final DatabaseField column : columnsToSelect) {
+            final Object rval = rs.getObject(column.name(), column.valueClass());
+            if (rval == null) {
+                //noinspection unchecked
+                map.put(column, new DatabaseResultField<>(column, null));
+            } else {
+                //noinspection unchecked
+                map.put(column, castResultValue(column, rval, column.valueClass()));
+            }
+        }
     }
 
     /**

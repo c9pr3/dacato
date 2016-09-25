@@ -1,5 +1,7 @@
 package co.ecso.jdao;
 
+import co.ecso.jdao.database.query.DatabaseField;
+import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.helpers.Customer;
 import co.ecso.jdao.helpers.Customers;
 import org.junit.After;
@@ -8,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -64,6 +67,39 @@ public final class DatabaseTableTest extends AbstractTest {
         Assert.assertEquals("foo1", foundCustomer.firstName().get().resultValue());
         Assert.assertEquals("foo2", foundCustomer.lastName().get().resultValue());
         Assert.assertEquals(Long.valueOf(12345L), foundCustomer.number().get().resultValue());
+    }
+
+    @Test
+    public void testFindFirstNameAndLastNameById() throws Exception {
+        final Customer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
+        Assert.assertNotNull(newCustomer);
+
+        final Map<DatabaseField, DatabaseResultField> firstNameAndLastName = this.customers.
+                findFirstNameAndLastNameById(newCustomer.primaryKey()).get(10, TimeUnit.SECONDS);
+        Assert.assertEquals(2, firstNameAndLastName.size());
+        Assert.assertEquals("foo1", firstNameAndLastName.get(Customer.Fields.FIRST_NAME).resultValue());
+        Assert.assertEquals("foo2", firstNameAndLastName.get(Customer.Fields.LAST_NAME).resultValue());
+    }
+
+    @Test
+    public void testFindManyFirstNameAndLastNameById() throws Exception {
+        final Customer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
+        Assert.assertNotNull(newCustomer);
+        final Customer newCustomer2 = this.customers.create("foo1", "foo2", 12346L).get();
+        Assert.assertNotNull(newCustomer2);
+
+        final List<Customer> all = this.customers.findAll().get();
+        Assert.assertEquals(2, all.size());
+
+        final List<Map<DatabaseField, DatabaseResultField>> firstNameAndLastName = this.customers.
+                findManyFirstNameAndLastName().get(10, TimeUnit.SECONDS);
+
+        Assert.assertEquals(2, firstNameAndLastName.size());
+
+        Assert.assertEquals("foo1", firstNameAndLastName.get(0).get(Customer.Fields.FIRST_NAME).resultValue());
+        Assert.assertEquals("foo1", firstNameAndLastName.get(1).get(Customer.Fields.FIRST_NAME).resultValue());
+        Assert.assertEquals("foo2", firstNameAndLastName.get(0).get(Customer.Fields.LAST_NAME).resultValue());
+        Assert.assertEquals("foo2", firstNameAndLastName.get(1).get(Customer.Fields.LAST_NAME).resultValue());
     }
 
     @Test

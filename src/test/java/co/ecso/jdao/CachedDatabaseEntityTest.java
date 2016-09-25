@@ -1,11 +1,9 @@
 package co.ecso.jdao;
 
-import co.ecso.jdao.database.ColumnList;
 import co.ecso.jdao.database.DatabaseEntity;
 import co.ecso.jdao.database.query.DatabaseField;
 import co.ecso.jdao.helpers.CachedCustomer;
 import co.ecso.jdao.helpers.CachedCustomers;
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.MultiHashtable;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

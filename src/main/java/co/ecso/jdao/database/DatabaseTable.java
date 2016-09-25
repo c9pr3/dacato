@@ -4,12 +4,10 @@ import co.ecso.jdao.config.ConfigGetter;
 import co.ecso.jdao.database.internals.EntityFinder;
 import co.ecso.jdao.database.internals.Inserter;
 import co.ecso.jdao.database.internals.Truncater;
-import co.ecso.jdao.database.query.DatabaseResultField;
-import co.ecso.jdao.database.query.InsertQuery;
-import co.ecso.jdao.database.query.MultiColumnQuery;
-import co.ecso.jdao.database.query.SingleColumnQuery;
+import co.ecso.jdao.database.query.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -69,6 +67,16 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
     }
 
     /**
+     * Find one with multi column query.
+     *
+     * @param query Query.
+     * @return DatabaseResultField of type S.
+     */
+    default CompletableFuture<Map<DatabaseField, DatabaseResultField>> findOne(final MultiColumnSelectQuery<?> query) {
+        return this.entityFinder().findOne(query, this::alwaysValid);
+    }
+
+    /**
      * Find many.
      *
      * @param query Query.
@@ -77,6 +85,17 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @return List of DatabaseResultFields of type S.
      */
     default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query) {
+        return this.entityFinder().findMany(query, this::alwaysValid);
+    }
+
+    /**
+     * Find many.
+     *
+     * @param query Query.
+     * @return List of DatabaseResultFields of type S.
+     */
+    default CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findMany(
+            final MultiColumnSelectQuery<?> query) {
         return this.entityFinder().findMany(query, this::alwaysValid);
     }
 

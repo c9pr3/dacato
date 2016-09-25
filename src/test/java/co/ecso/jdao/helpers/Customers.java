@@ -2,12 +2,10 @@ package co.ecso.jdao.helpers;
 
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.DatabaseTable;
-import co.ecso.jdao.database.query.DatabaseField;
-import co.ecso.jdao.database.query.InsertQuery;
-import co.ecso.jdao.database.query.MultiColumnQuery;
-import co.ecso.jdao.database.query.SingleColumnQuery;
+import co.ecso.jdao.database.query.*;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -57,10 +55,29 @@ public final class Customers implements DatabaseTable<Long, Customer> {
 
     public CompletableFuture<Customer> findOneByFirstNameAndLastName(final String firstName, final String lastName) {
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
-        map.put(Customer.Fields.FIRST_NAME, "foo1");
-        map.put(Customer.Fields.LAST_NAME, "foo1");
+        map.put(Customer.Fields.FIRST_NAME, firstName);
+        map.put(Customer.Fields.LAST_NAME, lastName);
         return findOne(new MultiColumnQuery<>("SELECT %s FROM customer WHERE %s = ? AND %s = ?",
                 Customer.Fields.ID, () -> map)).thenApply(id -> new Customer(config, id.resultValue()));
+    }
+
+    public CompletableFuture<Map<DatabaseField, DatabaseResultField>> findFirstNameAndLastNameById(final Long id) {
+        final String queryStr = "SELECT %s, %s FROM customer WHERE %s = ?";
+        final List<DatabaseField> columnsToSelect = new LinkedList<>();
+        columnsToSelect.add(Customer.Fields.FIRST_NAME);
+        columnsToSelect.add(Customer.Fields.LAST_NAME);
+        final Map<DatabaseField<?>, Object> map = new HashMap<>();
+        map.put(Customer.Fields.ID, id);
+        return findOne(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
+    }
+
+    public CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findManyFirstNameAndLastName() {
+        final String queryStr = "SELECT %s, %s FROM customer";
+        final List<DatabaseField> columnsToSelect = new LinkedList<>();
+        columnsToSelect.add(Customer.Fields.FIRST_NAME);
+        columnsToSelect.add(Customer.Fields.LAST_NAME);
+        final Map<DatabaseField<?>, Object> map = new HashMap<>();
+        return findMany(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
     }
 
     public CompletableFuture<Boolean> removeAll() {
