@@ -40,14 +40,16 @@ public interface Inserter<T> extends ConfigGetter {
         final CompletableFuture<DatabaseResultField<T>> returnValueFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             final List<DatabaseField<?>> keys = new LinkedList<>();
-            keys.add(query.columnToReturn());
+            if (query.returnGeneratedKey()) {
+                keys.add(query.columnToReturn());
+            }
             keys.addAll(query.values().keySet());
             final String finalQuery = String.format(query.query(), keys.toArray());
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 final int returnGenerated = query.returnGeneratedKey() ? Statement.RETURN_GENERATED_KEYS
                         : Statement.NO_GENERATED_KEYS;
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery, returnGenerated)) {
-                    statementFiller().fillStatement(keys, new LinkedList<>(query.values().values()), stmt);
+                    statementFiller().fillStatement(finalQuery, keys, new LinkedList<>(query.values().values()), stmt);
                     returnValueFuture.complete(getResult(finalQuery, query.columnToReturn(), stmt,
                             query.returnGeneratedKey()));
                 }
