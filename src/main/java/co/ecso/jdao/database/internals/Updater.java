@@ -65,7 +65,8 @@ public interface Updater<T> extends ConfigGetter {
                     try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                         query.columnValuesToSet().values().forEach(values::add);
                         values.add(query.whereValue());
-                        returnValueFuture.complete(getResult(statementFiller().fillStatement(newArr, values, stmt)));
+                        returnValueFuture.complete(getResult(finalQuery,
+                                statementFiller().fillStatement(newArr, values, stmt)));
                     }
                 }
             } catch (final Exception e) {
@@ -82,8 +83,12 @@ public interface Updater<T> extends ConfigGetter {
      * @return Result.
      * @throws SQLException if query fails.
      */
-    default int getResult(final PreparedStatement stmt) throws SQLException {
-        return stmt.executeUpdate();
+    default int getResult(final String finalQuery, final PreparedStatement stmt) throws SQLException {
+        try {
+            return stmt.executeUpdate();
+        } catch (final SQLException e) {
+            throw new SQLException(String.format("%s, query %s", e.getMessage(), finalQuery), e);
+        }
     }
 
 }

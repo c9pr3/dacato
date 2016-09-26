@@ -72,16 +72,21 @@ public interface Inserter<T> extends ConfigGetter {
                                              final DatabaseField<T> columnToSelect,
                                              final PreparedStatement stmt,
                                              final boolean returnGeneratedKey) throws SQLException {
-        stmt.executeUpdate();
-        if (!returnGeneratedKey) {
-            return new DatabaseResultField<>(columnToSelect, null);
-        }
-        try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-            if (!generatedKeys.next()) {
-                throw new SQLException(String.format("Query %s failed, resultset empty", finalQuery));
+        try {
+            stmt.executeUpdate();
+            if (!returnGeneratedKey) {
+                return new DatabaseResultField<>(columnToSelect, null);
             }
-            //noinspection unchecked
-            return new DatabaseResultField<>(columnToSelect, generatedKeys.getObject(1, columnToSelect.valueClass()));
+            try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (!generatedKeys.next()) {
+                    throw new SQLException(String.format("Query %s failed, resultset empty", finalQuery));
+                }
+                //noinspection unchecked
+                return new DatabaseResultField<>(columnToSelect,
+                        generatedKeys.getObject(1, columnToSelect.valueClass()));
+            }
+        } catch (final SQLException e) {
+            throw new SQLException(String.format("%s, query %s", e.getMessage(), finalQuery), e);
         }
     }
 
