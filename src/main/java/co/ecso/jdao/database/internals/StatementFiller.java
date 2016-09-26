@@ -25,8 +25,21 @@ public interface StatementFiller {
      * @return Prepared statement.
      * @throws SQLException if fill fails.
      */
-    default PreparedStatement fillStatement(final List<DatabaseField<?>> columnsWhere, final List<?> valuesWhere,
+    default PreparedStatement fillStatement(final String query, final List<DatabaseField<?>> columnsWhere,
+                                            final List<?> valuesWhere,
                                             final PreparedStatement stmt) throws SQLException {
+        //we *need* to have the same amount
+        // +1 for the auto_increment "null, [...]"
+        int questionCount = 0;
+        for (int i = 0; i < query.length(); i++) {
+            if (query.charAt(i) == '?') {
+                questionCount++;
+            }
+        }
+        if (columnsWhere.size() > questionCount + 1) {
+            throw new SQLException(String.format("Found %d '?' but %d to replace them in query %s.",
+                    questionCount, columnsWhere.size(), query));
+        }
         for (int i = 0; i < valuesWhere.size(); i++) {
             final Object valueToSet = valuesWhere.get(i);
             if (columnsWhere.get(i) == null) {
@@ -43,5 +56,4 @@ public interface StatementFiller {
         }
         return stmt;
     }
-
 }

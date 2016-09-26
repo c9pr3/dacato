@@ -76,7 +76,7 @@ public interface EntityFinder extends ConfigGetter {
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    final PreparedStatement filledStatement = statementFiller().fillStatement(
+                    final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
                             new LinkedList<>(valuesWhere.values().values()), stmt);
                     final DatabaseResultField<S> singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
@@ -119,7 +119,7 @@ public interface EntityFinder extends ConfigGetter {
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    final PreparedStatement filledStatement = statementFiller().fillStatement(
+                    final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             Collections.singletonList(columnToSelect),
                             Collections.singletonList(whereValueToFind), stmt);
                     final DatabaseResultField<S> singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
@@ -160,7 +160,7 @@ public interface EntityFinder extends ConfigGetter {
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    final PreparedStatement filledStatement = statementFiller().fillStatement(
+                    final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
                             new LinkedList<>(valuesWhere.values().values()), stmt);
 
@@ -203,7 +203,7 @@ public interface EntityFinder extends ConfigGetter {
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    final PreparedStatement filledStatement = statementFiller().fillStatement(
+                    final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
                             new LinkedList<>(valuesWhere.values().values()), stmt);
 
@@ -245,7 +245,7 @@ public interface EntityFinder extends ConfigGetter {
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    final PreparedStatement filledStatement = statementFiller().fillStatement(
+                    final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             Collections.singletonList(columnWhere),
                             Collections.singletonList(query.columnWhereValue()), stmt);
                     final List<DatabaseResultField<S>> listRowResult = getListRowResult(columnToSelect,

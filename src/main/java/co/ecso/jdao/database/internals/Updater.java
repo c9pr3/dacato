@@ -66,7 +66,7 @@ public interface Updater<T> extends ConfigGetter {
                         query.columnValuesToSet().values().forEach(values::add);
                         values.add(query.whereValue());
                         returnValueFuture.complete(getResult(finalQuery,
-                                statementFiller().fillStatement(newArr, values, stmt)));
+                                statementFiller().fillStatement(finalQuery, newArr, values, stmt)));
                     }
                 }
             } catch (final Exception e) {
