@@ -35,7 +35,7 @@ public final class InsertQuery<T> implements Query<T> {
      */
     public InsertQuery(final String query) {
         this.query = query;
-        this.returnGeneratedKey = true;
+        this.returnGeneratedKey = false;
         this.columnToReturn = null;
     }
 
