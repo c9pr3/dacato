@@ -37,18 +37,19 @@ public interface Inserter<T> extends ConfigGetter {
      * @return DatabaseResultField of type T.
      */
     default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query) {
-
         final CompletableFuture<DatabaseResultField<T>> returnValueFuture = new CompletableFuture<>();
-
         CompletableFuture.runAsync(() -> {
             final List<DatabaseField<?>> keys = new LinkedList<>();
             keys.add(query.columnToReturn());
             keys.addAll(query.values().keySet());
             final String finalQuery = String.format(query.query(), keys.toArray());
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
-                try (final PreparedStatement stmt = c.prepareStatement(finalQuery, Statement.RETURN_GENERATED_KEYS)) {
+                final int returnGenerated = query.returnGeneratedKey() ? Statement.RETURN_GENERATED_KEYS
+                        : Statement.NO_GENERATED_KEYS;
+                try (final PreparedStatement stmt = c.prepareStatement(finalQuery, returnGenerated)) {
                     statementFiller().fillStatement(keys, new LinkedList<>(query.values().values()), stmt);
-                    returnValueFuture.complete(getResult(finalQuery, query.columnToReturn(), stmt));
+                    returnValueFuture.complete(getResult(finalQuery, query.columnToReturn(), stmt,
+                            query.returnGeneratedKey()));
                 }
             } catch (final SQLException e) {
                 returnValueFuture.completeExceptionally(e);
@@ -69,8 +70,12 @@ public interface Inserter<T> extends ConfigGetter {
      */
     default DatabaseResultField<T> getResult(final String finalQuery,
                                              final DatabaseField<T> columnToSelect,
-                                             final PreparedStatement stmt) throws SQLException {
+                                             final PreparedStatement stmt,
+                                             final boolean returnGeneratedKey) throws SQLException {
         stmt.executeUpdate();
+        if (!returnGeneratedKey) {
+            return new DatabaseResultField<>(columnToSelect, null);
+        }
         try (final ResultSet generatedKeys = stmt.getGeneratedKeys()) {
             if (!generatedKeys.next()) {
                 throw new SQLException(String.format("Query %s failed, resultset empty", finalQuery));
