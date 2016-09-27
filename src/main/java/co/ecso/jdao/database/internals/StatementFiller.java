@@ -50,8 +50,9 @@ public interface StatementFiller {
             try {
                 stmt.setObject(i + 1, valueToSet, sqlType);
             } catch (final SQLException e) {
-                throw new SQLException(String.format("Could not set %s (%s) to %d on column %s: %s", valueToSet,
-                        valueToSet.getClass().getSimpleName(), sqlType, columnsWhere.get(i).name(), e));
+                throw new SQLException(String.format("Could not set %s (%s) to %d on column %s, set to %s: %s",
+                        valueToSet, valueToSet.getClass().getSimpleName(), sqlType, columnsWhere.get(i).name(),
+                        valuesWhere.get(i), e));
             }
         }
         return stmt;

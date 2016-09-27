@@ -3,11 +3,15 @@ package co.ecso.jdao;
 import co.ecso.jdao.database.cache.Cache;
 import co.ecso.jdao.helpers.CachedCustomer;
 import co.ecso.jdao.helpers.CachedCustomers;
+import co.ecso.jdao.helpers.Product;
+import co.ecso.jdao.helpers.Products;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -41,6 +45,44 @@ public final class CachedDatabaseTableTest extends AbstractTest {
         Assert.assertNotNull(newCustomer);
         Assert.assertEquals("foo1", newCustomer.firstName().get().resultValue());
         Assert.assertEquals("foo2", newCustomer.lastName().get().resultValue());
+    }
+
+    @Test
+    public void testProducts() throws Exception {
+        final Product product = new Products(APPLICATION_CONFIG).add(
+                "",
+                10,
+                1,
+                "",
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                "",
+                new BigDecimal(100),
+                BigDecimal.valueOf(1.00),
+                new Date(),
+                new Date(),
+                new Date(),
+                new BigDecimal(0),
+                1,
+                1,
+                "default",
+                "default",
+                0,
+                "",
+                0,
+                0,
+                0,
+                0,
+                new BigDecimal(0),
+                1,
+                0
+        ).get();
+
+        System.out.println("PRODUCT ADDED " + product.primaryKey());
     }
 
     @Test
