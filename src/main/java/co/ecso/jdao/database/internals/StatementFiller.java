@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -52,9 +53,11 @@ public interface StatementFiller {
             try {
                 stmt.setObject(i + 1, valueToSet, sqlType);
             } catch (final SQLException e) {
-                throw new SQLException(String.format("Could not set %s (%s) to %d (%s) on column %s, set to %s " +
-                                "in query %s: %s", valueToSet.toString(), valueToSet.getClass().getSimpleName(),
-                        sqlType, getTypeByValue(sqlType), columnsWhere.get(i).name(), valuesWhere.get(i), query, e));
+                throw new SQLException(String.format("Could not set '%s' (%s) to '%s' on column '%s', set to '%s' " +
+                                "in query '%s', columnsWhere: '%s', valuesWhere: '%s' : %s", valueToSet.toString(),
+                        valueToSet.getClass().getSimpleName(), getTypeByValue(sqlType), columnsWhere.get(i).name(),
+                        valuesWhere.get(i), query, Arrays.toString(columnsWhere.toArray()),
+                        Arrays.toString(valuesWhere.toArray()), e));
             }
         }
         return stmt;
@@ -62,7 +65,7 @@ public interface StatementFiller {
 
     default String getTypeByValue(Integer value){
         final Class<Types> typeClazz = Types.class;
-        Field[] fields = typeClazz.getDeclaredFields();
+        final Field[] fields = typeClazz.getDeclaredFields();
         for (final Field field : fields) {
             try {
                 final int fieldValue = (Integer) field.get(Integer.class);
