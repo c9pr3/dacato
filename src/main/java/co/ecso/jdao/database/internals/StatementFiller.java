@@ -2,8 +2,10 @@ package co.ecso.jdao.database.internals;
 
 import co.ecso.jdao.database.query.DatabaseField;
 
+import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 
 /**
@@ -50,11 +52,27 @@ public interface StatementFiller {
             try {
                 stmt.setObject(i + 1, valueToSet, sqlType);
             } catch (final SQLException e) {
-                throw new SQLException(String.format("Could not set %s (%s) to %d on column %s, set to %s in query %s: %s",
-                        valueToSet, valueToSet.getClass().getSimpleName(), sqlType, columnsWhere.get(i).name(),
-                        valuesWhere.get(i), query, e));
+                throw new SQLException(String.format("Could not set %s (%s) to %d (%s) on column %s, set to %s " +
+                                "in query %s: %s", valueToSet.toString(), valueToSet.getClass().getSimpleName(),
+                        sqlType, getTypeByValue(sqlType), columnsWhere.get(i).name(), valuesWhere.get(i), query, e));
             }
         }
         return stmt;
+    }
+
+    default String getTypeByValue(Integer value){
+        final Class<Types> typeClazz = Types.class;
+        Field[] fields = typeClazz.getDeclaredFields();
+        for (final Field field : fields) {
+            try {
+                final int fieldValue = (Integer) field.get(Integer.class);
+                if (value == fieldValue) {
+                    return field.getName();
+                }
+            } catch (final IllegalAccessException ignored) {
+                return "unknownE";
+            }
+        }
+        return "unknownType";
     }
 }
