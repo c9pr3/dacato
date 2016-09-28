@@ -49,8 +49,8 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
     @Override
     public CompletableFuture<CachedCustomer> save(final ColumnList columnValuesToSet) {
         return update(new SingleColumnUpdateQuery<>("UPDATE " + TABLE_NAME + " SET %%s WHERE %s = ?",
-                        Fields.ID, this.id, columnValuesToSet),
-                () -> objectValid).thenApply(newId -> new CachedCustomer(config, Long.valueOf(newId)));
+                        Fields.ID, this.id, columnValuesToSet), () -> objectValid).thenApply(newId ->
+                new CachedCustomer(config, Long.valueOf(newId)));
     }
 
     @Override
@@ -60,11 +60,6 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
 
     public CompletableFuture<DatabaseResultField<String>> firstName() {
         return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.primaryKey()), () ->
-                this.objectValid);
-    }
-
-    public CompletableFuture<DatabaseResultField<String>> lastName() {
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.LAST_NAME, Fields.ID, this.primaryKey()), () ->
                 this.objectValid);
     }
 
@@ -79,7 +74,5 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
                 new DatabaseField<>("customer_number", Long.class, Types.BIGINT);
         public static final DatabaseField<String> FIRST_NAME =
                 new DatabaseField<>("customer_first_name", String.class, Types.VARCHAR);
-        static final DatabaseField<String> LAST_NAME =
-                new DatabaseField<>("customer_last_name", String.class, Types.VARCHAR);
     }
 }

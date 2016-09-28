@@ -46,6 +46,7 @@ final class TestApplicationConfig implements ApplicationConfig {
     @Override
     public String connectionString() {
         return "jdbc:hsqldb:mem:jdao";
+//        return "jdbc:mysql://localhost:3306/server_v5?user=root&password=test";
     }
 
     @Override

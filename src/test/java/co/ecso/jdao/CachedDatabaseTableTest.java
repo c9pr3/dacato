@@ -3,15 +3,11 @@ package co.ecso.jdao;
 import co.ecso.jdao.database.cache.Cache;
 import co.ecso.jdao.helpers.CachedCustomer;
 import co.ecso.jdao.helpers.CachedCustomers;
-import co.ecso.jdao.helpers.Product;
-import co.ecso.jdao.helpers.Products;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -41,60 +37,20 @@ public final class CachedDatabaseTableTest extends AbstractTest {
 
     @Test
     public void testAdd() throws Exception {
-        final CachedCustomer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
+        final CachedCustomer newCustomer = this.customers.create("foo1", 12345L).get();
         Assert.assertNotNull(newCustomer);
         Assert.assertEquals("foo1", newCustomer.firstName().get().resultValue());
-        Assert.assertEquals("foo2", newCustomer.lastName().get().resultValue());
-    }
-
-    @Test
-    public void testProducts() throws Exception {
-        final Product product = new Products(APPLICATION_CONFIG).add(
-                "",
-                10,
-                1,
-                "",
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                "",
-                new BigDecimal(100),
-                BigDecimal.valueOf(1.00),
-                new Date(),
-                new Date(),
-                new Date(),
-                new BigDecimal(0),
-                1,
-                1,
-                "default",
-                "default",
-                0,
-                "",
-                0,
-                0,
-                0,
-                0,
-                new BigDecimal(0),
-                1,
-                0
-        ).get();
-
-        System.out.println("PRODUCT ADDED " + product.primaryKey());
     }
 
     @Test
     public void testFindOne() throws Exception {
-        final CachedCustomer newCustomer = this.customers.create("foo1", "foo2", 12345L).get();
+        final CachedCustomer newCustomer = this.customers.create("foo1", 12345L).get();
         Assert.assertNotNull(newCustomer);
 
         final CachedCustomer foundCustomer1 = this.customers.findOne(newCustomer.primaryKey())
                 .get();
         Assert.assertNotNull(foundCustomer1);
         Assert.assertEquals("foo1", foundCustomer1.firstName().get().resultValue());
-        Assert.assertEquals("foo2", foundCustomer1.lastName().get().resultValue());
         Assert.assertEquals(Long.valueOf(12345L), foundCustomer1.number().get().resultValue());
 
 //        System.out.println("Getting by cache...");
@@ -145,11 +101,11 @@ public final class CachedDatabaseTableTest extends AbstractTest {
         Assert.assertEquals(Integer.valueOf(0), this.customers.findAll().thenApply(List::size).get());
 
         CompletableFuture.allOf(
-                this.customers.create("foo1", "foo2", 12345L),
-                this.customers.create("foo1", "foo2", 12345L),
-                this.customers.create("foo1", "foo2", 12345L),
-                this.customers.create("foo1", "foo2", 12345L),
-                this.customers.create("foo1", "foo2", 12345L)
+                this.customers.create("foo1", 12345L),
+                this.customers.create("foo1", 12345L),
+                this.customers.create("foo1", 12345L),
+                this.customers.create("foo1", 12345L),
+                this.customers.create("foo1", 12345L)
         ).get();
 
         Assert.assertEquals(5, this.customers.findAll().get().size());

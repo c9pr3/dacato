@@ -8,7 +8,6 @@ DROP TABLE IF EXISTS `customer`;
 CREATE TABLE `customer` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `customer_first_name` varchar(255) NOT NULL,
-  `customer_last_name` varchar(255) NOT NULL,
   `customer_number` bigint(20) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;

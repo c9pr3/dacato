@@ -27,9 +27,7 @@ public final class CachedDatabaseEntityTest extends AbstractTest {
     @Before
     public void setUp() throws Exception {
         this.setUpDatabase();
-        this.customer = new CachedCustomers(APPLICATION_CONFIG).create(
-                "firstName", "lastName", 1234L
-        ).get();
+        this.customer = new CachedCustomers(APPLICATION_CONFIG).create("firstName", 1234L).get();
     }
 
     @After
@@ -45,13 +43,6 @@ public final class CachedDatabaseEntityTest extends AbstractTest {
     @Test
     public void testFirstName() throws Exception {
         Assert.assertEquals("firstName", this.customer.firstName().get().resultValue());
-    }
-
-    @Test
-    public void testLastName() throws Exception {
-        Assert.assertEquals("lastName", this.customer.lastName().get().resultValue());
-        Assert.assertEquals("lastName", this.customer.lastName().get().resultValue());
-        Assert.assertEquals("lastName", this.customer.lastName().get().resultValue());
     }
 
     @Test

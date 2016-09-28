@@ -1,6 +1,7 @@
 package co.ecso.jdao;
 
 import co.ecso.jdao.config.ApplicationConfig;
+import co.ecso.jdao.connection.ConnectionPool;
 import co.ecso.jdao.database.cache.Cache;
 import co.ecso.jdao.database.cache.CacheKey;
 import co.ecso.jdao.helpers.CreateTableOnlyFilter;
@@ -26,13 +27,13 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractTest {
 
+    static {
+        System.setProperty("config.file", "src/test/config/application.conf");
+    }
+
     private static final Logger LOGGER = Logger.getLogger(AbstractTest.class.getName());
     static final ApplicationConfig APPLICATION_CONFIG = new TestApplicationConfig();
     public static final Cache<CacheKey, CompletableFuture> CACHE = new TestApplicationCache<>();
-
-    static {
-        System.setProperty("APPLICATION_CONFIG.file", "src/test/APPLICATION_CONFIG/application.conf");
-    }
 
     /**
      * Set up database.
@@ -49,6 +50,7 @@ public abstract class AbstractTest {
                 stmt.execute(lines);
             }
         } catch (final SQLException e) {
+            e.printStackTrace();
             LOGGER.warning(e.getMessage());
         }
     }
@@ -63,10 +65,13 @@ public abstract class AbstractTest {
      * Clean up Database.
      */
     protected final void cleanupDatabase() throws SQLException {
-        try (final Connection connection = APPLICATION_CONFIG.databaseConnectionPool().getConnection()) {
+        final ConnectionPool<Connection> connectionPool = new TestApplicationConfig().databaseConnectionPool();
+        try (final Connection connection = connectionPool.getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("TRUNCATE SCHEMA PUBLIC RESTART IDENTITY AND COMMIT NO CHECK");
             }
+        } catch (final SQLException e) {
+//            throw new RuntimeException(e.getMessage(), e);
         }
         CACHE.invalidateAll();
         CACHE.cleanUp();

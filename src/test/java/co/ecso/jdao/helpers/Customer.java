@@ -42,11 +42,6 @@ public final class Customer implements DatabaseEntity<Long> {
                 this.objectValid);
     }
 
-    public CompletableFuture<DatabaseResultField<String>> lastName() {
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.LAST_NAME, Fields.ID, this.primaryKey()), () ->
-                this.objectValid);
-    }
-
     public CompletableFuture<DatabaseResultField<Long>> number() {
         return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()), () ->
                 this.objectValid);
@@ -72,7 +67,5 @@ public final class Customer implements DatabaseEntity<Long> {
                 new DatabaseField<>("customer_number", Long.class, Types.BIGINT);
         public static final DatabaseField<String> FIRST_NAME =
                 new DatabaseField<>("customer_first_name", String.class, Types.VARCHAR);
-        public static final DatabaseField<String> LAST_NAME =
-                new DatabaseField<>("customer_last_name", String.class, Types.VARCHAR);
     }
 }

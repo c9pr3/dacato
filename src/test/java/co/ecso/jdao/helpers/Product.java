@@ -1,6 +1,5 @@
 package co.ecso.jdao.helpers;
 
-import co.ecso.jdao.AbstractTest;
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.CachedDatabaseEntity;
 import co.ecso.jdao.database.ColumnList;
@@ -9,11 +8,13 @@ import co.ecso.jdao.database.cache.CacheKey;
 import co.ecso.jdao.database.query.DatabaseField;
 import co.ecso.jdao.database.query.SingleColumnUpdateQuery;
 
-import java.math.BigDecimal;
 import java.sql.Types;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static co.ecso.jdao.AbstractTest.CACHE;
 
 /**
  * Product.
@@ -25,13 +26,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class Product implements CachedDatabaseEntity<Integer> {
     static final String TABLE_NAME = "products";
     public static final String QUERY = String.format("SELECT %%s FROM %s WHERE products_id = ?", TABLE_NAME);
-    private static final Cache<CacheKey, CompletableFuture> CACHE = AbstractTest.CACHE;
     private final Integer id;
     private final ApplicationConfig config;
     private AtomicBoolean objectValid = new AtomicBoolean(true);
 
     Product(final ApplicationConfig config, final Integer id) {
         this.config = config;
+        Objects.requireNonNull(id);
         this.id = id;
     }
 
@@ -86,18 +87,18 @@ public final class Product implements CachedDatabaseEntity<Integer> {
                 new DatabaseField<>("group_permission_4", Integer.class, Types.TINYINT);
         static final DatabaseField<Integer> SORT = new DatabaseField<>("products_sort", Integer.class, Types.INTEGER);
         static final DatabaseField<String> IMAGE = new DatabaseField<>("products_image", String.class, Types.VARCHAR);
-        static final DatabaseField<BigDecimal> PRICE =
-                new DatabaseField<>("products_price", BigDecimal.class, Types.DECIMAL);
-        static final DatabaseField<BigDecimal> DISCOUNT_ALLOWED =
-                new DatabaseField<>("products_discount_allowed", BigDecimal.class, Types.DECIMAL);
+        static final DatabaseField<Float> PRICE =
+                new DatabaseField<>("products_price", Float.class, Types.DECIMAL);
+        static final DatabaseField<Float> DISCOUNT_ALLOWED =
+                new DatabaseField<>("products_discount_allowed", Float.class, Types.DECIMAL);
         static final DatabaseField<Date> DATE_ADDED =
                 new DatabaseField<>("products_date_added", Date.class, Types.DATE);
         static final DatabaseField<Date> LAST_MODIFIED =
                 new DatabaseField<>("products_last_modified", Date.class, Types.DATE);
         static final DatabaseField<Date> AVAILABLE =
                 new DatabaseField<>("products_date_available", Date.class, Types.DATE);
-        static final DatabaseField<BigDecimal> WEIGHT =
-                new DatabaseField<>("products_weight", BigDecimal.class, Types.DECIMAL);
+        static final DatabaseField<Float> WEIGHT =
+                new DatabaseField<>("products_weight", Float.class, Types.DECIMAL);
         static final DatabaseField<Integer> STATUS =
                 new DatabaseField<>("products_status", Integer.class, Types.TINYINT);
         static final DatabaseField<Integer> TAX_CLASS_ID =
@@ -117,8 +118,8 @@ public final class Product implements CachedDatabaseEntity<Integer> {
         static final DatabaseField<Integer> VPE = new DatabaseField<>("products_vpe", Integer.class, Types.INTEGER);
         static final DatabaseField<Integer> VPE_STATUS =
                 new DatabaseField<>("products_vpe_status", Integer.class, Types.INTEGER);
-        static final DatabaseField<BigDecimal> VPE_VALUE =
-                new DatabaseField<>("products_vpe_value", BigDecimal.class, Types.DECIMAL);
+        static final DatabaseField<Float> VPE_VALUE =
+                new DatabaseField<>("products_vpe_value", Float.class, Types.DECIMAL);
         static final DatabaseField<Integer> STARTPAGE =
                 new DatabaseField<>("products_startpage", Integer.class, Types.INTEGER);
         static final DatabaseField<Integer> STARTPAGE_SORT =

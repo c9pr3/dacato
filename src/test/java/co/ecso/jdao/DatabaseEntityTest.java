@@ -27,7 +27,7 @@ public final class DatabaseEntityTest extends AbstractTest {
     @Before
     public void setUp() throws Exception {
         this.setUpDatabase();
-        this.customer = new Customers(APPLICATION_CONFIG).create("firstName", "lastName", 1234L).get();
+        this.customer = new Customers(APPLICATION_CONFIG).create("firstName", 1234L).get();
     }
 
     @After
@@ -46,13 +46,8 @@ public final class DatabaseEntityTest extends AbstractTest {
     }
 
     @Test
-    public void testLastName() throws Exception {
-        Assert.assertEquals("lastName", this.customer.lastName().get().resultValue());
-    }
-
-    @Test
     public void testNumber() throws Exception {
-        Assert.assertEquals(Long.valueOf(1234L), this.customer.number().get().resultValue());
+        Assert.assertEquals(Long.valueOf(1234), this.customer.number().get().resultValue());
     }
 
     @Test(expected = ExecutionException.class)
@@ -60,12 +55,10 @@ public final class DatabaseEntityTest extends AbstractTest {
         final Long id = this.customer.primaryKey();
         Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(Customer.Fields.FIRST_NAME, "foo1");
-        map.put(Customer.Fields.LAST_NAME, "bla1");
         this.customer.save(() -> map).get(5, TimeUnit.SECONDS);
 
         this.customer = new Customers(APPLICATION_CONFIG).findOne(id).get();
         Assert.assertEquals("foo1", this.customer.firstName().get().resultValue());
-        Assert.assertEquals("bla1", this.customer.lastName().get().resultValue());
 
         map.clear();
         map.put(Customer.Fields.FIRST_NAME, "foo2");

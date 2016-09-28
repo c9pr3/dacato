@@ -53,29 +53,19 @@ public final class Customers implements DatabaseTable<Long, Customer> {
                 list.stream().map(l -> new Customer(config, l.resultValue())).collect(Collectors.toList()));
     }
 
-    public CompletableFuture<Customer> findOneByFirstNameAndLastName(final String firstName, final String lastName) {
-        final Map<DatabaseField<?>, Object> map = new HashMap<>();
-        map.put(Customer.Fields.FIRST_NAME, firstName);
-        map.put(Customer.Fields.LAST_NAME, lastName);
-        return findOne(new MultiColumnQuery<>("SELECT %s FROM customer WHERE %s = ? AND %s = ?",
-                Customer.Fields.ID, () -> map)).thenApply(id -> new Customer(config, id.resultValue()));
-    }
-
-    public CompletableFuture<Map<DatabaseField, DatabaseResultField>> findFirstNameAndLastNameById(final Long id) {
-        final String queryStr = "SELECT %s, %s FROM customer WHERE %s = ?";
+    public CompletableFuture<Map<DatabaseField, DatabaseResultField>> findFirstNameById(final Long id) {
+        final String queryStr = "SELECT %s FROM customer WHERE %s = ?";
         final List<DatabaseField> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(Customer.Fields.FIRST_NAME);
-        columnsToSelect.add(Customer.Fields.LAST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(Customer.Fields.ID, id);
         return findOne(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
     }
 
-    public CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findManyFirstNameAndLastName() {
-        final String queryStr = "SELECT %s, %s FROM customer";
+    public CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findManyFirstName() {
+        final String queryStr = "SELECT %s FROM customer";
         final List<DatabaseField> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(Customer.Fields.FIRST_NAME);
-        columnsToSelect.add(Customer.Fields.LAST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
         return findMany(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
     }
@@ -89,11 +79,10 @@ public final class Customers implements DatabaseTable<Long, Customer> {
         return config;
     }
 
-    public CompletableFuture<Customer> create(final String firstName, final String lastName, final long number) {
+    public CompletableFuture<Customer> create(final String firstName, final Long number) {
         final InsertQuery<Long> query = new InsertQuery<>(
-                "INSERT INTO customer (%s, %s, %s, %s) VALUES (null, ?, ?, ?)", Customer.Fields.ID);
+                "INSERT INTO customer (%s, %s, %s) VALUES (null, ?, ?)", Customer.Fields.ID);
         query.add(Customer.Fields.FIRST_NAME, firstName);
-        query.add(Customer.Fields.LAST_NAME, lastName);
         query.add(Customer.Fields.NUMBER, number);
         return this.add(query).thenApply(newId -> new Customer(config, newId.resultValue()));
     }

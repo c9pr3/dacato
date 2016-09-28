@@ -49,7 +49,8 @@ public interface Inserter<T> extends ConfigGetter {
                 final int returnGenerated = query.returnGeneratedKey() ? Statement.RETURN_GENERATED_KEYS
                         : Statement.NO_GENERATED_KEYS;
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery, returnGenerated)) {
-                    statementFiller().fillStatement(finalQuery, keys, new LinkedList<>(query.values().values()), stmt);
+                    statementFiller().fillStatement(finalQuery, new LinkedList<>(query.values().keySet()),
+                            new LinkedList<>(query.values().values()), stmt);
                     returnValueFuture.complete(getResult(finalQuery, query.columnToReturn(), stmt,
                             query.returnGeneratedKey()));
                 }

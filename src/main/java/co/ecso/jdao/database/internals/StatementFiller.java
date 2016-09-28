@@ -43,6 +43,7 @@ public interface StatementFiller {
             throw new SQLException(String.format("Found %d '?' but %d to replace them in query %s.",
                     questionCount, columnsWhere.size(), query));
         }
+
         for (int i = 0; i < valuesWhere.size(); i++) {
             final Object valueToSet = valuesWhere.get(i);
             if (columnsWhere.get(i) == null) {
@@ -51,6 +52,8 @@ public interface StatementFiller {
             }
             final int sqlType = columnsWhere.get(i).sqlType();
             try {
+//                System.out.printf("SETTING %s %d to '%s', sqlType: %s%n",
+//                        columnsWhere.get(i), i + 1, valueToSet, getTypeByValue(sqlType));
                 stmt.setObject(i + 1, valueToSet, sqlType);
             } catch (final SQLException e) {
                 throw new SQLException(String.format("Could not set '%s' (%s) to '%s' on column '%s', set to '%s' " +
@@ -63,7 +66,7 @@ public interface StatementFiller {
         return stmt;
     }
 
-    default String getTypeByValue(Integer value){
+    default String getTypeByValue(final Integer value) {
         final Class<Types> typeClazz = Types.class;
         final Field[] fields = typeClazz.getDeclaredFields();
         for (final Field field : fields) {
