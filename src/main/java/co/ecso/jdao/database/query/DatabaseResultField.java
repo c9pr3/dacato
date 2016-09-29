@@ -25,7 +25,7 @@ public final class DatabaseResultField<T> {
      * Construct.
      *
      * @param selectedField Selected field.
-     * @param resultValue Result resultValue.
+     * @param resultValue   Result resultValue.
      */
     public DatabaseResultField(final DatabaseField<T> selectedField, final T resultValue) {
         this.selectedField = selectedField;

@@ -27,7 +27,7 @@ public final class CacheKey {
     /**
      * Construct.
      *
-     * @param type Type of cacheKey.
+     * @param type   Type of cacheKey.
      * @param values Value-Objects to hash in order to make this cache key individual.
      */
     public CacheKey(final Class<?> type, final Object... values) {

@@ -65,9 +65,9 @@ public interface Inserter<T> extends ConfigGetter {
     /**
      * Get result.
      *
-     * @param finalQuery Final query.
+     * @param finalQuery     Final query.
      * @param columnToSelect Column to select.
-     * @param stmt Statement.
+     * @param stmt           Statement.
      * @return DatabaseResultField of type T.
      * @throws SQLException if sql fails.
      */

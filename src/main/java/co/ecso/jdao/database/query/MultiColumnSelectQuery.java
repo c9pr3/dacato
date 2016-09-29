@@ -22,12 +22,12 @@ public final class MultiColumnSelectQuery<T> implements Query<T> {
     /**
      * Construct.
      *
-     * @param query Query to execute, p.e. select %s, %s from table_x where %s = ? and (%s = ? or %s = ?)
-     * @param columnsToSelect Columns to select.
+     * @param query             Query to execute, p.e. select %s, %s from table_x where %s = ? and (%s = ? or %s = ?)
+     * @param columnsToSelect   Columns to select.
      * @param whereColumnValues Column plus columnValuesToSet - map.
      */
     public MultiColumnSelectQuery(final String query, final List<DatabaseField> columnsToSelect,
-                            final ColumnList whereColumnValues) {
+                                  final ColumnList whereColumnValues) {
         this.query = query;
         this.columnsToSelect = columnsToSelect;
         this.whereColumnValues = whereColumnValues;

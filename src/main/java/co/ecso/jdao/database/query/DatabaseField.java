@@ -28,9 +28,9 @@ public final class DatabaseField<T> {
     /**
      * Construct.
      *
-     * @param name Field name, p.e. "id".
+     * @param name       Field name, p.e. "id".
      * @param valueClass Value class, p.e. Long.
-     * @param sqlType SQLType, p.e. Types.BIGINT.
+     * @param sqlType    SQLType, p.e. Types.BIGINT.
      * @see java.sql.Types
      */
     public DatabaseField(final String name, final Class<T> valueClass, final int sqlType) {

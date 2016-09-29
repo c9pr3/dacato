@@ -36,7 +36,7 @@ public interface Updater<T> extends ConfigGetter {
     /**
      * Update entry.
      *
-     * @param query Query.
+     * @param query         Query.
      * @param validityCheck Validity check callback.
      * @return Number of affected rows.
      */

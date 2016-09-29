@@ -26,7 +26,7 @@ public interface Cache<K, V> {
     /**
      * Get entry.
      *
-     * @param key Key to get.
+     * @param key      Key to get.
      * @param callback Callback to call when key is not yet in cache.
      * @return Value.
      * @throws ExecutionException if callback fails.
@@ -44,7 +44,7 @@ public interface Cache<K, V> {
     /**
      * Add a new entry.
      *
-     * @param key Key.
+     * @param key   Key.
      * @param value Value.
      */
     void put(final K key, final V value);

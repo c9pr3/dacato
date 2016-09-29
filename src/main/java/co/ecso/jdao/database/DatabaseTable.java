@@ -43,8 +43,8 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * Find one with single column query.
      *
      * @param query Query.
-     * @param <S> Type of select, therefore type of return.
-     * @param <W> Type of where.
+     * @param <S>   Type of select, therefore type of return.
+     * @param <W>   Type of where.
      * @return DatabaseResultField of type S.
      */
     default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query) {
@@ -59,7 +59,7 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * Find one with multi column query.
      *
      * @param query Query.
-     * @param <S> Type of query and therefore result.
+     * @param <S>   Type of query and therefore result.
      * @return DatabaseResultField of type S.
      */
     default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query) {
@@ -72,7 +72,8 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @param query Query.
      * @return DatabaseResultField of type S.
      */
-    default CompletableFuture<Map<DatabaseField, DatabaseResultField>> findOne(final MultiColumnSelectQuery<?> query) {
+    default CompletableFuture<Map<DatabaseField, DatabaseResultField>> findOne(
+            final MultiColumnSelectQuery<?> query) {
         return this.entityFinder().findOne(query, this::alwaysValid);
     }
 
@@ -80,8 +81,8 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * Find many.
      *
      * @param query Query.
-     * @param <S> Type of select, therefore type of return.
-     * @param <W> Type of where.
+     * @param <S>   Type of select, therefore type of return.
+     * @param <W>   Type of where.
      * @return List of DatabaseResultFields of type S.
      */
     default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query) {
@@ -110,8 +111,8 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * Find all, usually called within findAll().
      *
      * @param query Query to execute.
-     * @param <S> Type to select.
-     * @param <W> Type of where.
+     * @param <S>   Type to select.
+     * @param <W>   Type of where.
      * @return List of DatabaseResultFields of type S.
      */
     default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findAll(final SingleColumnQuery<S, W> query) {

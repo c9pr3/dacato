@@ -23,8 +23,8 @@ public interface StatementFiller {
      * Fill statement with columnValuesToSet. Replace all ?.
      *
      * @param columnsWhere Where columns.
-     * @param valuesWhere Where columnValuesToSet.
-     * @param stmt Statement.
+     * @param valuesWhere  Where columnValuesToSet.
+     * @param stmt         Statement.
      * @return Prepared statement.
      * @throws SQLException if fill fails.
      */

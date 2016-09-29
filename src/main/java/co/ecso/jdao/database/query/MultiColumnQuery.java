@@ -31,8 +31,8 @@ public final class MultiColumnQuery<T> implements Query<T> {
     /**
      * Construct.
      *
-     * @param query Query to execute, p.e. select %s from table_x where %s = ? and (%s = ? or %s = ?)
-     * @param columnToSelect Column to select.
+     * @param query             Query to execute, p.e. select %s from table_x where %s = ? and (%s = ? or %s = ?)
+     * @param columnToSelect    Column to select.
      * @param whereColumnValues Column plus columnValuesToSet - map.
      */
     public MultiColumnQuery(final String query, final DatabaseField<T> columnToSelect,

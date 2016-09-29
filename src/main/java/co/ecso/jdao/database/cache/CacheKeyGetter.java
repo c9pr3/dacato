@@ -15,7 +15,7 @@ interface CacheKeyGetter {
     /**
      * Get cache key.
      *
-     * @param <T> Type of Query.
+     * @param <T>   Type of Query.
      * @param query Query.
      * @return Cache key.
      */

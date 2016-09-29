@@ -31,7 +31,7 @@ public interface EntityFinder extends ConfigGetter {
     /**
      * Check if validity fails.
      *
-     * @param validityCheck Validity check callable.
+     * @param validityCheck     Validity check callable.
      * @param returnValueFuture ReturnValue to complete exceptionally if validity fails.
      * @return true or false for early return purposes.
      */
@@ -52,9 +52,9 @@ public interface EntityFinder extends ConfigGetter {
     /**
      * Find one.
      *
-     * @param query Query.
+     * @param query         Query.
      * @param validityCheck Validity check callback.
-     * @param <S>   Type to return, p.e. String in select x from y where name = z.
+     * @param <S>           Type to return, p.e. String in select x from y where name = z.
      * @return DatabaseResultField with type to select (S), p.e. String
      */
     default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query,
@@ -94,8 +94,8 @@ public interface EntityFinder extends ConfigGetter {
     /**
      * Find One.
      *
-     * @param <W>   Type to return, p.e. String in select x from y where name = z.
-     * @param query Query.
+     * @param <W>           Type to return, p.e. String in select x from y where name = z.
+     * @param query         Query.
      * @param validityCheck Validity check callback.
      * @return DatabaseResultField with type to select (W), p.e. String
      */
@@ -136,7 +136,7 @@ public interface EntityFinder extends ConfigGetter {
     /**
      * Find one.
      *
-     * @param query Query.
+     * @param query         Query.
      * @param validityCheck Validity Check.
      * @return List of DatabaseResultFields.
      */
@@ -144,7 +144,8 @@ public interface EntityFinder extends ConfigGetter {
                                                                                final Callable<AtomicBoolean>
                                                                                        validityCheck) {
 
-        final CompletableFuture<Map<DatabaseField, DatabaseResultField>> returnValueFuture = new CompletableFuture<>();
+        final CompletableFuture<Map<DatabaseField, DatabaseResultField>> returnValueFuture =
+                new CompletableFuture<>();
 
         if (validityFails(validityCheck, returnValueFuture)) {
             return returnValueFuture;
@@ -179,7 +180,7 @@ public interface EntityFinder extends ConfigGetter {
     /**
      * Find one.
      *
-     * @param query Query.
+     * @param query         Query.
      * @param validityCheck Validity Check.
      * @return List of DatabaseResultFields.
      */
@@ -222,15 +223,16 @@ public interface EntityFinder extends ConfigGetter {
     /**
      * Find many.
      *
-     * @param <W>   Type to select. P.e. String.
-     * @param query Query.
+     * @param <W>           Type to select. P.e. String.
+     * @param query         Query.
      * @param validityCheck Validity check callback.
      * @return List of DatabaseResultFields with type to select (W), p.e. String
      */
     default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query,
                                                                             final Callable<AtomicBoolean>
                                                                                     validityCheck) {
-        final CompletableFuture<List<DatabaseResultField<S>>> returnValueFuture = new CompletableFuture<>();
+        final CompletableFuture<List<DatabaseResultField<S>>> returnValueFuture =
+                new CompletableFuture<>();
 
         if (validityFails(validityCheck, returnValueFuture)) {
             return returnValueFuture;
@@ -357,10 +359,10 @@ public interface EntityFinder extends ConfigGetter {
      * Cast result field to proper value.
      * Mostly needed for String-trim and boolean 1 to true, 0 to false.
      *
-     * @param <R> Column Type.
+     * @param <R>            Column Type.
      * @param columnToSelect Column to select.
-     * @param databaseValue Value from database.
-     * @param valueClass Value class.
+     * @param databaseValue  Value from database.
+     * @param valueClass     Value class.
      */
     default <R> DatabaseResultField<R> castResultValue(final DatabaseField<R> columnToSelect,
                                                        final R databaseValue, final Class valueClass) {

@@ -26,9 +26,9 @@ public final class SingleColumnUpdateQuery<T> implements Query<T> {
     /**
      * Construct.
      *
-     * @param query Query to execute, p.e. update table_x set %s = ?, %s = ? where %s = ?
-     * @param whereColumn Where column.
-     * @param whereValue Where value.
+     * @param query             Query to execute, p.e. update table_x set %s = ?, %s = ? where %s = ?
+     * @param whereColumn       Where column.
+     * @param whereValue        Where value.
      * @param columnValuesToSet Columns and values to set.
      */
     public SingleColumnUpdateQuery(final String query, final DatabaseField<T> whereColumn, final T whereValue,

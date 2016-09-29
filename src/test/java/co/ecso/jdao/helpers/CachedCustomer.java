@@ -24,10 +24,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class CachedCustomer implements CachedDatabaseEntity<Long> {
 
-    private final ApplicationConfig config;
-    private final Long id;
     private static final String TABLE_NAME = "customer";
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
+    private final ApplicationConfig config;
+    private final Long id;
     private AtomicBoolean objectValid = new AtomicBoolean(true);
 
     @SuppressWarnings("WeakerAccess")
@@ -49,7 +49,7 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
     @Override
     public CompletableFuture<CachedCustomer> save(final ColumnList columnValuesToSet) {
         return update(new SingleColumnUpdateQuery<>("UPDATE " + TABLE_NAME + " SET %%s WHERE %s = ?",
-                        Fields.ID, this.id, columnValuesToSet), () -> objectValid).thenApply(newId ->
+                Fields.ID, this.id, columnValuesToSet), () -> objectValid).thenApply(newId ->
                 new CachedCustomer(config, Long.valueOf(newId)));
     }
 
@@ -69,10 +69,10 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
     }
 
     public static final class Fields {
+        public static final DatabaseField<String> FIRST_NAME =
+                new DatabaseField<>("customer_first_name", String.class, Types.VARCHAR);
         static final DatabaseField<Long> ID = new DatabaseField<>("id", Long.class, Types.BIGINT);
         static final DatabaseField<Long> NUMBER =
                 new DatabaseField<>("customer_number", Long.class, Types.BIGINT);
-        public static final DatabaseField<String> FIRST_NAME =
-                new DatabaseField<>("customer_first_name", String.class, Types.VARCHAR);
     }
 }

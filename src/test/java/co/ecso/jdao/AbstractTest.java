@@ -31,9 +31,9 @@ public abstract class AbstractTest {
         System.setProperty("config.file", "src/test/config/application.conf");
     }
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractTest.class.getName());
-    static final ApplicationConfig APPLICATION_CONFIG = new TestApplicationConfig();
     public static final Cache<CacheKey, CompletableFuture> CACHE = new TestApplicationCache<>();
+    static final ApplicationConfig APPLICATION_CONFIG = new TestApplicationConfig();
+    private static final Logger LOGGER = Logger.getLogger(AbstractTest.class.getName());
 
     /**
      * Set up database.

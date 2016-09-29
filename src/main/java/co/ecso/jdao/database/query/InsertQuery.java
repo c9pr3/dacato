@@ -42,7 +42,7 @@ public final class InsertQuery<T> implements Query<T> {
     /**
      * Construct.
      *
-     * @param query Query to execute, p.e. insert into table_x (%s, %s, %s) columnValuesToSet (?, ?, ?)
+     * @param query          Query to execute, p.e. insert into table_x (%s, %s, %s) columnValuesToSet (?, ?, ?)
      * @param columnToReturn Column to return, mostly "id"
      */
     public InsertQuery(final String query, final DatabaseField<T> columnToReturn) {
@@ -56,7 +56,7 @@ public final class InsertQuery<T> implements Query<T> {
      *
      * @param field Field to add.
      * @param value Value to add.
-     * @param <R> Field-type and resultValue needs to be the same but not necessarily <T>.
+     * @param <R>   Field-type and resultValue needs to be the same but not necessarily <T>.
      */
     public <R> void add(final DatabaseField<R> field, final R value) {
         columnValueMap.put(field, value);

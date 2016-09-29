@@ -33,12 +33,12 @@ public interface DatabaseEntity<T> extends ConfigGetter {
      * @param columnValuesToSet Column and values to save.
      * @return DatabaseEntity of type T.
      */
-     CompletableFuture<? extends DatabaseEntity<T>> save(final ColumnList columnValuesToSet);
+    CompletableFuture<? extends DatabaseEntity<T>> save(final ColumnList columnValuesToSet);
 
     /**
      * Wrapper for updater().update, usually called within save().
      *
-     * @param query Query to execute.
+     * @param query         Query to execute.
      * @param validityCheck Validity check callback.
      * @return Number of affected rows.
      */
@@ -68,10 +68,10 @@ public interface DatabaseEntity<T> extends ConfigGetter {
     /**
      * Find one entry.
      *
-     * @param query Query to execute.
+     * @param query         Query to execute.
      * @param validityCheck Validity check callback.
-     * @param <S> Type to select, p.e. Long.
-     * @param <W> Type of where, p.e. String.
+     * @param <S>           Type to select, p.e. Long.
+     * @param <W>           Type of where, p.e. String.
      * @return DatabaseResultField of type s.
      */
     default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query,
