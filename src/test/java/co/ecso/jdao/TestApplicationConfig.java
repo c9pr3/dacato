@@ -4,8 +4,8 @@ import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.connection.ConnectionPool;
 
 import java.sql.Connection;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * TestApplicationConfig.
@@ -16,7 +16,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  */
 final class TestApplicationConfig implements ApplicationConfig {
     private static snaq.db.ConnectionPool connectionPool = null;
-    private static ScheduledThreadPoolExecutor threadPool = null;
+    private static ExecutorService threadPool = null;
 
     @Override
     public String databasePoolName() {
@@ -50,9 +50,10 @@ final class TestApplicationConfig implements ApplicationConfig {
     }
 
     @Override
-    public synchronized ScheduledExecutorService threadPool() {
+    public synchronized ExecutorService threadPool() {
         if (threadPool == null) {
-            threadPool = new ScheduledThreadPoolExecutor(this.databasePoolMax());
+            threadPool = Executors.newCachedThreadPool();
+
         }
         return threadPool;
     }

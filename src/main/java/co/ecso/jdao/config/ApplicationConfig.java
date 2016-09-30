@@ -3,7 +3,7 @@ package co.ecso.jdao.config;
 import co.ecso.jdao.connection.ConnectionPool;
 
 import java.sql.Connection;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ExecutorService;
 
 /**
  * ApplicationConfig.
@@ -61,7 +61,7 @@ public interface ApplicationConfig {
      *
      * @return Thread pool.
      */
-    ScheduledExecutorService threadPool();
+    ExecutorService threadPool();
 
     /**
      * Database connection pool to use.
