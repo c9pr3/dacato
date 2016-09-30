@@ -120,7 +120,7 @@ public interface EntityFinder extends ConfigGetter {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
-                            Collections.singletonList(columnToSelect),
+                            Collections.singletonList(columnWhere),
                             Collections.singletonList(whereValueToFind), stmt);
                     final DatabaseResultField<S> singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
                             filledStatement);
