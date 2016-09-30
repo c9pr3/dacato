@@ -2,6 +2,7 @@ package co.ecso.jdao.database;
 
 import co.ecso.jdao.config.ConfigGetter;
 import co.ecso.jdao.database.internals.EntityFinder;
+import co.ecso.jdao.database.internals.EntityRemover;
 import co.ecso.jdao.database.internals.Inserter;
 import co.ecso.jdao.database.internals.Truncater;
 import co.ecso.jdao.database.query.*;
@@ -29,6 +30,25 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      */
     default EntityFinder entityFinder() {
         return DatabaseTable.this::config;
+    }
+
+    /**
+     * Get EntityRemover.
+     *
+     * @return Entity Remover.
+     */
+    default EntityRemover entityRemover() {
+        return DatabaseTable.this::config;
+    }
+
+    /**
+     * Remove one entry.
+     *
+     * @param query Remove Query.
+     * @return Boolean.
+     */
+    default <S> CompletableFuture<Integer> removeOne(final RemoveQuery<S> query) {
+        return this.entityRemover().removeOne(query);
     }
 
     /**

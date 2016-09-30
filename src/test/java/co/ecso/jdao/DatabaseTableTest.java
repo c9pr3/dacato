@@ -107,6 +107,23 @@ public final class DatabaseTableTest extends AbstractTest {
     }
 
     @Test
+    public void testRemoveOne() throws Exception {
+        final Customer newCustomer = this.customers.create("foo1", 12345L).get();
+        Assert.assertNotNull(newCustomer);
+        final Customer newCustomer2 = this.customers.create("foo2", 12346L).get();
+        Assert.assertNotNull(newCustomer2);
+
+        final List<Customer> all = this.customers.findAll().get();
+        Assert.assertEquals(2, all.size());
+
+        final Integer count = this.customers.removeOne(newCustomer.primaryKey()).get();
+        Assert.assertEquals(Integer.valueOf(1), count);
+
+        final List<Customer> all2 = this.customers.findAll().get();
+        Assert.assertEquals(1, all2.size());
+    }
+
+    @Test
     public void testFindAllByFirstName() throws Exception {
         CompletableFuture.allOf(
                 this.customers.create("foo1", 12345L),

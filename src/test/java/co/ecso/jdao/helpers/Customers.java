@@ -87,4 +87,9 @@ public final class Customers implements DatabaseTable<Long, Customer> {
         return this.add(query).thenApply(newId -> new Customer(config, newId.resultValue()));
     }
 
+    public CompletableFuture<Integer> removeOne(final Long id) {
+        Map<DatabaseField<?>, Object> map = new HashMap<>();
+        map.put(Customer.Fields.ID, id);
+        return this.removeOne(new RemoveQuery<>("DELETE FROM customer WHERE %s = ?", () -> map));
+    }
 }
