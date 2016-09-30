@@ -6,6 +6,7 @@ import co.ecso.jdao.database.internals.EntityFinder;
 import co.ecso.jdao.database.internals.Inserter;
 import co.ecso.jdao.database.internals.Truncater;
 import co.ecso.jdao.database.query.DatabaseResultField;
+import co.ecso.jdao.database.query.InsertQuery;
 import co.ecso.jdao.database.query.SingleColumnQuery;
 
 import java.util.List;
@@ -21,6 +22,13 @@ import java.util.concurrent.CompletableFuture;
  * @since 17.09.16
  */
 public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends DatabaseTable<T, E>, CacheGetter {
+
+    @Override
+    default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query) {
+        cache().invalidateAll();
+        cache().cleanUp();
+        return DatabaseTable.super.add(query);
+    }
 
     @Override
     default Truncater truncater() {

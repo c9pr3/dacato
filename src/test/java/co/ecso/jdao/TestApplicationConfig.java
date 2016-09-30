@@ -15,8 +15,8 @@ import java.util.concurrent.Executors;
  * @since 06.09.16
  */
 final class TestApplicationConfig implements ApplicationConfig {
-    private static snaq.db.ConnectionPool connectionPool = null;
-    private static ExecutorService threadPool = null;
+    private static volatile snaq.db.ConnectionPool connectionPool = null;
+    private static volatile ExecutorService threadPool = null;
 
     @Override
     public String databasePoolName() {
@@ -46,11 +46,11 @@ final class TestApplicationConfig implements ApplicationConfig {
     @Override
     public String connectionString() {
         return "jdbc:hsqldb:mem:jdao";
-//        return "jdbc:mysql://localhost:3306/server_v5?user=root&password=test";
+//        return "jdbc:mysql://localhost:3306/jdaotest?user=root&password=test";
     }
 
     @Override
-    public synchronized ExecutorService threadPool() {
+    public ExecutorService threadPool() {
         if (threadPool == null) {
             threadPool = Executors.newCachedThreadPool();
 
