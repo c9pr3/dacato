@@ -1,11 +1,11 @@
-package co.ecso.jdao.database;
+package co.ecso.dacato.database;
 
-import co.ecso.jdao.config.ConfigGetter;
-import co.ecso.jdao.database.internals.EntityFinder;
-import co.ecso.jdao.database.internals.EntityRemover;
-import co.ecso.jdao.database.internals.Inserter;
-import co.ecso.jdao.database.internals.Truncater;
-import co.ecso.jdao.database.query.*;
+import co.ecso.dacato.config.ConfigGetter;
+import co.ecso.dacato.database.internals.EntityFinder;
+import co.ecso.dacato.database.internals.EntityRemover;
+import co.ecso.dacato.database.internals.Inserter;
+import co.ecso.dacato.database.internals.Truncater;
+import co.ecso.dacato.database.query.*;
 
 import java.util.List;
 import java.util.Map;

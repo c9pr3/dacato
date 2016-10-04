@@ -1,6 +1,6 @@
-package co.ecso.jdao.database.query;
+package co.ecso.dacato.database.query;
 
-import co.ecso.jdao.database.ColumnList;
+import co.ecso.dacato.database.ColumnList;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;

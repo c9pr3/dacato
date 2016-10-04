@@ -1,8 +1,8 @@
-package co.ecso.jdao;
+package co.ecso.dacato;
 
-import co.ecso.jdao.database.query.DatabaseField;
-import co.ecso.jdao.helpers.Customer;
-import co.ecso.jdao.helpers.Customers;
+import co.ecso.dacato.database.query.DatabaseField;
+import co.ecso.dacato.helpers.Customer;
+import co.ecso.dacato.helpers.Customers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

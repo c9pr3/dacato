@@ -1,4 +1,4 @@
-package co.ecso.jdao.config;
+package co.ecso.dacato.config;
 
 /**
  * ConfigGetter.

@@ -1,11 +1,11 @@
-package co.ecso.jdao;
+package co.ecso.dacato;
 
-import co.ecso.jdao.config.ApplicationConfig;
-import co.ecso.jdao.connection.ConnectionPool;
-import co.ecso.jdao.database.cache.Cache;
-import co.ecso.jdao.database.cache.CacheKey;
-import co.ecso.jdao.helpers.CreateTableOnlyFilter;
-import co.ecso.jdao.helpers.MysqlToHsqlMapFilter;
+import co.ecso.dacato.config.ApplicationConfig;
+import co.ecso.dacato.connection.ConnectionPool;
+import co.ecso.dacato.database.cache.Cache;
+import co.ecso.dacato.database.cache.CacheKey;
+import co.ecso.dacato.helpers.CreateTableOnlyFilter;
+import co.ecso.dacato.helpers.MysqlToHsqlMapFilter;
 import org.hsqldb.jdbc.JDBCDataSource;
 
 import java.io.IOException;
@@ -57,7 +57,7 @@ public abstract class AbstractTest {
 
     private JDBCDataSource getDataSource() {
         final JDBCDataSource dataSource = new JDBCDataSource();
-        dataSource.setUrl("jdbc:hsqldb:mem:jdao");
+        dataSource.setUrl("jdbc:hsqldb:mem:dacato");
         return dataSource;
     }
 

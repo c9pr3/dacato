@@ -1,4 +1,4 @@
-package co.ecso.jdao.helpers;
+package co.ecso.dacato.helpers;
 
 /**
  * CreateTableOnly Filter.

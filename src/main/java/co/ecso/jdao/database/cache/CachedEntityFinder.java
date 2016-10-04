@@ -1,10 +1,10 @@
-package co.ecso.jdao.database.cache;
+package co.ecso.dacato.database.cache;
 
-import co.ecso.jdao.database.internals.EntityFinder;
-import co.ecso.jdao.database.query.DatabaseResultField;
-import co.ecso.jdao.database.query.MultiColumnQuery;
-import co.ecso.jdao.database.query.Query;
-import co.ecso.jdao.database.query.SingleColumnQuery;
+import co.ecso.dacato.database.internals.EntityFinder;
+import co.ecso.dacato.database.query.DatabaseResultField;
+import co.ecso.dacato.database.query.MultiColumnQuery;
+import co.ecso.dacato.database.query.Query;
+import co.ecso.dacato.database.query.SingleColumnQuery;
 
 import java.util.List;
 import java.util.concurrent.Callable;

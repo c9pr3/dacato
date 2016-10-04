@@ -1,7 +1,7 @@
-package co.ecso.jdao;
+package co.ecso.dacato;
 
-import co.ecso.jdao.config.ApplicationConfig;
-import co.ecso.jdao.connection.ConnectionPool;
+import co.ecso.dacato.config.ApplicationConfig;
+import co.ecso.dacato.connection.ConnectionPool;
 
 import java.sql.Connection;
 import java.util.concurrent.ExecutorService;
@@ -45,8 +45,8 @@ final class TestApplicationConfig implements ApplicationConfig {
 
     @Override
     public String connectionString() {
-        return "jdbc:hsqldb:mem:jdao";
-//        return "jdbc:mysql://localhost:3306/jdaotest?user=root&password=test";
+        return "jdbc:hsqldb:mem:dacato";
+//        return "jdbc:mysql://localhost:3306/dacatotest?user=root&password=test";
     }
 
     @Override

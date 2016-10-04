@@ -1,6 +1,6 @@
-package co.ecso.jdao.config;
+package co.ecso.dacato.config;
 
-import co.ecso.jdao.connection.ConnectionPool;
+import co.ecso.dacato.connection.ConnectionPool;
 
 import java.sql.Connection;
 import java.util.concurrent.ExecutorService;

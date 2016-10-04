@@ -1,8 +1,8 @@
-package co.ecso.jdao.helpers;
+package co.ecso.dacato.helpers;
 
-import co.ecso.jdao.config.ApplicationConfig;
-import co.ecso.jdao.database.DatabaseTable;
-import co.ecso.jdao.database.query.*;
+import co.ecso.dacato.config.ApplicationConfig;
+import co.ecso.dacato.database.DatabaseTable;
+import co.ecso.dacato.database.query.*;
 
 import java.util.HashMap;
 import java.util.LinkedList;

@@ -1,4 +1,4 @@
-package co.ecso.jdao.database.query;
+package co.ecso.dacato.database.query;
 
 /**
  * Query.

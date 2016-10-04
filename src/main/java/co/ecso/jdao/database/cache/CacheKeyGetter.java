@@ -1,6 +1,6 @@
-package co.ecso.jdao.database.cache;
+package co.ecso.dacato.database.cache;
 
-import co.ecso.jdao.database.query.Query;
+import co.ecso.dacato.database.query.Query;
 
 /**
  * CacheKeyGetter.

@@ -1,6 +1,6 @@
-package co.ecso.jdao.hsql;
+package co.ecso.dacato.hsql;
 
-import co.ecso.jdao.AbstractTest;
+import co.ecso.dacato.AbstractTest;
 import org.junit.After;
 import org.junit.Before;
 

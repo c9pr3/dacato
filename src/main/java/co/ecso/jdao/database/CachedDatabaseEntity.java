@@ -1,9 +1,9 @@
-package co.ecso.jdao.database;
+package co.ecso.dacato.database;
 
-import co.ecso.jdao.config.ApplicationConfig;
-import co.ecso.jdao.database.cache.*;
-import co.ecso.jdao.database.internals.EntityFinder;
-import co.ecso.jdao.database.internals.Updater;
+import co.ecso.dacato.config.ApplicationConfig;
+import co.ecso.dacato.database.cache.*;
+import co.ecso.dacato.database.internals.EntityFinder;
+import co.ecso.dacato.database.internals.Updater;
 
 import java.util.concurrent.CompletableFuture;
 

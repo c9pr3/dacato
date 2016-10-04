@@ -1,9 +1,9 @@
-package co.ecso.jdao.database.internals;
+package co.ecso.dacato.database.internals;
 
-import co.ecso.jdao.config.ConfigGetter;
-import co.ecso.jdao.database.query.DatabaseField;
-import co.ecso.jdao.database.query.DatabaseResultField;
-import co.ecso.jdao.database.query.InsertQuery;
+import co.ecso.dacato.config.ConfigGetter;
+import co.ecso.dacato.database.query.DatabaseField;
+import co.ecso.dacato.database.query.DatabaseResultField;
+import co.ecso.dacato.database.query.InsertQuery;
 
 import java.sql.*;
 import java.util.LinkedList;

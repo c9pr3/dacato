@@ -1,7 +1,7 @@
-package co.ecso.jdao.database.cache;
+package co.ecso.dacato.database.cache;
 
-import co.ecso.jdao.database.internals.Updater;
-import co.ecso.jdao.database.query.SingleColumnUpdateQuery;
+import co.ecso.dacato.database.internals.Updater;
+import co.ecso.dacato.database.query.SingleColumnUpdateQuery;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;

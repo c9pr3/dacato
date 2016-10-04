@@ -1,7 +1,7 @@
-package co.ecso.jdao.database.cache;
+package co.ecso.dacato.database.cache;
 
-import co.ecso.jdao.database.internals.EntityRemover;
-import co.ecso.jdao.database.query.RemoveQuery;
+import co.ecso.dacato.database.internals.EntityRemover;
+import co.ecso.dacato.database.query.RemoveQuery;
 
 import java.util.concurrent.CompletableFuture;
 

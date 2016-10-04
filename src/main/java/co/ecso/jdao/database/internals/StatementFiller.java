@@ -1,6 +1,6 @@
-package co.ecso.jdao.database.internals;
+package co.ecso.dacato.database.internals;
 
-import co.ecso.jdao.database.query.DatabaseField;
+import co.ecso.dacato.database.query.DatabaseField;
 
 import java.lang.reflect.Field;
 import java.sql.PreparedStatement;

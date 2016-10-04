@@ -1,6 +1,6 @@
-package co.ecso.jdao.database.internals;
+package co.ecso.dacato.database.internals;
 
-import co.ecso.jdao.config.ConfigGetter;
+import co.ecso.dacato.config.ConfigGetter;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

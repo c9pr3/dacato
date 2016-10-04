@@ -1,9 +1,9 @@
-package co.ecso.jdao.database.internals;
+package co.ecso.dacato.database.internals;
 
-import co.ecso.jdao.config.ConfigGetter;
-import co.ecso.jdao.database.ColumnList;
-import co.ecso.jdao.database.SQLNoResultException;
-import co.ecso.jdao.database.query.*;
+import co.ecso.dacato.config.ConfigGetter;
+import co.ecso.dacato.database.ColumnList;
+import co.ecso.dacato.database.SQLNoResultException;
+import co.ecso.dacato.database.query.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

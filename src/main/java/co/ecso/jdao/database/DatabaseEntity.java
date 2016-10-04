@@ -1,11 +1,11 @@
-package co.ecso.jdao.database;
+package co.ecso.dacato.database;
 
-import co.ecso.jdao.config.ConfigGetter;
-import co.ecso.jdao.database.internals.EntityFinder;
-import co.ecso.jdao.database.internals.Updater;
-import co.ecso.jdao.database.query.DatabaseResultField;
-import co.ecso.jdao.database.query.SingleColumnQuery;
-import co.ecso.jdao.database.query.SingleColumnUpdateQuery;
+import co.ecso.dacato.config.ConfigGetter;
+import co.ecso.dacato.database.internals.EntityFinder;
+import co.ecso.dacato.database.internals.Updater;
+import co.ecso.dacato.database.query.DatabaseResultField;
+import co.ecso.dacato.database.query.SingleColumnQuery;
+import co.ecso.dacato.database.query.SingleColumnUpdateQuery;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;

@@ -1,8 +1,8 @@
-package co.ecso.jdao.database.internals;
+package co.ecso.dacato.database.internals;
 
-import co.ecso.jdao.config.ConfigGetter;
-import co.ecso.jdao.database.query.DatabaseField;
-import co.ecso.jdao.database.query.SingleColumnUpdateQuery;
+import co.ecso.dacato.config.ConfigGetter;
+import co.ecso.dacato.database.query.DatabaseField;
+import co.ecso.dacato.database.query.SingleColumnUpdateQuery;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

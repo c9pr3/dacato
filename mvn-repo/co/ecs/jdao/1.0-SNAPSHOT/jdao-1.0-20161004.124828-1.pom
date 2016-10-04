@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>co.ecs</groupId>
-    <artifactId>jdao</artifactId>
+    <artifactId>dacato</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>jdao</name>
+    <name>dacato</name>
     <description>Basic DAO</description>
 
     <developers>
@@ -23,8 +23,8 @@
     </properties>
     <distributionManagement>
         <repository>
-            <id>jdao.repo</id>
-            <name>jdao</name>
+            <id>dacato.repo</id>
+            <name>dacato</name>
             <url>file://${project.build.directory}/mvn-repo</url>
         </repository>
     </distributionManagement>
@@ -79,7 +79,7 @@
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>2.8.1</version>
                     <configuration>
-                        <altDeploymentRepository>jdao.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+                        <altDeploymentRepository>dacato.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -88,7 +88,7 @@
                     <version>1.1.10</version>
                     <configuration>
                         <targetClasses>
-                            <param>co.ecso.jdao.*</param>
+                            <param>co.ecso.dacato.*</param>
                         </targetClasses>
                         <excludedClasses>
                         </excludedClasses>
