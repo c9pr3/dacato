@@ -3,11 +3,11 @@ package co.ecso.jdao.database;
 import co.ecso.jdao.config.ApplicationConfig;
 import co.ecso.jdao.database.cache.*;
 import co.ecso.jdao.database.internals.EntityFinder;
+import co.ecso.jdao.database.internals.EntityRemover;
 import co.ecso.jdao.database.internals.Inserter;
 import co.ecso.jdao.database.internals.Truncater;
 import co.ecso.jdao.database.query.DatabaseResultField;
 import co.ecso.jdao.database.query.InsertQuery;
-import co.ecso.jdao.database.query.RemoveQuery;
 import co.ecso.jdao.database.query.SingleColumnQuery;
 
 import java.util.List;
@@ -25,17 +25,27 @@ import java.util.concurrent.CompletableFuture;
 public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends DatabaseTable<T, E>, CacheGetter {
 
     @Override
-    default <S> CompletableFuture<Integer> removeOne(final RemoveQuery<S> query) {
+    default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query) {
+        final CompletableFuture<DatabaseResultField<T>> rVal = DatabaseTable.super.add(query);
         cache().invalidateAll();
         cache().cleanUp();
-        return DatabaseTable.super.removeOne(query);
+        return rVal;
     }
 
     @Override
-    default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query) {
+    default CompletableFuture<Boolean> truncate(final String query) {
+        final CompletableFuture<Boolean> rVal = DatabaseTable.super.truncate(query);
         cache().invalidateAll();
         cache().cleanUp();
-        return DatabaseTable.super.add(query);
+        return rVal;
+    }
+
+    @Override
+    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findAll(final SingleColumnQuery<S, W> query) {
+        final CompletableFuture<List<DatabaseResultField<S>>> rVal = findMany(query);
+        cache().invalidateAll();
+        cache().cleanUp();
+        return rVal;
     }
 
     @Override
@@ -59,20 +69,6 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
     }
 
     @Override
-    default CompletableFuture<Boolean> truncate(final String query) {
-        cache().invalidateAll();
-        cache().cleanUp();
-        return DatabaseTable.super.truncate(query);
-    }
-
-    @Override
-    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findAll(final SingleColumnQuery<S, W> query) {
-        cache().invalidateAll();
-        cache().cleanUp();
-        return findMany(query);
-    }
-
-    @Override
     default EntityFinder entityFinder() {
         return new CachedEntityFinder() {
             @Override
@@ -86,4 +82,20 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
             }
         };
     }
+
+    @Override
+    default EntityRemover entityRemover() {
+        return new CachedEntityRemover() {
+            @Override
+            public ApplicationConfig config() {
+                return CachedDatabaseTable.this.config();
+            }
+
+            @Override
+            public Cache<CacheKey, CompletableFuture> cache() {
+                return CachedDatabaseTable.this.cache();
+            }
+        };
+    }
+
 }
