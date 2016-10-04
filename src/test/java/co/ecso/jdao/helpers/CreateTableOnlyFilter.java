@@ -14,14 +14,6 @@ public final class CreateTableOnlyFilter {
     }
 
     public static boolean filter(final String sqlLine) {
-        //noinspection RedundantIfStatement
-        if (sqlLine.startsWith("--") || sqlLine.startsWith("/") || sqlLine.startsWith("DROP TABLE")
-                || sqlLine.startsWith("LOCK TABLES") || sqlLine.startsWith("UNLOCK TABLES")
-                || sqlLine.startsWith("INSERT INTO") || sqlLine.startsWith("USE")
-                || sqlLine.startsWith("  KEY") || sqlLine.startsWith("  CONSTRAINT")) {
-            return false;
-        }
-
-        return true;
+        return !sqlLine.matches("^(--|/|DROP TABLE|LOCK TABLES|UNLOCK TABLES|INSERT INTO|USE|  KEY|  CONSTRAINT).*$");
     }
 }
