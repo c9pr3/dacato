@@ -5,7 +5,7 @@ import co.ecso.jdao.connection.ConnectionPool;
 import co.ecso.jdao.database.cache.Cache;
 import co.ecso.jdao.database.cache.CacheKey;
 import co.ecso.jdao.helpers.CreateTableOnlyFilter;
-import co.ecso.jdao.helpers.MysqlToHsqlMap;
+import co.ecso.jdao.helpers.MysqlToHsqlMapFilter;
 import org.hsqldb.jdbc.JDBCDataSource;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public abstract class AbstractTest {
         final String lines = Files.readAllLines(Paths.get("test.sql"))
                 .stream()
                 .filter(CreateTableOnlyFilter::filter)
-                .map(MysqlToHsqlMap::filter)
+                .map(MysqlToHsqlMapFilter::filter)
                 .collect(Collectors.joining());
         try (final Connection connection = dataSource.getConnection()) {
             try (final Statement stmt = connection.createStatement()) {

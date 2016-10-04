@@ -1,15 +1,15 @@
 package co.ecso.jdao.helpers;
 
 /**
- * MysqlToHsqlMap.
+ * MysqlToHsqlMapFilter.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 25.04.16
  */
-public final class MysqlToHsqlMap {
+public final class MysqlToHsqlMapFilter {
 
-    private MysqlToHsqlMap() {
+    private MysqlToHsqlMapFilter() {
         //not needed
     }
 

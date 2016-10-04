@@ -10,7 +10,7 @@ package co.ecso.jdao.helpers;
 public final class CreateTableOnlyFilter {
 
     private CreateTableOnlyFilter() {
-        //not needed
+        //unused
     }
 
     public static boolean filter(final String sqlLine) {
