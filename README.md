@@ -163,6 +163,12 @@ Pro's:
 * **Flexible** to a point where you can totally ignore what I had in mind and do your own thing. 
 
 
+## Why is the "T" silent?
+
+DACATO does not fully transfer. It does not provide an abstraction layer for SQL - 
+but a layer upon queries themselves for typesafety reasons.
+
+
 ## License
 
 This software takes the MIT license as described below:
