@@ -3,8 +3,13 @@
 
 A project written by [Christian Senkowski](http://e-cs.co/).
 
+
 ## About
 
+DACATO aims to be a asynchronous data access framework/library for small to middle projects which have to interact with a database.
+While most frameworks are bloated and force the user to do things in a *specific* way, DACATO offers full flexibility. You *may* do things as provided or extend and overwrite everything to have it *your* way.
+
+It has been tested with MySQL and hSQL. If you use it successfully with a different database, please let me know!
 
 
 ## Installation
@@ -31,6 +36,7 @@ A project written by [Christian Senkowski](http://e-cs.co/).
         </dependency>
     </dependencies>
 ```
+
 
 ## Basic Usage
 
