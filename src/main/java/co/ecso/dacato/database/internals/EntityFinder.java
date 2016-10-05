@@ -80,7 +80,7 @@ public interface EntityFinder extends ConfigGetter {
                             new LinkedList<>(valuesWhere.values().keySet()),
                             new LinkedList<>(valuesWhere.values().values()), stmt);
                     final DatabaseResultField<S> singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
-                            filledStatement);
+                            filledStatement, valuesWhere.values().keySet(), valuesWhere.values().values());
                     returnValueFuture.complete(singleRowResult);
                 }
             } catch (final Exception e) {
@@ -123,7 +123,8 @@ public interface EntityFinder extends ConfigGetter {
                             Collections.singletonList(columnWhere),
                             Collections.singletonList(whereValueToFind), stmt);
                     final DatabaseResultField<S> singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
-                            filledStatement);
+                            filledStatement, Collections.singleton(columnWhere),
+                            Collections.singleton(whereValueToFind));
                     returnValueFuture.complete(singleRowResult);
                 }
             } catch (final Exception e) {
@@ -330,20 +331,26 @@ public interface EntityFinder extends ConfigGetter {
     /**
      * Get single row result.
      *
+     * @param <R>            Type to return, p.e. String.
      * @param finalQuery     Query.
      * @param columnToSelect Which column to select.
      * @param stmt           Statement.
-     * @param <R>            Type to return, p.e. String.
+     * @param databaseFields Database fields to find.
+     * @param values         Values to find
      * @return DatabaseResultField with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */
     default <R> DatabaseResultField<R> getSingleRowResult(final String finalQuery,
-                                                          final DatabaseField<R> columnToSelect,
-                                                          final PreparedStatement stmt) throws SQLException {
+                                                             final DatabaseField<R> columnToSelect,
+                                                             final PreparedStatement stmt,
+                                                             final Set<DatabaseField<?>> databaseFields,
+                                                             final Collection<?> values) throws SQLException {
         final DatabaseResultField<R> result;
         try (final ResultSet rs = stmt.executeQuery()) {
             if (!rs.next()) {
-                throw new SQLNoResultException(String.format("No Results for %s", finalQuery));
+                throw new SQLNoResultException(String.format("No Results for %s, columnToSelect: %s, " +
+                                "columnWhere: %s, whereValueToFind: %s", finalQuery, columnToSelect.toString(),
+                        databaseFields.toString(), values.toString()));
             }
             final R rval = rs.getObject(1, columnToSelect.valueClass());
             if (rval == null) {

@@ -48,9 +48,9 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
 
     @Override
     public CompletableFuture<CachedCustomer> save(final ColumnList columnValuesToSet) {
-        return update(new SingleColumnUpdateQuery<>("UPDATE " + TABLE_NAME + " SET %%s WHERE %s = ?",
-                Fields.ID, this.id, columnValuesToSet), () -> objectValid).thenApply(newId ->
-                new CachedCustomer(config, Long.valueOf(newId)));
+        return this.update(new SingleColumnUpdateQuery<>("UPDATE " + TABLE_NAME + " SET %s WHERE %%s = ?",
+                Fields.ID, this.id, columnValuesToSet), () -> objectValid).thenApply(rowsAffected ->
+                new CachedCustomer(config, id));
     }
 
     @Override

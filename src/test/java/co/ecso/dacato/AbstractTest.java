@@ -68,10 +68,11 @@ public abstract class AbstractTest {
         final ConnectionPool<Connection> connectionPool = new TestApplicationConfig().databaseConnectionPool();
         try (final Connection connection = connectionPool.getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
-                stmt.execute("TRUNCATE SCHEMA PUBLIC RESTART IDENTITY AND COMMIT NO CHECK");
+                stmt.execute("DROP SCHEMA server_v5 CASCADE");
+                stmt.execute("DROP SCHEMA PUBLIC CASCADE");
             }
         } catch (final SQLException e) {
-//            throw new RuntimeException(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         CACHE.invalidateAll();
         CACHE.cleanUp();

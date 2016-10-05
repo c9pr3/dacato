@@ -1,6 +1,5 @@
 package co.ecso.dacato;
 
-import co.ecso.dacato.database.DatabaseEntity;
 import co.ecso.dacato.database.query.DatabaseField;
 import co.ecso.dacato.helpers.CachedCustomer;
 import co.ecso.dacato.helpers.CachedCustomers;
@@ -11,7 +10,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * CachedDatabaseEntityTest.
@@ -27,7 +26,7 @@ public final class CachedDatabaseEntityTest extends AbstractTest {
     @Before
     public void setUp() throws Exception {
         this.setUpDatabase();
-        this.customer = new CachedCustomers(APPLICATION_CONFIG).create("firstName", 1234L).get();
+        this.customer = new CachedCustomers(APPLICATION_CONFIG).create("firstName", 1234L).get(10, TimeUnit.SECONDS);
     }
 
     @After
@@ -54,6 +53,11 @@ public final class CachedDatabaseEntityTest extends AbstractTest {
     public void testSave() throws Exception {
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(CachedCustomer.Fields.FIRST_NAME, "foobar1");
-        CompletableFuture<? extends DatabaseEntity<Long>> newCustomer = this.customer.save(() -> map);
+        final CachedCustomer newCustomer = this.customer.save(() -> map)
+                .get(10, TimeUnit.SECONDS);
+        Assert.assertNotNull(newCustomer);
+        Assert.assertEquals(customer.primaryKey(), this.customer.primaryKey());
+        Assert.assertEquals("foobar1", newCustomer.firstName().get(10, TimeUnit.SECONDS).resultValue());
+        this.customer = newCustomer;
     }
 }
