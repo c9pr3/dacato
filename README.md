@@ -11,10 +11,6 @@ A project written by [Christian Senkowski](http://e-cs.co/).
 
 <h5>pom.xml</h5>
 ```
-    <properties>
-        <github.global.server>github</github.global.server>
-    </properties>
-
     <repositories>
         <repository>
             <id>dacato-mvn-repo</id>
