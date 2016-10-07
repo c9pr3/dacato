@@ -6,8 +6,8 @@ A project written by [Christian Senkowski](http://e-cs.co/).
 
 ## About
 
-DACATO aims to be a asynchronous data access framework/library for small to middle projects which have to interact with a database.
-While most frameworks are bloated and force the user to do things in a *specific* way, DACATO offers full flexibility. You *may* do things as provided or extend and overwrite everything to have it *your* way.
+DACATO aims to be a asynchronous, cachable data access framework/library for small to middle projects which have to interact with a database.
+While most frameworks are bloated and force the user to do things in a*specific*way, DACATO offers full flexibility. You *may* do things as provided or overwrite everything to have it *your* way.
 
 It has been tested with MySQL and hSQL. If you use it successfully with a different database, please let me know!
 
@@ -152,7 +152,11 @@ Implement "DatabaseTable" with type of the primary key and corresponding entity 
  }
  ```
 
-That's it - You may now query the customer table in any way you like.
+That's it - You may now query the customer table in any way you like.<br/>
+**If you want to have it cached, implement CachedDatabaseTable and CachedDatabaseEntity.**<br/>
+
+Well, a class which implements ApplicationConfig is needed, too. You may use your application config and additionally implement ApplicationConfig.
+
 For a more completed example, see [Dacato-Ref](http://github.com/Adar/dacato-ref "Dacato Reference Implementation") 
 
 
@@ -163,9 +167,11 @@ Dacato is a *small* framework. It offers not much while still enough to solve *o
 
 Pro's:
 * **Small**
+* **Cachable**
+* **Immutable** design
+* **Asynchronous** with CompletableFuture which offers great flexibility.
 * **No dependencies**
 * **No annotations** (hence no reflection)
-* **Asynchronous** with CompletableFuture which offers great flexibility.
 * **Flexible** to a point where you can totally ignore what I had in mind and do your own thing. 
 
 
