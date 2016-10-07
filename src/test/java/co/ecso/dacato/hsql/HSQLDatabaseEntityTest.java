@@ -1,5 +1,6 @@
-package co.ecso.dacato;
+package co.ecso.dacato.hsql;
 
+import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.database.query.DatabaseField;
 import co.ecso.dacato.helpers.Customer;
 import co.ecso.dacato.helpers.Customers;
@@ -14,25 +15,26 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * DatabaseEntityTest.
+ * PSQLDatabaseEntityTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 03.09.16
  */
-public final class DatabaseEntityTest extends AbstractTest {
+public final class HSQLDatabaseEntityTest extends AbstractTest {
 
     private Customer customer = null;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpDatabase();
-        this.customer = new Customers(APPLICATION_CONFIG).create("firstName", 1234L).get(10, TimeUnit.SECONDS);
+        this.setUpHSQLDatabase();
+        this.customer = new Customers(new HSQLTestApplicationConfig()).create("firstName", 1234L)
+                .get(10, TimeUnit.SECONDS);
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupDatabase();
+        this.cleanupHSQLDatabase();
     }
 
     @Test
@@ -57,7 +59,7 @@ public final class DatabaseEntityTest extends AbstractTest {
         map.put(Customer.Fields.FIRST_NAME, "foo1");
         this.customer.save(() -> map).get(5, TimeUnit.SECONDS);
 
-        this.customer = new Customers(APPLICATION_CONFIG).findOne(id).get(10, TimeUnit.SECONDS);
+        this.customer = new Customers(new HSQLTestApplicationConfig()).findOne(id).get(10, TimeUnit.SECONDS);
         Assert.assertEquals("foo1", this.customer.firstName().get(10, TimeUnit.SECONDS).resultValue());
 
         map.clear();

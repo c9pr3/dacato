@@ -1,5 +1,7 @@
-package co.ecso.dacato;
+package co.ecso.dacato.postgresql;
 
+import co.ecso.dacato.AbstractTest;
+import co.ecso.dacato.TestApplicationCache;
 import co.ecso.dacato.database.cache.Cache;
 import co.ecso.dacato.helpers.CachedCustomer;
 import co.ecso.dacato.helpers.CachedCustomers;
@@ -15,25 +17,26 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * CachedDatabaseTableTest.
+ * PSQLCachedDatabaseTableTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
-public final class CachedDatabaseTableTest extends AbstractTest {
+@SuppressWarnings("Duplicates")
+public final class PSQLCachedDatabaseTableTest extends AbstractTest {
 
     private CachedCustomers customers = null;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpDatabase();
-        this.customers = new CachedCustomers(APPLICATION_CONFIG);
+        this.setUpPSQLDatabase();
+        this.customers = new CachedCustomers(new PSQLTestApplicationConfig());
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupDatabase();
+        this.cleanupPostgreSQLDatabase();
     }
 
     @Test

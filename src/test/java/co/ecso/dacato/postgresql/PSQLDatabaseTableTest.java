@@ -1,5 +1,6 @@
-package co.ecso.dacato;
+package co.ecso.dacato.postgresql;
 
+import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.database.query.DatabaseField;
 import co.ecso.dacato.database.query.DatabaseResultField;
 import co.ecso.dacato.helpers.Customer;
@@ -17,30 +18,31 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * DatabaseTableTest.
+ * PSQLDatabaseTableTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 03.09.16
  */
-public final class DatabaseTableTest extends AbstractTest {
+@SuppressWarnings("Duplicates")
+public final class PSQLDatabaseTableTest extends AbstractTest {
 
     private Customers customers = null;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpDatabase();
-        this.customers = new Customers(APPLICATION_CONFIG);
+        this.setUpPSQLDatabase();
+        this.customers = new Customers(new PSQLTestApplicationConfig());
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupDatabase();
+        this.cleanupPostgreSQLDatabase();
     }
 
     @Test
     public void add() throws Exception {
-        new Products(new TestApplicationConfig()).add(100, 10, 0, 0, 0, 0, 0, "image1", 1.0F, 0.0F, new Date(),
+        new Products(new PSQLTestApplicationConfig()).add(100, 10, 0, 0, 0, 0, 0, "image1", 1.0F, 0.0F, new Date(),
                 new Date(), new Date(), 10.0F, 1, 1, 1, 1.0F).get(10, TimeUnit.SECONDS);
     }
 
@@ -49,6 +51,10 @@ public final class DatabaseTableTest extends AbstractTest {
         final Customer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
         Assert.assertEquals("foo1", newCustomer.firstName().get().resultValue());
+        final Customer newCustomer2 = this.customers.create("foo2", 12345L).get(10, TimeUnit.SECONDS);
+        Assert.assertNotNull(newCustomer2);
+        Assert.assertEquals("foo2", newCustomer2.firstName().get().resultValue());
+        Assert.assertNotEquals(newCustomer.primaryKey(), newCustomer2.primaryKey());
     }
 
     @Test

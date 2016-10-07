@@ -59,6 +59,18 @@
             <version>5.1.39</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ru.yandex.qatools.embed</groupId>
+            <artifactId>postgresql-embedded</artifactId>
+            <version>1.15</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.4.1211.jre7</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -99,24 +111,15 @@
                     <artifactId>site-maven-plugin</artifactId>
                     <version>0.8</version>
                     <configuration>
-                        <!-- git commit message -->
                         <message>Maven artifacts for ${project.version}</message>
-                        <!-- disable webpage processing -->
                         <noJekyll>true</noJekyll>
-                        <!-- matches distribution management repository url above -->
                         <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
-                        <!-- remote branch name -->
                         <branch>refs/heads/mvn-repo</branch>
-                        <!-- If you remove this then the old artifact will be removed and new
-                         one will replace. But with the merge tag you can just release by changing
-                                                          the version -->
                         <merge>true</merge>
                         <includes>
                             <include>**/*</include>
                         </includes>
-                        <!-- github repo name -->
                         <repositoryName>sw-protection-client</repositoryName>
-                        <!-- github username -->
                         <repositoryOwner>Adar</repositoryOwner>
                     </configuration>
                     <executions>

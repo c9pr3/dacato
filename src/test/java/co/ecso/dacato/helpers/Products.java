@@ -57,8 +57,8 @@ public final class Products implements CachedDatabaseTable<Integer, Product> {
 //                "?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Product.Fields.ID);
 
         final InsertQuery<Integer> query = new InsertQuery<>("INSERT INTO " + Product.TABLE_NAME + " (" +
-                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " +
-                "VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Product.Fields.ID);
+                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Product.Fields.ID);
 
 //        query.add(Product.Fields.EAN, ean);
         query.add(Product.Fields.QUANTITY, quantity);

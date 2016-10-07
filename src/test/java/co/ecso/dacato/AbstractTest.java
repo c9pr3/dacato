@@ -1,12 +1,17 @@
 package co.ecso.dacato;
 
-import co.ecso.dacato.config.ApplicationConfig;
-import co.ecso.dacato.connection.ConnectionPool;
 import co.ecso.dacato.database.cache.Cache;
 import co.ecso.dacato.database.cache.CacheKey;
 import co.ecso.dacato.helpers.CreateTableOnlyFilter;
 import co.ecso.dacato.helpers.MysqlToHsqlMapFilter;
-import org.hsqldb.jdbc.JDBCDataSource;
+import co.ecso.dacato.helpers.MysqlToPsqlMapFilter;
+import de.flapdoodle.embed.process.distribution.GenericVersion;
+import de.flapdoodle.embed.process.distribution.IVersion;
+import org.postgresql.jdbc3.Jdbc3PoolingDataSource;
+import ru.yandex.qatools.embed.postgresql.PostgresExecutable;
+import ru.yandex.qatools.embed.postgresql.PostgresProcess;
+import ru.yandex.qatools.embed.postgresql.PostgresStarter;
+import ru.yandex.qatools.embed.postgresql.config.PostgresConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,6 +19,7 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -32,21 +38,48 @@ public abstract class AbstractTest {
     }
 
     public static final Cache<CacheKey, CompletableFuture> CACHE = new TestApplicationCache<>();
-    static final ApplicationConfig APPLICATION_CONFIG = new TestApplicationConfig();
     private static final Logger LOGGER = Logger.getLogger(AbstractTest.class.getName());
+    private static final PostgresProcess POSTGRES_PROCESS;
+    private static final String POSTGRE_SQLURL;
+
+    static {
+        try {
+            // starting Postgres
+            final PostgresStarter<PostgresExecutable, PostgresProcess> runtime = PostgresStarter.getDefaultInstance();
+            final IVersion version = new GenericVersion("9.5.0-1");
+            final PostgresConfig config = new PostgresConfig(version, "127.0.0.1", 50776, "testDB");
+            config.getAdditionalInitDbParams().addAll(Arrays.asList(
+                    "-E", "UTF-8",
+                    "--locale=en_US.UTF-8",
+                    "--lc-collate=en_US.UTF-8",
+                    "--lc-ctype=en_US.UTF-8"
+            ));
+            final PostgresExecutable exec = runtime.prepare(config);
+            POSTGRES_PROCESS = exec.start();
+
+            // connecting to a running Postgres
+            POSTGRE_SQLURL = String.format("jdbc:postgresql://%s:%s/%s",
+                    config.net().host(),
+                    config.net().port(),
+                    config.storage().dbName()
+            );
+        } catch (final Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
 
     /**
      * Set up database.
      */
-    protected final void setUpDatabase() throws IOException {
-        final JDBCDataSource dataSource = this.getDataSource();
+    protected final void setUpHSQLDatabase() throws IOException {
         final String lines = Files.readAllLines(Paths.get("test.sql"))
                 .stream()
                 .filter(CreateTableOnlyFilter::filter)
                 .map(MysqlToHsqlMapFilter::filter)
                 .collect(Collectors.joining());
-        try (final Connection connection = dataSource.getConnection()) {
+        try (final Connection connection = getHSQLDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
+                stmt.execute("CREATE SCHEMA server_v5;");
                 stmt.execute(lines);
             }
         } catch (final SQLException e) {
@@ -55,8 +88,8 @@ public abstract class AbstractTest {
         }
     }
 
-    private JDBCDataSource getDataSource() {
-        final JDBCDataSource dataSource = new JDBCDataSource();
+    private org.hsqldb.jdbc.JDBCDataSource getHSQLDataSource() {
+        final org.hsqldb.jdbc.JDBCDataSource dataSource = new org.hsqldb.jdbc.JDBCDataSource();
         dataSource.setUrl("jdbc:hsqldb:mem:dacato");
         return dataSource;
     }
@@ -64,12 +97,49 @@ public abstract class AbstractTest {
     /**
      * Clean up Database.
      */
-    protected final void cleanupDatabase() throws SQLException {
-        final ConnectionPool<Connection> connectionPool = new TestApplicationConfig().databaseConnectionPool();
-        try (final Connection connection = connectionPool.getConnection()) {
+    protected final void cleanupHSQLDatabase() throws SQLException {
+        try (final Connection connection = this.getHSQLDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("DROP SCHEMA server_v5 CASCADE");
                 stmt.execute("DROP SCHEMA PUBLIC CASCADE");
+            }
+        } catch (final SQLException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        CACHE.invalidateAll();
+        CACHE.cleanUp();
+    }
+
+    protected final void setUpPSQLDatabase() throws IOException {
+        final String lines = Files.readAllLines(Paths.get("test.sql"))
+                .stream()
+                .filter(CreateTableOnlyFilter::filter)
+                .map(MysqlToPsqlMapFilter::filter)
+                .collect(Collectors.joining());
+        try (final Connection connection = getPostgreSQLDataSource().getConnection()) {
+            try (final Statement stmt = connection.createStatement()) {
+                stmt.execute("CREATE DATABASE server_v5");
+                stmt.execute(lines);
+            }
+        } catch (final SQLException e) {
+            e.printStackTrace();
+            LOGGER.warning(e.getMessage());
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    private Jdbc3PoolingDataSource getPostgreSQLDataSource() {
+        final Jdbc3PoolingDataSource dataSource = new Jdbc3PoolingDataSource();
+        dataSource.setUrl(POSTGRE_SQLURL);
+        return dataSource;
+    }
+
+    protected final void cleanupPostgreSQLDatabase() {
+        try (final Connection connection = this.getPostgreSQLDataSource().getConnection()) {
+            try (final Statement stmt = connection.createStatement()) {
+                stmt.execute("DROP TABLE customer");
+                stmt.execute("DROP TABLE products");
+                stmt.execute("DROP DATABASE server_v5");
             }
         } catch (final SQLException e) {
             throw new RuntimeException(e.getMessage(), e);

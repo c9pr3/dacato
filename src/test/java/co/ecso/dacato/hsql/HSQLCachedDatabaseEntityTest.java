@@ -1,5 +1,6 @@
-package co.ecso.dacato;
+package co.ecso.dacato.hsql;
 
+import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.database.query.DatabaseField;
 import co.ecso.dacato.helpers.CachedCustomer;
 import co.ecso.dacato.helpers.CachedCustomers;
@@ -13,25 +14,27 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * CachedDatabaseEntityTest.
+ * PSQLCachedDatabaseEntityTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
-public final class CachedDatabaseEntityTest extends AbstractTest {
+@SuppressWarnings("Duplicates")
+public final class HSQLCachedDatabaseEntityTest extends AbstractTest {
 
     private CachedCustomer customer;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpDatabase();
-        this.customer = new CachedCustomers(APPLICATION_CONFIG).create("firstName", 1234L).get(10, TimeUnit.SECONDS);
+        this.setUpHSQLDatabase();
+        this.customer = new CachedCustomers(new HSQLTestApplicationConfig()).create("firstName", 1234L)
+                .get(10, TimeUnit.SECONDS);
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupDatabase();
+        this.cleanupHSQLDatabase();
     }
 
     @Test

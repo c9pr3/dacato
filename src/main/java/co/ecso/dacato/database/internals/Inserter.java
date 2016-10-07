@@ -40,7 +40,7 @@ public interface Inserter<T> extends ConfigGetter {
         final CompletableFuture<DatabaseResultField<T>> returnValueFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             final List<DatabaseField<?>> keys = new LinkedList<>();
-            if (query.returnGeneratedKey()) {
+            if (query.returnGeneratedKey() && query.query().split("%s").length - 1 > query.values().keySet().size()) {
                 keys.add(query.columnToReturn());
             }
             keys.addAll(query.values().keySet());

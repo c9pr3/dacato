@@ -1,7 +1,7 @@
 package co.ecso.dacato.helpers;
 
 /**
- * MysqlToHsqlMapFilter.
+ * MysqlToPsqlMapFilter.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$

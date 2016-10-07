@@ -1,4 +1,4 @@
-package co.ecso.dacato;
+package co.ecso.dacato.postgresql;
 
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.connection.ConnectionPool;
@@ -8,19 +8,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * TestApplicationConfig.
+ * PSQLTestApplicationConfig.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
-final class TestApplicationConfig implements ApplicationConfig {
+final class PSQLTestApplicationConfig implements ApplicationConfig {
     private static volatile snaq.db.ConnectionPool connectionPool = null;
     private static volatile ExecutorService threadPool = null;
 
     @Override
     public String databasePoolName() {
-        return "dbpool";
+        return "dbpoolpsql";
     }
 
     @Override
@@ -45,8 +45,7 @@ final class TestApplicationConfig implements ApplicationConfig {
 
     @Override
     public String connectionString() {
-        return "jdbc:hsqldb:mem:dacato";
-//        return "jdbc:mysql://localhost:3306/dacatotest?user=root&password=test";
+        return "jdbc:postgresql://127.0.0.1:50776/testDB";
     }
 
     @Override

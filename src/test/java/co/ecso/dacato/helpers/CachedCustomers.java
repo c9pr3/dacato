@@ -29,7 +29,7 @@ public final class CachedCustomers implements CachedDatabaseTable<Long, CachedCu
 
     public CompletableFuture<CachedCustomer> create(final String firstName, final long number) {
         final InsertQuery<Long> query = new InsertQuery<>(
-                "INSERT INTO customer (%s, %s, %s) VALUES (null, ?, ?)", CachedCustomer.Fields.ID);
+                "INSERT INTO customer (%s, %s) VALUES (?, ?)", CachedCustomer.Fields.ID);
         query.add(CachedCustomer.Fields.FIRST_NAME, firstName);
         query.add(CachedCustomer.Fields.NUMBER, number);
         return this.add(query).thenApply(newId -> new CachedCustomer(config, newId.resultValue()));

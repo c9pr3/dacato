@@ -1,5 +1,3 @@
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `server_v5` /*!40100 DEFAULT CHARACTER SET utf8 */;
-
 USE `server_v5`;
 
 DROP TABLE IF EXISTS `customer`;
@@ -12,7 +10,7 @@ CREATE TABLE `customer` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
-CREATE TABLE `PRODUCTS` (
+CREATE TABLE `products` (
   `products_id` int(11) NOT NULL AUTO_INCREMENT,
   `products_ean` varchar(128) DEFAULT NULL,
   `products_quantity` int(4) NOT NULL,
@@ -46,6 +44,3 @@ CREATE TABLE `PRODUCTS` (
   `products_startpage_sort` int(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`products_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
--- Dump completed on 2016-04-25 10:35:35
-
-/*!40101 SET character_set_client = @saved_cs_client */;
