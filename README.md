@@ -162,7 +162,7 @@ For a more completed example, see [Dacato-Ref](http://github.com/Adar/dacato-ref
 
 ## Why the ... should I use DACATO? Tons of more major frameworks out there!
 
-You may say "What? Same sh\*t as anything else while Hibernate and others offer me more." - and you are right.
+You may say "What? Same sh\*t as anything else while Hibernate and others offer me more." - and you are right.<br/>
 DACATO is a *small* framework. It offers not much while still enough to solve *one* problem.
 
 Pro's:
