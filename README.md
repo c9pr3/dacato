@@ -1,10 +1,16 @@
-# DACATO Data access- and transfer object library
+ # DACATO Data access- and transfer object library
 (the "T" is quite silent...)
 
 A project written by [Christian Senkowski](http://e-cs.co/).
 
+# Table of Contents
+1. [About](#About)
+2. [Basic Usage](#Basic_Usage)
+3. [Why use it?](#Why_the_..._should_I_use_DACATO?_Tons_of_more_major_frameworks_out_there!)
+4. [Why is the "T" silent?](#Why_is_the_"T"_silent?)
+5. [License](#License)
 
-## About
+##About
 
 DACATO aims to be a asynchronous, cachable data access framework/library for small to middle projects which have to interact with a **relational** database.
 While most frameworks are bloated and force the user to do things in a *specific* way, DACATO offers full flexibility. You *may* do things as provided or overwrite everything to have it *your* way.
@@ -39,7 +45,7 @@ If you use it successfully with a different database, **please let me know!**
 ```
 
 
-## Basic Usage
+##Basic Usage
 
 As in most ORMish frameworks/libs for each table you need two classes. 
 Let's assume you have a table "customer" and fields "id", "first_name", "last_name" and "customer_number".
@@ -161,7 +167,7 @@ Well, a class which implements ApplicationConfig is needed, too. You may use you
 For a more completed example, see [Dacato-Ref](http://github.com/Adar/dacato-ref "Dacato Reference Implementation") 
 
 
-## Why the ... should I use DACATO? Tons of more major frameworks out there!
+##Why the ... should I use DACATO? Tons of more major frameworks out there!
 
 You may say "What? Same sh\*t as anything else while Hibernate and others offer me more." - and you are right.<br/>
 DACATO is a *small* framework. It offers not much while still enough to solve *one* problem.
@@ -169,20 +175,20 @@ DACATO is a *small* framework. It offers not much while still enough to solve *o
 Pro's:
 * **Small**
 * **Cachable**
-* **Immutable** design
+* **Immutable** by design
 * **Asynchronous** with CompletableFuture which offers great flexibility.
 * **No dependencies**
 * **No annotations** (hence no reflection)
 * **Flexible** to a point where you can totally ignore what I had in mind and do your own thing. 
 
 
-## Why is the "T" silent?
+##Why is the "T" silent?
 
 DACATO does not fully transfer. It does not provide an abstraction layer for SQL - 
 but a layer upon queries themselves for typesafety reasons.
 
 
-## License
+##License
 
 This software takes the MIT license as described below:
 
