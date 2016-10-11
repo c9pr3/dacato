@@ -2,3 +2,4 @@
 target/
 .gitignore
 dacato.iml
+src/test/conf
