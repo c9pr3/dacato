@@ -5,10 +5,11 @@ A project written by [Christian Senkowski](http://e-cs.co/).
 
 # Table of Contents
 1. [About](#about)
-2. [Basic Usage](#basic-usage)
-3. [Why use it?](#why-the--should-i-use-dacato-tons-of-more-major-frameworks-out-there)
-4. [Why is the "T" silent?](#why-is-the-t-silent)
-5. [License](#license)
+2. [Installation](#installation)
+3. [Basic Usage](#basic-usage)
+4. [Why use it?](#why-the--should-i-use-dacato-tons-of-more-major-frameworks-out-there)
+5. [Why is the "T" silent?](#why-is-the-t-silent)
+6. [License](#license)
 
 ##About
 
