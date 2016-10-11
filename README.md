@@ -12,6 +12,8 @@ A project written by [Christian Senkowski](http://e-cs.co/).
     - [HSQL Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/hsql)
     - [PostgreSQL Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/postgresql)
     - [Cassandra Example (Not yet done)](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/cassandra)
+    - [MongoDB Example(To be done)]()
+    - [SQLite Example(To be done)]()
 - [Why use it?](#why-the--should-i-use-dacato-tons-of-more-major-frameworks-out-there)
 - [Why is the "T" silent?](#why-is-the-t-silent)
 - [License](#license)
