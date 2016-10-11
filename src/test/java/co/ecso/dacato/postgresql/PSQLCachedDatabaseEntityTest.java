@@ -1,6 +1,5 @@
 package co.ecso.dacato.postgresql;
 
-import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.database.query.DatabaseField;
 import co.ecso.dacato.helpers.CachedCustomer;
 import co.ecso.dacato.helpers.CachedCustomers;
@@ -14,14 +13,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * PSQLCachedDatabaseEntityTest.
+ * MySQLCachedDatabaseEntityTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
 @SuppressWarnings("Duplicates")
-public final class PSQLCachedDatabaseEntityTest extends AbstractTest {
+public final class PSQLCachedDatabaseEntityTest extends AbstractPSQLTest {
 
     private CachedCustomer customer;
 

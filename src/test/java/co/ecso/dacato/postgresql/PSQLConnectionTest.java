@@ -1,18 +1,17 @@
 package co.ecso.dacato.postgresql;
 
-import co.ecso.dacato.AbstractTest;
 import org.junit.After;
 import org.junit.Before;
 
 /**
- * PSQLConnectionTest
+ * MySQLConnectionTest
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 07.10.16
  */
 @SuppressWarnings("unused")
-public final class PSQLConnectionTest extends AbstractTest {
+public final class PSQLConnectionTest extends AbstractPSQLTest {
     @Before
     public void setUp() throws Exception {
         this.setUpPSQLDatabase();

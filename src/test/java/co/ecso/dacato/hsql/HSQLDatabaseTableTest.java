@@ -1,6 +1,5 @@
 package co.ecso.dacato.hsql;
 
-import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.database.query.DatabaseField;
 import co.ecso.dacato.database.query.DatabaseResultField;
 import co.ecso.dacato.helpers.Customer;
@@ -25,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  * @since 03.09.16
  */
 @SuppressWarnings("Duplicates")
-public final class HSQLDatabaseTableTest extends AbstractTest {
+public final class HSQLDatabaseTableTest extends AbstractHSQLTest {
 
     private Customers customers = null;
 

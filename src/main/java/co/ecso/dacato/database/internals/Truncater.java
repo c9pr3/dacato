@@ -4,6 +4,7 @@ import co.ecso.dacato.config.ConfigGetter;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -26,6 +27,9 @@ public interface Truncater extends ConfigGetter {
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(query)) {
+                    if (stmt.isClosed()) {
+                        throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
+                    }
                     retValFuture.complete(stmt.execute());
                 }
             } catch (final Exception e) {

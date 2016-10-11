@@ -1,6 +1,5 @@
 package co.ecso.dacato.hsql;
 
-import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.database.query.DatabaseField;
 import co.ecso.dacato.helpers.Customer;
 import co.ecso.dacato.helpers.Customers;
@@ -15,13 +14,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * PSQLDatabaseEntityTest.
+ * MySQLDatabaseEntityTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 03.09.16
  */
-public final class HSQLDatabaseEntityTest extends AbstractTest {
+public final class HSQLDatabaseEntityTest extends AbstractHSQLTest {
 
     private Customer customer = null;
 

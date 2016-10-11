@@ -1,6 +1,5 @@
 package co.ecso.dacato.hsql;
 
-import co.ecso.dacato.AbstractTest;
 import org.junit.After;
 import org.junit.Before;
 
@@ -12,7 +11,7 @@ import org.junit.Before;
  * @since 28.08.16
  */
 @SuppressWarnings("unused")
-public final class HSQLConnectionTest extends AbstractTest {
+public final class HSQLConnectionTest extends AbstractHSQLTest {
     @Before
     public void setUp() throws Exception {
         this.setUpHSQLDatabase();

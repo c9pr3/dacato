@@ -1,6 +1,5 @@
 package co.ecso.dacato.postgresql;
 
-import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.TestApplicationCache;
 import co.ecso.dacato.database.cache.Cache;
 import co.ecso.dacato.helpers.CachedCustomer;
@@ -17,14 +16,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * PSQLCachedDatabaseTableTest.
+ * MySQLCachedDatabaseTableTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
 @SuppressWarnings("Duplicates")
-public final class PSQLCachedDatabaseTableTest extends AbstractTest {
+public final class PSQLCachedDatabaseTableTest extends AbstractPSQLTest {
 
     private CachedCustomers customers = null;
 

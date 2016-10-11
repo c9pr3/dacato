@@ -5,10 +5,7 @@ import co.ecso.dacato.database.ColumnList;
 import co.ecso.dacato.database.SQLNoResultException;
 import co.ecso.dacato.database.query.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -248,12 +245,10 @@ public interface EntityFinder extends ConfigGetter {
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
-                    final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
+                    returnValueFuture.complete(getListRowResult(columnToSelect,
+                            statementFiller().fillStatement(finalQuery,
                             Collections.singletonList(columnWhere),
-                            Collections.singletonList(query.columnWhereValue()), stmt);
-                    final List<DatabaseResultField<S>> listRowResult = getListRowResult(columnToSelect,
-                            filledStatement);
-                    returnValueFuture.complete(listRowResult);
+                            Collections.singletonList(query.columnWhereValue()), stmt)));
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
@@ -266,6 +261,9 @@ public interface EntityFinder extends ConfigGetter {
                                                                     final List<DatabaseField> columnsToSelect,
                                                                     final PreparedStatement stmt) throws SQLException {
         final Map<DatabaseField, DatabaseResultField> result = new LinkedHashMap<>();
+        if (stmt.isClosed()) {
+            throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
+        }
         try (final ResultSet rs = stmt.executeQuery()) {
             if (!rs.next()) {
                 throw new SQLNoResultException(String.format("No Results for %s", finalQuery));
@@ -279,6 +277,9 @@ public interface EntityFinder extends ConfigGetter {
                                                                               final PreparedStatement stmt)
             throws SQLException {
         final List<Map<DatabaseField, DatabaseResultField>> result = new LinkedList<>();
+        if (stmt.isClosed()) {
+            throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
+        }
         try (final ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Map<DatabaseField, DatabaseResultField> map = new HashMap<>();
@@ -292,7 +293,12 @@ public interface EntityFinder extends ConfigGetter {
     default void listMapColumns(final List<DatabaseField> columnsToSelect, final ResultSet rs,
                                 final Map<DatabaseField, DatabaseResultField> map) throws SQLException {
         for (final DatabaseField column : columnsToSelect) {
-            final Object rval = rs.getObject(column.name(), column.valueClass());
+            Object rval;
+            try {
+                rval = rs.getObject(column.name(), column.valueClass());
+            } catch (final SQLFeatureNotSupportedException e) {
+                rval = rs.getObject(column.name());
+            }
             if (rval == null) {
                 //noinspection unchecked
                 map.put(column, new DatabaseResultField<>(column, null));
@@ -315,9 +321,18 @@ public interface EntityFinder extends ConfigGetter {
     default <R> List<DatabaseResultField<R>> getListRowResult(final DatabaseField<R> columnToSelect,
                                                               final PreparedStatement stmt) throws SQLException {
         final List<DatabaseResultField<R>> result = new LinkedList<>();
+        if (stmt.isClosed()) {
+            throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
+        }
         try (final ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                final R rval = rs.getObject(1, columnToSelect.valueClass());
+                R rval;
+                try {
+                    rval = rs.getObject(1, columnToSelect.valueClass());
+                } catch (final SQLFeatureNotSupportedException e) {
+                    //noinspection unchecked
+                    rval = (R) rs.getObject(1);
+                }
                 if (rval == null) {
                     result.add(new DatabaseResultField<>(columnToSelect, null));
                 } else {
@@ -346,13 +361,23 @@ public interface EntityFinder extends ConfigGetter {
                                                              final Set<DatabaseField<?>> databaseFields,
                                                              final Collection<?> values) throws SQLException {
         final DatabaseResultField<R> result;
+        if (stmt.isClosed()) {
+            throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
+        }
         try (final ResultSet rs = stmt.executeQuery()) {
             if (!rs.next()) {
                 throw new SQLNoResultException(String.format("No Results for %s, columnToSelect: %s, " +
                                 "columnWhere: %s, whereValueToFind: %s", finalQuery, columnToSelect.toString(),
                         databaseFields.toString(), values.toString()));
             }
-            final R rval = rs.getObject(1, columnToSelect.valueClass());
+
+            R rval;
+            try {
+                rval = rs.getObject(1, columnToSelect.valueClass());
+            } catch (final SQLFeatureNotSupportedException ignored) {
+                //noinspection unchecked
+                rval = (R) rs.getObject(1);
+            }
             if (rval == null) {
                 result = new DatabaseResultField<>(columnToSelect, null);
             } else {

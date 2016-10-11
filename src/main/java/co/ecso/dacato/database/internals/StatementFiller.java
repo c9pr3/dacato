@@ -31,8 +31,6 @@ public interface StatementFiller {
     default PreparedStatement fillStatement(final String query, final List<DatabaseField<?>> columnsWhere,
                                             final List<?> valuesWhere,
                                             final PreparedStatement stmt) throws SQLException {
-        // we *need* to have the same amount
-        // +1 for the auto_increment "null, [...]"
         int questionCount = 0;
         for (int i = 0; i < query.length(); i++) {
             if (query.charAt(i) == '?') {
@@ -52,8 +50,11 @@ public interface StatementFiller {
             }
             final int sqlType = columnsWhere.get(i).sqlType();
             try {
-//                System.out.printf("SETTING %s %d to '%s', sqlType: %s%n",
-//                        columnsWhere.get(i), i + 1, valueToSet, getTypeByValue(sqlType));
+//                System.out.printf("SETTING %s %d to '%s', sqlType: %s%n", columnsWhere.get(i), i + 1, valueToSet,
+//                        getTypeByValue(sqlType));
+                if (stmt.isClosed()) {
+                    throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
+                }
                 stmt.setObject(i + 1, valueToSet, sqlType);
             } catch (final SQLException e) {
                 throw new SQLException(String.format("Could not set '%s' (%s) to '%s' on column '%s', set to '%s' " +
@@ -76,7 +77,7 @@ public interface StatementFiller {
                     return field.getName();
                 }
             } catch (final IllegalAccessException ignored) {
-                return "unknownE";
+                //
             }
         }
         return "unknownType";

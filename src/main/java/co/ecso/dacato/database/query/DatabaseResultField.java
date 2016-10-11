@@ -50,6 +50,10 @@ public final class DatabaseResultField<T> {
         return this.resultValue;
     }
 
+    public Object resultValuePOJO() {
+        return this.resultValue();
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {

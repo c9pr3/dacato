@@ -9,7 +9,8 @@ A project written by [Christian Senkowski](http://e-cs.co/).
 DACATO aims to be a asynchronous, cachable data access framework/library for small to middle projects which have to interact with a **relational** database.
 While most frameworks are bloated and force the user to do things in a *specific* way, DACATO offers full flexibility. You *may* do things as provided or overwrite everything to have it *your* way.
 
-It has been tested with MySQL, HSQL and PostgreSQL. If you use it successfully with a different database, please let me know!
+It has been tested with [MySQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/mysql), [HSQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/hsql), [PostgreSQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/postgresql) and currently working on [Cassandra](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/cassandra).<br/>
+If you use it successfully with a different database, **please let me know!**
 
 
 ## Installation

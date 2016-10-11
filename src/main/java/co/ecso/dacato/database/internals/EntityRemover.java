@@ -60,6 +60,9 @@ public interface EntityRemover extends ConfigGetter {
      * @throws SQLException if SQL fails.
      */
     default Integer getSingleRowResult(final PreparedStatement stmt) throws SQLException {
+        if (stmt.isClosed()) {
+            throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
+        }
         return stmt.executeUpdate();
     }
 

@@ -84,6 +84,9 @@ public interface Updater<T> extends ConfigGetter {
      * @throws SQLException if query fails.
      */
     default int getResult(final String finalQuery, final PreparedStatement stmt) throws SQLException {
+        if (stmt.isClosed()) {
+            throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
+        }
         try {
             return stmt.executeUpdate();
         } catch (final SQLException e) {

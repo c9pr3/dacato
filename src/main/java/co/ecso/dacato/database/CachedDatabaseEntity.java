@@ -30,7 +30,6 @@ public interface CachedDatabaseEntity<T> extends DatabaseEntity<T>, CacheGetter 
             public ApplicationConfig config() {
                 return CachedDatabaseEntity.this.config();
             }
-
         };
     }
 
