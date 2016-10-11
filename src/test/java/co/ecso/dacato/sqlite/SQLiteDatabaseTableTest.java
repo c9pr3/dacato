@@ -1,14 +1,10 @@
-package co.ecso.dacato.postgresql;
+package co.ecso.dacato.sqlite;
 
 import co.ecso.dacato.database.query.DatabaseField;
 import co.ecso.dacato.database.query.DatabaseResultField;
 import co.ecso.dacato.helpers.Customer;
 import co.ecso.dacato.helpers.Customers;
-import co.ecso.dacato.helpers.Products;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.Date;
 import java.util.List;
@@ -24,25 +20,27 @@ import java.util.concurrent.TimeUnit;
  * @since 03.09.16
  */
 @SuppressWarnings("Duplicates")
-public final class PSQLDatabaseTableTest extends AbstractPSQLTest {
+@Ignore
+public final class SQLiteDatabaseTableTest extends AbstractSQLiteTest {
 
     private Customers customers = null;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpPSQLDatabase();
-        this.customers = new PSQLCustomers(new PSQLTestApplicationConfig());
+        this.setUpSQLiteDatabase();
+        this.customers = new SQLiteCustomers(new SQLiteTestApplicationConfig());
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupPostgreSQLDatabase();
+        this.cleanupMySQLiteDatabase();
     }
 
     @Test
     public void add() throws Exception {
-        new Products(new PSQLTestApplicationConfig()).add(100, 10, 0, 0, 0, 0, 0, "image1", 1.0F, 0.0F, new Date(),
-                new Date(), new Date(), 10.0F, 1, 1, 1, 1.0F).get(10, TimeUnit.SECONDS);
+        new SQLiteProducts(new SQLiteTestApplicationConfig())
+                .add(100, 10, 0, 0, 0, 0, 0, "image1", 1.0F, 0.0F, new Date(), new Date(), new Date(), 10.0F, 1, 1, 1,
+                        1.0F).get(10, TimeUnit.SECONDS);
     }
 
     @Test

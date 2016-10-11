@@ -1,13 +1,10 @@
-package co.ecso.dacato.postgresql;
+package co.ecso.dacato.sqlite;
 
 import co.ecso.dacato.TestApplicationCache;
 import co.ecso.dacato.database.cache.Cache;
 import co.ecso.dacato.helpers.CachedCustomer;
 import co.ecso.dacato.helpers.CachedCustomers;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -16,26 +13,27 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * PSQLCachedDatabaseTableTest.
+ * SQLiteCachedDatabaseTableTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
 @SuppressWarnings("Duplicates")
-public final class PSQLCachedDatabaseTableTest extends AbstractPSQLTest {
+@Ignore
+public final class SQLiteCachedDatabaseTableTest extends AbstractSQLiteTest {
 
     private CachedCustomers customers = null;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpPSQLDatabase();
-        this.customers = new CachedCustomers(new PSQLTestApplicationConfig());
+        this.setUpSQLiteDatabase();
+        this.customers = new CachedCustomers(new SQLiteTestApplicationConfig());
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupPostgreSQLDatabase();
+        this.cleanupMySQLiteDatabase();
     }
 
     @Test

@@ -1,44 +1,42 @@
-package co.ecso.dacato.postgresql;
+package co.ecso.dacato.sqlite;
 
 import co.ecso.dacato.database.query.DatabaseField;
 import co.ecso.dacato.helpers.CachedCustomer;
 import co.ecso.dacato.helpers.CachedCustomers;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * PSQLCachedDatabaseEntityTest.
+ * SQLiteCachedDatabaseEntityTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
 @SuppressWarnings("Duplicates")
-public final class PSQLCachedDatabaseEntityTest extends AbstractPSQLTest {
+@Ignore
+public final class SQLiteCachedDatabaseEntityTest extends AbstractSQLiteTest {
 
     private CachedCustomer customer;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpPSQLDatabase();
-        this.customer = new CachedCustomers(new PSQLTestApplicationConfig()).create("firstName", 1234L)
+        this.setUpSQLiteDatabase();
+        this.customer = new CachedCustomers(new SQLiteTestApplicationConfig()).create("firstName", 1234L)
                 .get(10, TimeUnit.SECONDS);
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupPostgreSQLDatabase();
+        this.cleanupMySQLiteDatabase();
     }
 
     @Test
     public void testId() throws Exception {
-        Assert.assertEquals(Long.valueOf(1L), this.customer.primaryKey());
+        Assert.assertEquals(Long.valueOf(4L), this.customer.primaryKey());
     }
 
     @Test

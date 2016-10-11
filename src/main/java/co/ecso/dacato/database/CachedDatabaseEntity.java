@@ -18,8 +18,18 @@ import java.util.concurrent.CompletableFuture;
 public interface CachedDatabaseEntity<T> extends DatabaseEntity<T>, CacheGetter {
 
     @Override
+    default int statementOptions() {
+        return -1;
+    }
+
+    @Override
     default Updater<T> updater() {
         return new CachedUpdater<T>() {
+
+            @Override
+            public int statementOptions() {
+                return CachedDatabaseEntity.this.statementOptions();
+            }
 
             @Override
             public Cache<CacheKey, CompletableFuture> cache() {
@@ -36,6 +46,11 @@ public interface CachedDatabaseEntity<T> extends DatabaseEntity<T>, CacheGetter 
     @Override
     default EntityFinder entityFinder() {
         return new CachedEntityFinder() {
+
+            @Override
+            public int statementOptions() {
+                return CachedDatabaseEntity.this.statementOptions();
+            }
 
             @Override
             public Cache<CacheKey, CompletableFuture> cache() {

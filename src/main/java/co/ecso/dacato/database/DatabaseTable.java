@@ -1,5 +1,6 @@
 package co.ecso.dacato.database;
 
+import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.config.ConfigGetter;
 import co.ecso.dacato.database.internals.EntityFinder;
 import co.ecso.dacato.database.internals.EntityRemover;
@@ -24,12 +25,31 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGetter {
 
     /**
+     * Default statement options.
+     *
+     * @return Options for all statements.
+     */
+    default int statementOptions() {
+        return -1;
+    }
+
+    /**
      * Get EntityFinder.
      *
      * @return Entity finder
      */
     default EntityFinder entityFinder() {
-        return DatabaseTable.this::config;
+        return new EntityFinder() {
+            @Override
+            public int statementOptions() {
+                return DatabaseTable.this.statementOptions();
+            }
+
+            @Override
+            public ApplicationConfig config() {
+                return DatabaseTable.this.config();
+            }
+        };
     }
 
     /**
@@ -38,7 +58,17 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @return Entity Remover.
      */
     default EntityRemover entityRemover() {
-        return DatabaseTable.this::config;
+        return new EntityRemover() {
+            @Override
+            public int statementOptions() {
+                return DatabaseTable.this.statementOptions();
+            }
+
+            @Override
+            public ApplicationConfig config() {
+                return DatabaseTable.this.config();
+            }
+        };
     }
 
     /**
@@ -145,7 +175,17 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @return Truncater.
      */
     default Truncater truncater() {
-        return DatabaseTable.this::config;
+        return new Truncater() {
+            @Override
+            public int statementOptions() {
+                return DatabaseTable.this.statementOptions();
+            }
+
+            @Override
+            public ApplicationConfig config() {
+                return DatabaseTable.this.config();
+            }
+        };
     }
 
     /**
@@ -164,7 +204,17 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @return Inserter.
      */
     default Inserter<T> inserter() {
-        return DatabaseTable.this::config;
+        return new Inserter<T>() {
+            @Override
+            public int statementOptions() {
+                return DatabaseTable.this.statementOptions();
+            }
+
+            @Override
+            public ApplicationConfig config() {
+                return DatabaseTable.this.config();
+            }
+        };
     }
 
     /**

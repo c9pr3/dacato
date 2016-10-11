@@ -21,7 +21,7 @@ import static co.ecso.dacato.AbstractTest.CACHE;
  * @version $Id:$
  * @since 24.09.16
  */
-public final class Products implements CachedDatabaseTable<Integer, Product> {
+public class Products implements CachedDatabaseTable<Integer, Product> {
 
     private final ApplicationConfig config;
 
@@ -30,14 +30,14 @@ public final class Products implements CachedDatabaseTable<Integer, Product> {
     }
 
     @Override
-    public CompletableFuture<Product> findOne(final Integer id) {
+    public final CompletableFuture<Product> findOne(final Integer id) {
         return findOne(new SingleColumnQuery<>(
                 "SELECT %s FROM " + Product.TABLE_NAME + " WHERE %s = ?",
                 Product.Fields.ID, Product.Fields.ID, id
         )).thenApply(id1 -> new Product(config, id1.resultValue()));
     }
 
-    public CompletableFuture<Product> add(final Integer quantity, final Integer shippingTime,
+    public final CompletableFuture<Product> add(final Integer quantity, final Integer shippingTime,
                                           final Integer groupPermission0,
                                           final Integer groupPermission1, final Integer groupPermission2,
                                           final Integer groupPermission3, final Integer groupPermission4,
@@ -95,23 +95,23 @@ public final class Products implements CachedDatabaseTable<Integer, Product> {
     }
 
     @Override
-    public CompletableFuture<List<Product>> findAll() {
+    public final CompletableFuture<List<Product>> findAll() {
         return this.findAll(new SingleColumnQuery<>("SELECT %s FROM " + Product.TABLE_NAME, Product.Fields.ID))
                 .thenApply(list -> list.stream().map(foundId -> new Product(config, foundId.resultValue()))
                         .collect(Collectors.toList()));
     }
 
-    public CompletableFuture<Boolean> removeAll() {
+    public final CompletableFuture<Boolean> removeAll() {
         return truncate(String.format("TRUNCATE TABLE %s", Product.TABLE_NAME));
     }
 
     @Override
-    public ApplicationConfig config() {
+    public final ApplicationConfig config() {
         return config;
     }
 
     @Override
-    public Cache<CacheKey, CompletableFuture> cache() {
+    public final Cache<CacheKey, CompletableFuture> cache() {
         return CACHE;
     }
 }

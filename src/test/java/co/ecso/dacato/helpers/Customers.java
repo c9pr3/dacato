@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @version $Id:$
  * @since 15.03.16
  */
-public final class Customers implements DatabaseTable<Long, Customer> {
+public class Customers implements DatabaseTable<Long, Customer> {
 
     private final ApplicationConfig config;
 
@@ -27,25 +27,25 @@ public final class Customers implements DatabaseTable<Long, Customer> {
     }
 
     @Override
-    public CompletableFuture<Customer> findOne(final Long primaryKey) {
+    public final CompletableFuture<Customer> findOne(final Long primaryKey) {
         return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?", Customer.Fields.ID,
                 Customer.Fields.ID, primaryKey)).thenApply(foundId -> new Customer(config, foundId.resultValue()));
     }
 
     @Override
-    public CompletableFuture<List<Customer>> findAll() {
+    public final CompletableFuture<List<Customer>> findAll() {
         return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", Customer.Fields.ID))
                 .thenApply(list -> list.stream().map(foundId -> new Customer(config, foundId.resultValue()))
                         .collect(Collectors.toList()));
     }
 
-    public CompletableFuture<Customer> findOneByFirstName(final String firstName) {
+    public final CompletableFuture<Customer> findOneByFirstName(final String firstName) {
         final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ? " +
                 "LIMIT 1", Customer.Fields.ID, Customer.Fields.FIRST_NAME, firstName);
         return this.findOne(query).thenApply(foundId -> new Customer(config, foundId.resultValue()));
     }
 
-    public CompletableFuture<List<Customer>> findAllByFirstName(final String firstName) {
+    public final CompletableFuture<List<Customer>> findAllByFirstName(final String firstName) {
         final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
                 Customer.Fields.ID,
                 Customer.Fields.FIRST_NAME, firstName);
@@ -53,7 +53,7 @@ public final class Customers implements DatabaseTable<Long, Customer> {
                 list.stream().map(l -> new Customer(config, l.resultValue())).collect(Collectors.toList()));
     }
 
-    public CompletableFuture<Map<DatabaseField, DatabaseResultField>> findFirstNameById(final Long id) {
+    public final CompletableFuture<Map<DatabaseField, DatabaseResultField>> findFirstNameById(final Long id) {
         final String queryStr = "SELECT %s FROM customer WHERE %s = ?";
         final List<DatabaseField> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(Customer.Fields.FIRST_NAME);
@@ -62,7 +62,7 @@ public final class Customers implements DatabaseTable<Long, Customer> {
         return findOne(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
     }
 
-    public CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findManyFirstName() {
+    public final CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findManyFirstName() {
         final String queryStr = "SELECT %s FROM customer";
         final List<DatabaseField> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(Customer.Fields.FIRST_NAME);
@@ -70,24 +70,25 @@ public final class Customers implements DatabaseTable<Long, Customer> {
         return findMany(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
     }
 
-    public CompletableFuture<Boolean> removeAll() {
+    public final CompletableFuture<Boolean> removeAll() {
         return this.truncate("TRUNCATE TABLE customer");
     }
 
     @Override
-    public ApplicationConfig config() {
+    public final ApplicationConfig config() {
         return config;
     }
 
     public CompletableFuture<Customer> create(final String firstName, final Long number) {
         final InsertQuery<Long> query = new InsertQuery<>(
-                "INSERT INTO customer (%s, %s) VALUES (?, ?)", Customer.Fields.ID);
+                "INSERT INTO customer (%s, %s, %s) VALUES (?, ?, ?)", Customer.Fields.ID);
+        query.add(Customer.Fields.ID, null);
         query.add(Customer.Fields.FIRST_NAME, firstName);
         query.add(Customer.Fields.NUMBER, number);
         return this.add(query).thenApply(newId -> new Customer(config, newId.resultValue()));
     }
 
-    public CompletableFuture<Integer> removeOne(final Long id) {
+    public final CompletableFuture<Integer> removeOne(final Long id) {
         Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(Customer.Fields.ID, id);
         return this.removeOne(new RemoveQuery<>("DELETE FROM customer WHERE %s = ?", () -> map));

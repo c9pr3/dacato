@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * MySQLDatabaseEntityTest.
+ * PSQLDatabaseEntityTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
@@ -27,7 +27,7 @@ public final class PSQLDatabaseEntityTest extends AbstractPSQLTest {
     @Before
     public void setUp() throws Exception {
         this.setUpPSQLDatabase();
-        this.customer = new Customers(new PSQLTestApplicationConfig()).create("firstName", 1234L)
+        this.customer = new PSQLCustomers(new PSQLTestApplicationConfig()).create("firstName", 1234L)
                 .get(10, TimeUnit.SECONDS);
     }
 

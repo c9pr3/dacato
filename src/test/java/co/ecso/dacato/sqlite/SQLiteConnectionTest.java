@@ -1,24 +1,30 @@
-package co.ecso.dacato.postgresql;
+package co.ecso.dacato.sqlite;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 /**
- * PSQLConnectionTest
+ * SQLiteConnectionTest
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 07.10.16
  */
 @SuppressWarnings("unused")
-public final class PSQLConnectionTest extends AbstractPSQLTest {
+public final class SQLiteConnectionTest extends AbstractSQLiteTest {
     @Before
     public void setUp() throws Exception {
-        this.setUpPSQLDatabase();
+        this.setUpSQLiteDatabase();
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupPostgreSQLDatabase();
+        this.cleanupMySQLiteDatabase();
+    }
+
+    @Test
+    public void testConnection() throws Exception {
+
     }
 }

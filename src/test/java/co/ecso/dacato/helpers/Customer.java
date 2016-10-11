@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 29.08.16
  */
 @SuppressWarnings("WeakerAccess")
-public final class Customer implements DatabaseEntity<Long> {
+public class Customer implements DatabaseEntity<Long> {
     private static final String TABLE_NAME = "customer";
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
     private final Long id;
@@ -33,22 +33,22 @@ public final class Customer implements DatabaseEntity<Long> {
     }
 
     @Override
-    public Long primaryKey() {
+    public final Long primaryKey() {
         return this.id;
     }
 
-    public CompletableFuture<DatabaseResultField<String>> firstName() {
+    public final CompletableFuture<DatabaseResultField<String>> firstName() {
         return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.primaryKey()), () ->
                 this.objectValid);
     }
 
-    public CompletableFuture<DatabaseResultField<Long>> number() {
+    public final CompletableFuture<DatabaseResultField<Long>> number() {
         return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()), () ->
                 this.objectValid);
     }
 
     @Override
-    public CompletableFuture<DatabaseEntity<Long>> save(final ColumnList columnValuesToSet) {
+    public final CompletableFuture<DatabaseEntity<Long>> save(final ColumnList columnValuesToSet) {
         final SingleColumnUpdateQuery<Long> query =
                 new SingleColumnUpdateQuery<>("UPDATE customer SET %s WHERE %%s = ?", Fields.ID, id, columnValuesToSet);
         final CompletableFuture<Integer> updated = this.update(query, () -> this.objectValid);
@@ -57,7 +57,7 @@ public final class Customer implements DatabaseEntity<Long> {
     }
 
     @Override
-    public ApplicationConfig config() {
+    public final ApplicationConfig config() {
         return this.config;
     }
 

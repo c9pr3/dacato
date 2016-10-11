@@ -1,7 +1,7 @@
 package co.ecso.dacato.hsql;
 
 /**
- * MysqlToPsqlMapFilter.
+ * MysqlToHsqlMapFilter.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
@@ -17,7 +17,7 @@ final class MysqlToHsqlMapFilter {
         return s
                 .replaceAll("/\\*.*?\\*/", "")
                 .replaceAll("`|´", "")
-                .replaceAll("TINYINT", "INTEGER")
+                .replaceAll("(TINY|BIG)INT", "INTEGER")
                 .replaceAll("\\) ENGINE.*?;", ")")
                 .replaceAll("VARCHAR|varchar", "CHAR(255)")
                 .replaceAll("LONGTEXT|longtext", "CHAR(255)")

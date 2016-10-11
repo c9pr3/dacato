@@ -32,11 +32,11 @@ abstract class AbstractHSQLTest extends AbstractTest {
         try (final Connection connection = getHSQLDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("CREATE SCHEMA server_v5;");
+                System.out.println("EXECUTING " + lines);
                 stmt.execute(lines);
             }
         } catch (final SQLException e) {
-            e.printStackTrace();
-            LOGGER.warning(e.getMessage());
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 

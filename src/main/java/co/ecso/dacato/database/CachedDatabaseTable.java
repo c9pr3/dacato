@@ -49,8 +49,18 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
     }
 
     @Override
+    default int statementOptions() {
+        return -1;
+    }
+
+    @Override
     default Truncater truncater() {
         return new CachedTruncater() {
+            @Override
+            public int statementOptions() {
+                return CachedDatabaseTable.this.statementOptions();
+            }
+
             @Override
             public Cache<CacheKey, CompletableFuture> cache() {
                 return CachedDatabaseTable.this.cache();
@@ -65,12 +75,27 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
 
     @Override
     default Inserter<T> inserter() {
-        return CachedDatabaseTable.this::config;
+        return new Inserter<T>() {
+            @Override
+            public int statementOptions() {
+                return CachedDatabaseTable.this.statementOptions();
+            }
+
+            @Override
+            public ApplicationConfig config() {
+                return CachedDatabaseTable.this.config();
+            }
+        };
     }
 
     @Override
     default EntityFinder entityFinder() {
         return new CachedEntityFinder() {
+            @Override
+            public int statementOptions() {
+                return CachedDatabaseTable.this.statementOptions();
+            }
+
             @Override
             public Cache<CacheKey, CompletableFuture> cache() {
                 return CachedDatabaseTable.this.cache();
@@ -86,6 +111,11 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
     @Override
     default EntityRemover entityRemover() {
         return new CachedEntityRemover() {
+            @Override
+            public int statementOptions() {
+                return CachedDatabaseTable.this.statementOptions();
+            }
+
             @Override
             public ApplicationConfig config() {
                 return CachedDatabaseTable.this.config();
