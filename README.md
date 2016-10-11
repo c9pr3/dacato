@@ -4,12 +4,13 @@
 A project written by [Christian Senkowski](http://e-cs.co/).
 
 # Table of Contents
-1. [About](#about)
-2. [Installation](#installation)
-3. [Basic Usage](#basic-usage)
-4. [Why use it?](#why-the--should-i-use-dacato-tons-of-more-major-frameworks-out-there)
-5. [Why is the "T" silent?](#why-is-the-t-silent)
-6. [License](#license)
+- [About](#about)
+- [Installation](#installation)
+- [Basic Usage](#basic-usage)
+    - [Transactions](#transactions)
+- [Why use it?](#why-the--should-i-use-dacato-tons-of-more-major-frameworks-out-there)
+- [Why is the "T" silent?](#why-is-the-t-silent)
+- [License](#license)
 
 ##About
 
@@ -167,6 +168,10 @@ Well, a class which implements ApplicationConfig is needed, too. You may use you
 
 For a more completed example, see [Dacato-Ref](http://github.com/Adar/dacato-ref "Dacato Reference Implementation") 
 
+### Transactions
+
+In the current state and what this piece of software is designed for no transactions are needed (yet).
+But at some point there will be cascading updates and deletions. Working on it, though it is quite difficult to keep a transaction through asynchronicity. 
 
 ##Why the ... should I use DACATO? Tons of more major frameworks out there!
 
