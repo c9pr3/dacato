@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 public final class CassandraDatabaseTableTest extends AbstractCassandraTest {
 
     @Rule
-    private CassandraUnit cassandraUnit = new CassandraUnit(
+    public final CassandraUnit cassandraUnit = new CassandraUnit(
             new AbstractXmlDataSet(SRC_TEST_CONFIG_EXTENDED_DATA_SET_XML) {
                 @Override
                 protected InputStream getInputDataSetLocation(final String s) {
