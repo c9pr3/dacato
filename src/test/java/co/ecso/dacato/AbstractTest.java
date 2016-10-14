@@ -14,10 +14,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public abstract class AbstractTest {
 
+    public static final Cache<CacheKey, CompletableFuture> CACHE = new TestApplicationCache<>();
+
     static {
         System.setProperty("config.file", "src/test/config/application.conf");
     }
-
-    public static final Cache<CacheKey, CompletableFuture> CACHE = new TestApplicationCache<>();
 
 }

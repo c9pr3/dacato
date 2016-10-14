@@ -106,7 +106,6 @@
             <artifactId>cassandra-jdbc</artifactId>
             <version>1.2.5</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/ch.vorburger.mariaDB4j/mariaDB4j -->
         <dependency>
             <groupId>ch.vorburger.mariaDB4j</groupId>
             <artifactId>mariaDB4j</artifactId>

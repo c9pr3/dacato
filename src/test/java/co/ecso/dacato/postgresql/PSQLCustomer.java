@@ -1,4 +1,4 @@
-package co.ecso.dacato.helpers;
+package co.ecso.dacato.postgresql;
 
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.ColumnList;
@@ -13,51 +13,51 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Customer.
+ * PSQLCustomer.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
- * @since 29.08.16
+ * @since 14.10.16
  */
-@SuppressWarnings("WeakerAccess")
-public class Customer implements DatabaseEntity<Long> {
+final class PSQLCustomer implements DatabaseEntity<Long> {
+
     private static final String TABLE_NAME = "customer";
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
     private final Long id;
     private final ApplicationConfig config;
-    private AtomicBoolean objectValid = new AtomicBoolean(true);
+    private final AtomicBoolean objectValid = new AtomicBoolean(true);
 
-    public Customer(final ApplicationConfig config, final Long id) {
+    PSQLCustomer(final ApplicationConfig config, final Long id) {
         this.id = id;
         this.config = config;
     }
 
     @Override
-    public final Long primaryKey() {
+    public Long primaryKey() {
         return this.id;
     }
 
-    public final CompletableFuture<DatabaseResultField<String>> firstName() {
+    public CompletableFuture<DatabaseResultField<String>> firstName() {
         return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.primaryKey()), () ->
                 this.objectValid);
     }
 
-    public final CompletableFuture<DatabaseResultField<Long>> number() {
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()), () ->
-                this.objectValid);
+    public CompletableFuture<DatabaseResultField<Long>> number() {
+        return this.findOne(new SingleColumnQuery<>(QUERY, PSQLCustomer.Fields.NUMBER, Fields.ID,
+                this.primaryKey()), () -> this.objectValid);
     }
 
     @Override
-    public final CompletableFuture<DatabaseEntity<Long>> save(final ColumnList columnValuesToSet) {
+    public CompletableFuture<DatabaseEntity<Long>> save(final ColumnList columnValuesToSet) {
         final SingleColumnUpdateQuery<Long> query =
                 new SingleColumnUpdateQuery<>("UPDATE customer SET %s WHERE %%s = ?", Fields.ID, id, columnValuesToSet);
         final CompletableFuture<Integer> updated = this.update(query, () -> this.objectValid);
         this.objectValid.set(false);
-        return updated.thenApply(rowsAffected -> new Customer(config, id));
+        return updated.thenApply(rowsAffected -> new PSQLCustomer(config, id));
     }
 
     @Override
-    public final ApplicationConfig config() {
+    public ApplicationConfig config() {
         return this.config;
     }
 

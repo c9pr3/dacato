@@ -1,8 +1,8 @@
-package co.ecso.dacato.postgresql;
+package co.ecso.dacato.sqlite.cached;
 
 import co.ecso.dacato.database.query.DatabaseField;
-import co.ecso.dacato.helpers.CachedCustomer;
-import co.ecso.dacato.helpers.CachedCustomers;
+import co.ecso.dacato.sqlite.AbstractSQLiteTest;
+import co.ecso.dacato.sqlite.SQLiteTestApplicationConfig;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,32 +13,31 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * PSQLCachedDatabaseEntityTest.
+ * SQLiteCachedDatabaseEntityTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
-@SuppressWarnings("Duplicates")
-public final class PSQLCachedDatabaseEntityTest extends AbstractPSQLTest {
+public final class SQLiteCachedDatabaseEntityTest extends AbstractSQLiteTest {
 
-    private CachedCustomer customer;
+    private SQLiteCachedCustomer customer;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpPSQLDatabase();
-        this.customer = new CachedCustomers(new PSQLTestApplicationConfig()).create("firstName", 1234L)
+        this.setUpSQLiteDatabase();
+        this.customer = new SQLiteCachedCustomers(new SQLiteTestApplicationConfig()).create("firstName", 1234)
                 .get(10, TimeUnit.SECONDS);
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupPostgreSQLDatabase();
+        this.cleanupMySQLiteDatabase();
     }
 
     @Test
     public void testId() throws Exception {
-        Assert.assertEquals(Long.valueOf(1L), this.customer.primaryKey());
+        Assert.assertEquals(Integer.valueOf(1), this.customer.primaryKey());
     }
 
     @Test
@@ -48,14 +47,14 @@ public final class PSQLCachedDatabaseEntityTest extends AbstractPSQLTest {
 
     @Test
     public void testNumber() throws Exception {
-        Assert.assertEquals(Long.valueOf(1234L), this.customer.number().get().resultValue());
+        Assert.assertEquals(Integer.valueOf(1234), this.customer.number().get().resultValue());
     }
 
     @Test
     public void testSave() throws Exception {
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
-        map.put(CachedCustomer.Fields.FIRST_NAME, "foobar1");
-        final CachedCustomer newCustomer = this.customer.save(() -> map)
+        map.put(SQLiteCachedCustomer.Fields.FIRST_NAME, "foobar1");
+        final SQLiteCachedCustomer newCustomer = this.customer.save(() -> map)
                 .get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
         Assert.assertEquals(customer.primaryKey(), this.customer.primaryKey());

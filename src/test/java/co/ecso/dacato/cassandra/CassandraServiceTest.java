@@ -18,7 +18,7 @@ import java.io.InputStream;
 public final class CassandraServiceTest extends AbstractCassandraTest {
 
     @Rule
-    public CassandraUnit cassandraUnit = new CassandraUnit(
+    private final CassandraUnit cassandraUnit = new CassandraUnit(
             new AbstractXmlDataSet(SRC_TEST_CONFIG_EXTENDED_DATA_SET_XML) {
                 @Override
                 protected InputStream getInputDataSetLocation(final String s) {
@@ -32,7 +32,7 @@ public final class CassandraServiceTest extends AbstractCassandraTest {
             });
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         this.setupCassandraDatabase();
     }
 

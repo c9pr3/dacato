@@ -249,8 +249,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     returnValueFuture.complete(getListRowResult(columnToSelect,
                             statementFiller().fillStatement(finalQuery,
-                            Collections.singletonList(columnWhere),
-                            Collections.singletonList(query.columnWhereValue()), stmt)));
+                                    Collections.singletonList(columnWhere),
+                                    Collections.singletonList(query.columnWhereValue()), stmt)));
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
@@ -358,10 +358,10 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @throws SQLException if SQL fails.
      */
     default <R> DatabaseResultField<R> getSingleRowResult(final String finalQuery,
-                                                             final DatabaseField<R> columnToSelect,
-                                                             final PreparedStatement stmt,
-                                                             final Set<DatabaseField<?>> databaseFields,
-                                                             final Collection<?> values) throws SQLException {
+                                                          final DatabaseField<R> columnToSelect,
+                                                          final PreparedStatement stmt,
+                                                          final Set<DatabaseField<?>> databaseFields,
+                                                          final Collection<?> values) throws SQLException {
         final DatabaseResultField<R> result;
         if (stmt.isClosed()) {
             throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));

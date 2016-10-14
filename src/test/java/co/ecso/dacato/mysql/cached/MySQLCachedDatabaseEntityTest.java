@@ -1,8 +1,8 @@
-package co.ecso.dacato.mysql;
+package co.ecso.dacato.mysql.cached;
 
 import co.ecso.dacato.database.query.DatabaseField;
-import co.ecso.dacato.helpers.CachedCustomer;
-import co.ecso.dacato.helpers.CachedCustomers;
+import co.ecso.dacato.mysql.AbstractMySQLTest;
+import co.ecso.dacato.mysql.MySQLTestApplicationConfig;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,15 +19,14 @@ import java.util.concurrent.TimeUnit;
  * @version $Id:$
  * @since 06.09.16
  */
-@SuppressWarnings("Duplicates")
 public final class MySQLCachedDatabaseEntityTest extends AbstractMySQLTest {
 
-    private CachedCustomer customer;
+    private MySQLCachedCustomer customer;
 
     @Before
     public void setUp() throws Exception {
         this.setUpMySQLDatabase();
-        this.customer = new CachedCustomers(new MySQLTestApplicationConfig()).create("firstName", 1234L)
+        this.customer = new MySQLCachedCustomers(new MySQLTestApplicationConfig()).create("firstName", 1234L)
                 .get(10, TimeUnit.SECONDS);
     }
 
@@ -54,8 +53,8 @@ public final class MySQLCachedDatabaseEntityTest extends AbstractMySQLTest {
     @Test
     public void testSave() throws Exception {
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
-        map.put(CachedCustomer.Fields.FIRST_NAME, "foobar1");
-        final CachedCustomer newCustomer = this.customer.save(() -> map)
+        map.put(MySQLCachedCustomer.Fields.FIRST_NAME, "foobar1");
+        final MySQLCachedCustomer newCustomer = this.customer.save(() -> map)
                 .get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
         Assert.assertEquals(customer.primaryKey(), this.customer.primaryKey());

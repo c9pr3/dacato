@@ -1,42 +1,43 @@
-package co.ecso.dacato.sqlite;
+package co.ecso.dacato.hsql.cached;
 
 import co.ecso.dacato.database.query.DatabaseField;
-import co.ecso.dacato.helpers.CachedCustomer;
-import co.ecso.dacato.helpers.CachedCustomers;
-import org.junit.*;
+import co.ecso.dacato.hsql.AbstractHSQLTest;
+import co.ecso.dacato.hsql.HSQLTestApplicationConfig;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * SQLiteCachedDatabaseEntityTest.
+ * HSQLCachedDatabaseEntityTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
-@SuppressWarnings("Duplicates")
-@Ignore
-public final class SQLiteCachedDatabaseEntityTest extends AbstractSQLiteTest {
+public final class HSQLCachedDatabaseEntityTest extends AbstractHSQLTest {
 
-    private CachedCustomer customer;
+    private HSQLCachedCustomer customer;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpSQLiteDatabase();
-        this.customer = new CachedCustomers(new SQLiteTestApplicationConfig()).create("firstName", 1234L)
+        this.setUpHSQLDatabase();
+        this.customer = new HSQLCachedCustomers(new HSQLTestApplicationConfig()).create("firstName", 1234L)
                 .get(10, TimeUnit.SECONDS);
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupMySQLiteDatabase();
+        this.cleanupHSQLDatabase();
     }
 
     @Test
     public void testId() throws Exception {
-        Assert.assertEquals(Long.valueOf(4L), this.customer.primaryKey());
+        Assert.assertEquals(Long.valueOf(0L), this.customer.primaryKey());
     }
 
     @Test
@@ -52,8 +53,8 @@ public final class SQLiteCachedDatabaseEntityTest extends AbstractSQLiteTest {
     @Test
     public void testSave() throws Exception {
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
-        map.put(CachedCustomer.Fields.FIRST_NAME, "foobar1");
-        final CachedCustomer newCustomer = this.customer.save(() -> map)
+        map.put(HSQLCachedCustomer.Fields.FIRST_NAME, "foobar1");
+        final HSQLCachedCustomer newCustomer = this.customer.save(() -> map)
                 .get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
         Assert.assertEquals(customer.primaryKey(), this.customer.primaryKey());

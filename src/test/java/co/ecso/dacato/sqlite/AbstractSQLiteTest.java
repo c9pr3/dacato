@@ -5,7 +5,6 @@ import co.ecso.dacato.helpers.CreateTableOnlyFilter;
 import org.sqlite.SQLiteDataSource;
 
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -20,10 +19,9 @@ import java.util.stream.Collectors;
  * @version $Id:$
  * @since 10.10.16
  */
-@SuppressWarnings("Duplicates")
-abstract class AbstractSQLiteTest extends AbstractTest {
+public abstract class AbstractSQLiteTest extends AbstractTest {
 
-    final void setUpSQLiteDatabase() throws Exception {
+    protected final void setUpSQLiteDatabase() throws Exception {
         final String lines = Files.readAllLines(Paths.get("test.sql"))
                 .stream()
                 .filter(CreateTableOnlyFilter::filter)
@@ -33,10 +31,12 @@ abstract class AbstractSQLiteTest extends AbstractTest {
             try (final Statement stmt = connection.createStatement()) {
                 final String[] splittedLines = lines.split(";");
                 for (final String line : splittedLines) {
+//                    System.out.println("EXECUTING: " + line);
                     stmt.execute(line);
                 }
             }
         } catch (final SQLException ignored) {
+//            ignored.printStackTrace();
             //ignored
         }
     }
@@ -47,7 +47,7 @@ abstract class AbstractSQLiteTest extends AbstractTest {
         return dataSource;
     }
 
-    final void cleanupMySQLiteDatabase() throws IOException, SQLException {
+    protected final void cleanupMySQLiteDatabase() throws SQLException {
         try (final Connection connection = getSQLiteDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("DELETE FROM customer");

@@ -5,7 +5,9 @@ import co.ecso.dacato.connection.ConnectionPool;
 
 import java.sql.Connection;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * SQLiteTestApplicationConfig.
@@ -14,7 +16,7 @@ import java.util.concurrent.Executors;
  * @version $Id:$
  * @since 06.09.16
  */
-final class SQLiteTestApplicationConfig implements ApplicationConfig {
+public final class SQLiteTestApplicationConfig implements ApplicationConfig {
     private static volatile snaq.db.ConnectionPool connectionPool = null;
     private static volatile ExecutorService threadPool = null;
 
@@ -30,12 +32,12 @@ final class SQLiteTestApplicationConfig implements ApplicationConfig {
 
     @Override
     public int databasePoolMax() {
-        return 10;
+        return 1;
     }
 
     @Override
     public int databasePoolMaxSize() {
-        return 100;
+        return 1;
     }
 
     @Override
@@ -51,8 +53,7 @@ final class SQLiteTestApplicationConfig implements ApplicationConfig {
     @Override
     public ExecutorService threadPool() {
         if (threadPool == null) {
-            threadPool = Executors.newCachedThreadPool();
-
+            threadPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
         }
         return threadPool;
     }

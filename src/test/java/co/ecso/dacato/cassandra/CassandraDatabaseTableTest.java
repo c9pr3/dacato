@@ -2,7 +2,6 @@ package co.ecso.dacato.cassandra;
 
 import co.ecso.dacato.database.query.DatabaseField;
 import co.ecso.dacato.database.query.DatabaseResultField;
-import co.ecso.dacato.helpers.Customer;
 import org.cassandraunit.CassandraUnit;
 import org.cassandraunit.dataset.xml.AbstractXmlDataSet;
 import org.junit.*;
@@ -25,10 +24,8 @@ import java.util.concurrent.TimeUnit;
 @Ignore
 public final class CassandraDatabaseTableTest extends AbstractCassandraTest {
 
-    private CassandraCustomers customers = null;
-
     @Rule
-    public CassandraUnit cassandraUnit = new CassandraUnit(
+    private CassandraUnit cassandraUnit = new CassandraUnit(
             new AbstractXmlDataSet(SRC_TEST_CONFIG_EXTENDED_DATA_SET_XML) {
                 @Override
                 protected InputStream getInputDataSetLocation(final String s) {
@@ -40,6 +37,7 @@ public final class CassandraDatabaseTableTest extends AbstractCassandraTest {
                     }
                 }
             });
+    private CassandraCustomers customers = null;
 
     @Before
     public void setUp() throws Exception {
@@ -102,7 +100,7 @@ public final class CassandraDatabaseTableTest extends AbstractCassandraTest {
         final Map<DatabaseField, DatabaseResultField> firstName = this.customers.
                 findFirstNameById(newCustomer.primaryKey()).get(10, TimeUnit.SECONDS);
         Assert.assertEquals(1, firstName.size());
-        Assert.assertEquals("foo1", firstName.get(Customer.Fields.FIRST_NAME).resultValue());
+        Assert.assertEquals("foo1", firstName.get(CassandraCustomer.Fields.FIRST_NAME).resultValue());
     }
 
     @Test
@@ -120,8 +118,8 @@ public final class CassandraDatabaseTableTest extends AbstractCassandraTest {
 
         Assert.assertEquals(2, firstNameAndLastName.size());
 
-        Assert.assertEquals("foo1", firstNameAndLastName.get(0).get(Customer.Fields.FIRST_NAME).resultValue());
-        Assert.assertEquals("foo2", firstNameAndLastName.get(1).get(Customer.Fields.FIRST_NAME).resultValue());
+        Assert.assertEquals("foo1", firstNameAndLastName.get(0).get(CassandraCustomer.Fields.FIRST_NAME).resultValue());
+        Assert.assertEquals("foo2", firstNameAndLastName.get(1).get(CassandraCustomer.Fields.FIRST_NAME).resultValue());
     }
 
     @Test

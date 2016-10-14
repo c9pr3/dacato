@@ -1,9 +1,9 @@
-package co.ecso.dacato.postgresql;
+package co.ecso.dacato.hsql.cached;
 
 import co.ecso.dacato.TestApplicationCache;
 import co.ecso.dacato.database.cache.Cache;
-import co.ecso.dacato.helpers.CachedCustomer;
-import co.ecso.dacato.helpers.CachedCustomers;
+import co.ecso.dacato.hsql.AbstractHSQLTest;
+import co.ecso.dacato.hsql.HSQLTestApplicationConfig;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,41 +16,41 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * PSQLCachedDatabaseTableTest.
+ * HSQLCachedDatabaseTableTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
 @SuppressWarnings("Duplicates")
-public final class PSQLCachedDatabaseTableTest extends AbstractPSQLTest {
+public final class HSQLCachedDatabaseTableTest extends AbstractHSQLTest {
 
-    private CachedCustomers customers = null;
+    private HSQLCachedCustomers customers = null;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpPSQLDatabase();
-        this.customers = new CachedCustomers(new PSQLTestApplicationConfig());
+        this.setUpHSQLDatabase();
+        this.customers = new HSQLCachedCustomers(new HSQLTestApplicationConfig());
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupPostgreSQLDatabase();
+        this.cleanupHSQLDatabase();
     }
 
     @Test
     public void testAdd() throws Exception {
-        final CachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
+        final HSQLCachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
         Assert.assertEquals("foo1", newCustomer.firstName().get().resultValue());
     }
 
     @Test
     public void testFindOne() throws Exception {
-        final CachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
+        final HSQLCachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
 
-        final CachedCustomer foundCustomer1 = this.customers.findOne(newCustomer.primaryKey())
+        final HSQLCachedCustomer foundCustomer1 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(foundCustomer1);
         Assert.assertEquals("foo1", foundCustomer1.firstName().get().resultValue());
@@ -58,15 +58,15 @@ public final class PSQLCachedDatabaseTableTest extends AbstractPSQLTest {
 
 //        System.out.println("Getting by cache...");
 
-        final CachedCustomer foundCustomer2 = this.customers.findOne(newCustomer.primaryKey())
+        final HSQLCachedCustomer foundCustomer2 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final CachedCustomer foundCustomer3 = this.customers.findOne(newCustomer.primaryKey())
+        final HSQLCachedCustomer foundCustomer3 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final CachedCustomer foundCustomer4 = this.customers.findOne(newCustomer.primaryKey())
+        final HSQLCachedCustomer foundCustomer4 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final CachedCustomer foundCustomer5 = this.customers.findOne(newCustomer.primaryKey())
+        final HSQLCachedCustomer foundCustomer5 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final CachedCustomer foundCustomer6 = this.customers.findOne(newCustomer.primaryKey())
+        final HSQLCachedCustomer foundCustomer6 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
 
         Assert.assertEquals(foundCustomer1.primaryKey(), foundCustomer2.primaryKey());

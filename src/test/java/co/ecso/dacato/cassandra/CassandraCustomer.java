@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Customer.
+ * HSQLCustomer.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
@@ -25,7 +25,7 @@ final class CassandraCustomer implements DatabaseEntity<byte[]> {
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
     private final byte[] id;
     private final ApplicationConfig config;
-    private AtomicBoolean objectValid = new AtomicBoolean(true);
+    private final AtomicBoolean objectValid = new AtomicBoolean(true);
 
     CassandraCustomer(final ApplicationConfig config, final byte[] id) {
         this.id = id;
@@ -80,10 +80,10 @@ final class CassandraCustomer implements DatabaseEntity<byte[]> {
     }
 
     public static final class Fields {
+        public static final DatabaseField<String> FIRST_NAME =
+                new DatabaseField<>("customer_first_name", String.class, Types.VARCHAR);
         static final DatabaseField<byte[]> ID = new DatabaseField<>("id", byte[].class, Types.VARBINARY);
         static final DatabaseField<Long> NUMBER =
                 new DatabaseField<>("customer_number", Long.class, Types.BIGINT);
-        public static final DatabaseField<String> FIRST_NAME =
-                new DatabaseField<>("customer_first_name", String.class, Types.VARCHAR);
     }
 }

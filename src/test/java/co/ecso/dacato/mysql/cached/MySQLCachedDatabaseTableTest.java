@@ -1,10 +1,13 @@
-package co.ecso.dacato.sqlite;
+package co.ecso.dacato.mysql.cached;
 
 import co.ecso.dacato.TestApplicationCache;
 import co.ecso.dacato.database.cache.Cache;
-import co.ecso.dacato.helpers.CachedCustomer;
-import co.ecso.dacato.helpers.CachedCustomers;
-import org.junit.*;
+import co.ecso.dacato.mysql.AbstractMySQLTest;
+import co.ecso.dacato.mysql.MySQLTestApplicationConfig;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -13,42 +16,40 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * SQLiteCachedDatabaseTableTest.
+ * MySQLCachedDatabaseTableTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
-@SuppressWarnings("Duplicates")
-@Ignore
-public final class SQLiteCachedDatabaseTableTest extends AbstractSQLiteTest {
+public final class MySQLCachedDatabaseTableTest extends AbstractMySQLTest {
 
-    private CachedCustomers customers = null;
+    private MySQLCachedCustomers customers = null;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpSQLiteDatabase();
-        this.customers = new CachedCustomers(new SQLiteTestApplicationConfig());
+        this.setUpMySQLDatabase();
+        this.customers = new MySQLCachedCustomers(new MySQLTestApplicationConfig());
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupMySQLiteDatabase();
+        this.cleanupMySQLDatabase();
     }
 
     @Test
     public void testAdd() throws Exception {
-        final CachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
+        final MySQLCachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
         Assert.assertEquals("foo1", newCustomer.firstName().get().resultValue());
     }
 
     @Test
     public void testFindOne() throws Exception {
-        final CachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
+        final MySQLCachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
 
-        final CachedCustomer foundCustomer1 = this.customers.findOne(newCustomer.primaryKey())
+        final MySQLCachedCustomer foundCustomer1 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(foundCustomer1);
         Assert.assertEquals("foo1", foundCustomer1.firstName().get().resultValue());
@@ -56,15 +57,15 @@ public final class SQLiteCachedDatabaseTableTest extends AbstractSQLiteTest {
 
 //        System.out.println("Getting by cache...");
 
-        final CachedCustomer foundCustomer2 = this.customers.findOne(newCustomer.primaryKey())
+        final MySQLCachedCustomer foundCustomer2 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final CachedCustomer foundCustomer3 = this.customers.findOne(newCustomer.primaryKey())
+        final MySQLCachedCustomer foundCustomer3 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final CachedCustomer foundCustomer4 = this.customers.findOne(newCustomer.primaryKey())
+        final MySQLCachedCustomer foundCustomer4 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final CachedCustomer foundCustomer5 = this.customers.findOne(newCustomer.primaryKey())
+        final MySQLCachedCustomer foundCustomer5 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final CachedCustomer foundCustomer6 = this.customers.findOne(newCustomer.primaryKey())
+        final MySQLCachedCustomer foundCustomer6 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
 
         Assert.assertEquals(foundCustomer1.primaryKey(), foundCustomer2.primaryKey());
@@ -74,6 +75,7 @@ public final class SQLiteCachedDatabaseTableTest extends AbstractSQLiteTest {
         Assert.assertEquals(foundCustomer5.primaryKey(), foundCustomer6.primaryKey());
     }
 
+    @SuppressWarnings("Duplicates")
     @Test
     public void testCache() throws ExecutionException, InterruptedException, TimeoutException {
         final Cache<String, CompletableFuture<Long>> myCache = new TestApplicationCache<>();

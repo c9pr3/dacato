@@ -1,13 +1,10 @@
-package co.ecso.dacato.mysql;
+package co.ecso.dacato.cassandra.cached;
 
 import co.ecso.dacato.TestApplicationCache;
+import co.ecso.dacato.cassandra.AbstractCassandraTest;
 import co.ecso.dacato.database.cache.Cache;
-import co.ecso.dacato.helpers.CachedCustomer;
-import co.ecso.dacato.helpers.CachedCustomers;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import co.ecso.dacato.hsql.HSQLTestApplicationConfig;
+import org.junit.*;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -16,41 +13,41 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * MySQLCachedDatabaseTableTest.
+ * HSQLCachedDatabaseTableTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
-@SuppressWarnings("Duplicates")
-public final class MySQLCachedDatabaseTableTest extends AbstractMySQLTest {
+@Ignore
+public final class CassandraCachedDatabaseTableTest extends AbstractCassandraTest {
 
-    private CachedCustomers customers = null;
+    private CassandraCachedCustomers customers = null;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpMySQLDatabase();
-        this.customers = new CachedCustomers(new MySQLTestApplicationConfig());
+        this.setupCassandraDatabase();
+        this.customers = new CassandraCachedCustomers(new HSQLTestApplicationConfig());
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupMySQLDatabase();
+        this.cleanupCassandraDatabase();
     }
 
     @Test
     public void testAdd() throws Exception {
-        final CachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
+        final CassandraCachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
         Assert.assertEquals("foo1", newCustomer.firstName().get().resultValue());
     }
 
     @Test
     public void testFindOne() throws Exception {
-        final CachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
+        final CassandraCachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
 
-        final CachedCustomer foundCustomer1 = this.customers.findOne(newCustomer.primaryKey())
+        final CassandraCachedCustomer foundCustomer1 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(foundCustomer1);
         Assert.assertEquals("foo1", foundCustomer1.firstName().get().resultValue());
@@ -58,15 +55,15 @@ public final class MySQLCachedDatabaseTableTest extends AbstractMySQLTest {
 
 //        System.out.println("Getting by cache...");
 
-        final CachedCustomer foundCustomer2 = this.customers.findOne(newCustomer.primaryKey())
+        final CassandraCachedCustomer foundCustomer2 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final CachedCustomer foundCustomer3 = this.customers.findOne(newCustomer.primaryKey())
+        final CassandraCachedCustomer foundCustomer3 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final CachedCustomer foundCustomer4 = this.customers.findOne(newCustomer.primaryKey())
+        final CassandraCachedCustomer foundCustomer4 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final CachedCustomer foundCustomer5 = this.customers.findOne(newCustomer.primaryKey())
+        final CassandraCachedCustomer foundCustomer5 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final CachedCustomer foundCustomer6 = this.customers.findOne(newCustomer.primaryKey())
+        final CassandraCachedCustomer foundCustomer6 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
 
         Assert.assertEquals(foundCustomer1.primaryKey(), foundCustomer2.primaryKey());
@@ -76,6 +73,7 @@ public final class MySQLCachedDatabaseTableTest extends AbstractMySQLTest {
         Assert.assertEquals(foundCustomer5.primaryKey(), foundCustomer6.primaryKey());
     }
 
+    @SuppressWarnings("Duplicates")
     @Test
     public void testCache() throws ExecutionException, InterruptedException, TimeoutException {
         final Cache<String, CompletableFuture<Long>> myCache = new TestApplicationCache<>();

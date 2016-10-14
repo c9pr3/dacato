@@ -26,6 +26,7 @@ public interface ApplicationConfig {
      *
      * @return Minimum pool.
      */
+    @SuppressWarnings("SameReturnValue")
     int databasePoolMin();
 
     /**

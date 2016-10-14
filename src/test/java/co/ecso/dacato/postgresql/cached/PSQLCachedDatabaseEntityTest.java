@@ -1,8 +1,8 @@
-package co.ecso.dacato.hsql;
+package co.ecso.dacato.postgresql.cached;
 
 import co.ecso.dacato.database.query.DatabaseField;
-import co.ecso.dacato.helpers.CachedCustomer;
-import co.ecso.dacato.helpers.CachedCustomers;
+import co.ecso.dacato.postgresql.AbstractPSQLTest;
+import co.ecso.dacato.postgresql.PSQLTestApplicationConfig;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,32 +13,31 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * HSQLCachedDatabaseEntityTest.
+ * PSQLCachedDatabaseEntityTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
-@SuppressWarnings("Duplicates")
-public final class HSQLCachedDatabaseEntityTest extends AbstractHSQLTest {
+public final class PSQLCachedDatabaseEntityTest extends AbstractPSQLTest {
 
-    private CachedCustomer customer;
+    private PSQLCachedCustomer customer;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpHSQLDatabase();
-        this.customer = new CachedCustomers(new HSQLTestApplicationConfig()).create("firstName", 1234L)
+        this.setUpPSQLDatabase();
+        this.customer = new PSQLCachedCustomers(new PSQLTestApplicationConfig()).create("firstName", 1234L)
                 .get(10, TimeUnit.SECONDS);
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupHSQLDatabase();
+        this.cleanupPostgreSQLDatabase();
     }
 
     @Test
     public void testId() throws Exception {
-        Assert.assertEquals(Long.valueOf(0L), this.customer.primaryKey());
+        Assert.assertEquals(Long.valueOf(1L), this.customer.primaryKey());
     }
 
     @Test
@@ -54,8 +53,8 @@ public final class HSQLCachedDatabaseEntityTest extends AbstractHSQLTest {
     @Test
     public void testSave() throws Exception {
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
-        map.put(CachedCustomer.Fields.FIRST_NAME, "foobar1");
-        final CachedCustomer newCustomer = this.customer.save(() -> map)
+        map.put(PSQLCachedCustomer.Fields.FIRST_NAME, "foobar1");
+        final PSQLCachedCustomer newCustomer = this.customer.save(() -> map)
                 .get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
         Assert.assertEquals(customer.primaryKey(), this.customer.primaryKey());

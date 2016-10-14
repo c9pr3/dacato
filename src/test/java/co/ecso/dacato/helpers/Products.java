@@ -38,14 +38,14 @@ public class Products implements CachedDatabaseTable<Integer, Product> {
     }
 
     public final CompletableFuture<Product> add(final Integer quantity, final Integer shippingTime,
-                                          final Integer groupPermission0,
-                                          final Integer groupPermission1, final Integer groupPermission2,
-                                          final Integer groupPermission3, final Integer groupPermission4,
-                                          final String image, final float price,
-                                          final float discountAllowed, final Date dateAdded,
-                                          final Date lastModified, final Date available, final float weight,
-                                          final Integer status, final Integer taxClassId,
-                                          final Integer vpe, final float vpeValue) {
+                                                final Integer groupPermission0,
+                                                final Integer groupPermission1, final Integer groupPermission2,
+                                                final Integer groupPermission3, final Integer groupPermission4,
+                                                final String image, final float price,
+                                                final float discountAllowed, final Date dateAdded,
+                                                final Date lastModified, final Date available, final float weight,
+                                                final Integer status, final Integer taxClassId,
+                                                final Integer vpe, final float vpeValue) {
 
 //        final InsertQuery<Integer> query = new InsertQuery<>("INSERT INTO " + Product.TABLE_NAME + " (" +
 //                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " +

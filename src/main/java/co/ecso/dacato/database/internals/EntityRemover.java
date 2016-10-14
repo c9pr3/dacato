@@ -57,7 +57,7 @@ public interface EntityRemover extends ConfigGetter, StatementPreparer {
     /**
      * Get single row result.
      *
-     * @param stmt           Statement.
+     * @param stmt Statement.
      * @return DatabaseResultField with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */

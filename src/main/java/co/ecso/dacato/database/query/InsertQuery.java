@@ -26,6 +26,9 @@ public final class InsertQuery<T> implements Query<T> {
      * Column to return.
      */
     private final DatabaseField<T> columnToReturn;
+    /**
+     * Return generated key.
+     */
     private final boolean returnGeneratedKey;
 
     /**
@@ -33,7 +36,7 @@ public final class InsertQuery<T> implements Query<T> {
      *
      * @param query Query to execute, p.e. insert into table_x (%s, %s, %s) columnValuesToSet (?, ?, ?)
      */
-    public InsertQuery(final String query) {
+    public InsertQuery(@SuppressWarnings("SameParameterValue") final String query) {
         this.query = query;
         this.returnGeneratedKey = false;
         this.columnToReturn = null;
@@ -69,7 +72,11 @@ public final class InsertQuery<T> implements Query<T> {
 
     @Override
     public Class<T> queryType() {
-        return columnToReturn.valueClass();
+        if (columnToReturn != null) {
+            return columnToReturn.valueClass();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -109,6 +116,11 @@ public final class InsertQuery<T> implements Query<T> {
         return Objects.hash(query, columnValueMap, columnToReturn);
     }
 
+    /**
+     * Return Generated key or not.
+     *
+     * @return true if query should return generated key.
+     */
     public boolean returnGeneratedKey() {
         return this.returnGeneratedKey;
     }

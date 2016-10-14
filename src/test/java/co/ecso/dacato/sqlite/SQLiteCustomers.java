@@ -1,12 +1,16 @@
 package co.ecso.dacato.sqlite;
 
 import co.ecso.dacato.config.ApplicationConfig;
-import co.ecso.dacato.database.query.InsertQuery;
-import co.ecso.dacato.helpers.Customer;
-import co.ecso.dacato.helpers.Customers;
+import co.ecso.dacato.database.DatabaseTable;
+import co.ecso.dacato.database.query.*;
 
 import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * SQLiteCustomers.
@@ -15,10 +19,12 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 11.10.16
  */
-final class SQLiteCustomers extends Customers {
+final class SQLiteCustomers implements DatabaseTable<Integer, SQLiteCustomer> {
+
+    private final ApplicationConfig config;
 
     SQLiteCustomers(final ApplicationConfig config) {
-        super(config);
+        this.config = config;
     }
 
     @Override
@@ -26,12 +32,76 @@ final class SQLiteCustomers extends Customers {
         return ResultSet.CLOSE_CURSORS_AT_COMMIT;
     }
 
-    public CompletableFuture<Customer> create(final String firstName, final Long number) {
-        final InsertQuery<Long> query = new InsertQuery<>(
+    @Override
+    public ApplicationConfig config() {
+        return config;
+    }
+
+    @Override
+    public CompletableFuture<SQLiteCustomer> findOne(final Integer primaryKey) {
+        return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?", SQLiteCustomer.Fields.ID,
+                SQLiteCustomer.Fields.ID, primaryKey)).thenApply(foundId ->
+                new SQLiteCustomer(config, foundId.resultValue()));
+    }
+
+    @Override
+    public CompletableFuture<List<SQLiteCustomer>> findAll() {
+        return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", SQLiteCustomer.Fields.ID))
+                .thenApply(list -> list.stream().map(foundId -> new SQLiteCustomer(config, foundId.resultValue()))
+                        .collect(Collectors.toList()));
+    }
+
+    CompletableFuture<SQLiteCustomer> findOneByFirstName(final String firstName) {
+        final SingleColumnQuery<Integer, String> query = new SingleColumnQuery<>("SELECT %s FROM " +
+                "customer WHERE %s = ? LIMIT 1", SQLiteCustomer.Fields.ID, SQLiteCustomer.Fields.FIRST_NAME, firstName);
+        return this.findOne(query).thenApply(foundId -> new SQLiteCustomer(config, foundId.resultValue()));
+    }
+
+    CompletableFuture<List<SQLiteCustomer>> findAllByFirstName(final String firstName) {
+        final SingleColumnQuery<Integer, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
+                SQLiteCustomer.Fields.ID,
+                SQLiteCustomer.Fields.FIRST_NAME, firstName);
+        return this.findMany(query).thenApply(list ->
+                list.stream().map(l -> new SQLiteCustomer(config, l.resultValue())).collect(Collectors.toList()));
+    }
+
+    CompletableFuture<Map<DatabaseField, DatabaseResultField>> findFirstNameById(final Integer id) {
+        final String queryStr = "SELECT %s FROM customer WHERE %s = ?";
+        final List<DatabaseField> columnsToSelect = new LinkedList<>();
+        columnsToSelect.add(SQLiteCustomer.Fields.FIRST_NAME);
+        final Map<DatabaseField<?>, Object> map = new HashMap<>();
+        map.put(SQLiteCustomer.Fields.ID, id);
+        return findOne(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
+    }
+
+    CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findManyFirstName() {
+        final String queryStr = "SELECT %s FROM customer";
+        final List<DatabaseField> columnsToSelect = new LinkedList<>();
+        columnsToSelect.add(SQLiteCustomer.Fields.FIRST_NAME);
+        final Map<DatabaseField<?>, Object> map = new HashMap<>();
+        return findMany(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
+    }
+
+    public CompletableFuture<Boolean> removeAll() {
+        return this.truncate("DELETE FROM customer");
+    }
+
+    public CompletableFuture<SQLiteCustomer> create(final String firstName, final Integer number) {
+        final InsertQuery<Integer> query = new InsertQuery<>(
                 "INSERT INTO customer (%s, %s) VALUES (?, ?)", SQLiteCustomer.Fields.ID);
-        query.add(Customer.Fields.FIRST_NAME, firstName);
-        query.add(Customer.Fields.NUMBER, number);
-        return this.add(query).thenApply(newId -> new SQLiteCustomer(config(),
-                Long.valueOf((Integer) newId.resultValuePOJO())));
+        query.add(SQLiteCustomer.Fields.FIRST_NAME, firstName);
+        query.add(SQLiteCustomer.Fields.NUMBER, number);
+        return this.add(query).thenApply(newId -> {
+            if (newId == null) {
+                throw new RuntimeException("NEWID NULL");
+            }
+            return new SQLiteCustomer(config, newId.resultValue());
+        });
+    }
+
+    public CompletableFuture<Integer> removeOne(final Integer id) {
+        Map<DatabaseField<?>, Object> map = new HashMap<>();
+        map.put(SQLiteCustomer.Fields.ID, id);
+        return this.removeOne(new RemoveQuery<>("DELETE FROM customer WHERE %s = ?", () -> map));
     }
 }
