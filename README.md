@@ -12,8 +12,8 @@ A project written by [Christian Senkowski](http://e-cs.co/).
     - [HSQL Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/hsql)
     - [PostgreSQL Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/postgresql)
     - [Cassandra Example (In development)](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/cassandra)
+    - [SQLite Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/sqlite/)
     - [MongoDB Example (Todo)]()
-    - [SQLite Example (Todo)]()
 - [Why use it?](#why-the--should-i-use-dacato-tons-of-more-major-frameworks-out-there)
 - [Why is the "T" silent?](#why-is-the-t-silent)
 - [License](#license)
@@ -23,7 +23,7 @@ A project written by [Christian Senkowski](http://e-cs.co/).
 DACATO aims to be a asynchronous, cachable data access framework/library for small to middle projects which have to interact with a **relational** database.
 While most frameworks are bloated and force the user to do things in a *specific* way, DACATO offers full flexibility. You *may* do things as provided or overwrite everything to have it *your* way.
 
-It has been tested with [MySQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/mysql), [HSQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/hsql), [PostgreSQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/postgresql) and currently working on [Cassandra](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/cassandra).<br/>
+It has been tested with [MySQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/mysql), [HSQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/hsql), [PostgreSQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/postgresql), [SQLite](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/sqlite/) and currently working on [Cassandra](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/cassandra).<br/>
 If you use it successfully with a different database, **please let me know!**
 
 
