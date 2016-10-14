@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @version $Id:$
  * @since 11.09.16
  */
-public interface EntityFinder extends ConfigGetter {
+public interface EntityFinder extends ConfigGetter, StatementPreparer {
 
     default StatementFiller statementFiller() {
         return new StatementFiller() {
@@ -72,7 +72,7 @@ public interface EntityFinder extends ConfigGetter {
 
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
-                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
                             new LinkedList<>(valuesWhere.values().values()), stmt);
@@ -87,6 +87,8 @@ public interface EntityFinder extends ConfigGetter {
 
         return returnValueFuture;
     }
+
+    int statementOptions();
 
     /**
      * Find One.
@@ -115,7 +117,7 @@ public interface EntityFinder extends ConfigGetter {
 
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
-                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             Collections.singletonList(columnWhere),
                             Collections.singletonList(whereValueToFind), stmt);
@@ -158,7 +160,7 @@ public interface EntityFinder extends ConfigGetter {
 
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
-                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
                             new LinkedList<>(valuesWhere.values().values()), stmt);
@@ -201,7 +203,7 @@ public interface EntityFinder extends ConfigGetter {
 
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
-                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
                             new LinkedList<>(valuesWhere.values().values()), stmt);
@@ -244,11 +246,11 @@ public interface EntityFinder extends ConfigGetter {
 
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
-                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     returnValueFuture.complete(getListRowResult(columnToSelect,
                             statementFiller().fillStatement(finalQuery,
-                            Collections.singletonList(columnWhere),
-                            Collections.singletonList(query.columnWhereValue()), stmt)));
+                                    Collections.singletonList(columnWhere),
+                                    Collections.singletonList(query.columnWhereValue()), stmt)));
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
@@ -356,10 +358,10 @@ public interface EntityFinder extends ConfigGetter {
      * @throws SQLException if SQL fails.
      */
     default <R> DatabaseResultField<R> getSingleRowResult(final String finalQuery,
-                                                             final DatabaseField<R> columnToSelect,
-                                                             final PreparedStatement stmt,
-                                                             final Set<DatabaseField<?>> databaseFields,
-                                                             final Collection<?> values) throws SQLException {
+                                                          final DatabaseField<R> columnToSelect,
+                                                          final PreparedStatement stmt,
+                                                          final Set<DatabaseField<?>> databaseFields,
+                                                          final Collection<?> values) throws SQLException {
         final DatabaseResultField<R> result;
         if (stmt.isClosed()) {
             throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));

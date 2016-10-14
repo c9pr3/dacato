@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 01.10.16
  */
-public interface EntityRemover extends ConfigGetter {
+public interface EntityRemover extends ConfigGetter, StatementPreparer {
 
     default StatementFiller statementFiller() {
         return new StatementFiller() {
@@ -37,7 +37,7 @@ public interface EntityRemover extends ConfigGetter {
 
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
-                try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
                             new LinkedList<>(valuesWhere.values().values()), stmt);
@@ -52,10 +52,12 @@ public interface EntityRemover extends ConfigGetter {
         return returnValueFuture;
     }
 
+    int statementOptions();
+
     /**
      * Get single row result.
      *
-     * @param stmt           Statement.
+     * @param stmt Statement.
      * @return DatabaseResultField with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */

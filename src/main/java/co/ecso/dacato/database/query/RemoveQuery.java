@@ -8,6 +8,7 @@ import java.util.Objects;
 /**
  * RemoveQuery.
  *
+ * @param <T> Type of Query, p.e. Long.
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 01.10.16

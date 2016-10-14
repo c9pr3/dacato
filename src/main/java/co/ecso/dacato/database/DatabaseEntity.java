@@ -1,5 +1,6 @@
 package co.ecso.dacato.database;
 
+import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.config.ConfigGetter;
 import co.ecso.dacato.database.internals.EntityFinder;
 import co.ecso.dacato.database.internals.Updater;
@@ -36,6 +37,15 @@ public interface DatabaseEntity<T> extends ConfigGetter {
     CompletableFuture<? extends DatabaseEntity<T>> save(final ColumnList columnValuesToSet);
 
     /**
+     * Default statement options.
+     *
+     * @return Options for all statements.
+     */
+    default int statementOptions() {
+        return -1;
+    }
+
+    /**
      * Wrapper for updater().update, usually called within save().
      *
      * @param query         Query to execute.
@@ -53,7 +63,17 @@ public interface DatabaseEntity<T> extends ConfigGetter {
      * @return Updater.
      */
     default Updater<T> updater() {
-        return DatabaseEntity.this::config;
+        return new Updater<T>() {
+            @Override
+            public int statementOptions() {
+                return DatabaseEntity.this.statementOptions();
+            }
+
+            @Override
+            public ApplicationConfig config() {
+                return DatabaseEntity.this.config();
+            }
+        };
     }
 
     /**
@@ -62,7 +82,17 @@ public interface DatabaseEntity<T> extends ConfigGetter {
      * @return EntityFinder.
      */
     default EntityFinder entityFinder() {
-        return DatabaseEntity.this::config;
+        return new EntityFinder() {
+            @Override
+            public int statementOptions() {
+                return DatabaseEntity.this.statementOptions();
+            }
+
+            @Override
+            public ApplicationConfig config() {
+                return DatabaseEntity.this.config();
+            }
+        };
     }
 
     /**

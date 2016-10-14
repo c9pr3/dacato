@@ -1,7 +1,7 @@
 package co.ecso.dacato.cassandra;
 
 /**
- * MysqlToPsqlMapFilter.
+ * MysqlToCassandraMapFilter.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$

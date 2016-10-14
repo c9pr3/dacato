@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 
 /**
- * MySQLConnectionTest
+ * PSQLConnectionTest
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$

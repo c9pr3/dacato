@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @version $Id:$
  * @since 11.09.16
  */
-public interface Updater<T> extends ConfigGetter {
+public interface Updater<T> extends ConfigGetter, StatementPreparer {
 
     /**
      * Statement filler.
@@ -62,7 +62,7 @@ public interface Updater<T> extends ConfigGetter {
             try {
                 final String finalQuery = String.format(query.query(), newArr.toArray());
                 try (final Connection c = config().databaseConnectionPool().getConnection()) {
-                    try (final PreparedStatement stmt = c.prepareStatement(finalQuery)) {
+                    try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                         query.columnValuesToSet().values().forEach(values::add);
                         values.add(query.whereValue());
                         returnValueFuture.complete(getResult(finalQuery,
@@ -75,6 +75,8 @@ public interface Updater<T> extends ConfigGetter {
         }, config().threadPool());
         return returnValueFuture;
     }
+
+    int statementOptions();
 
     /**
      * Get result.

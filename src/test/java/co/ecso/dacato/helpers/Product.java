@@ -28,7 +28,7 @@ public final class Product implements CachedDatabaseEntity<Integer> {
     public static final String QUERY = String.format("SELECT %%s FROM %s WHERE products_id = ?", TABLE_NAME);
     private final Integer id;
     private final ApplicationConfig config;
-    private AtomicBoolean objectValid = new AtomicBoolean(true);
+    private final AtomicBoolean objectValid = new AtomicBoolean(true);
 
     Product(final ApplicationConfig config, final Integer id) {
         this.config = config;

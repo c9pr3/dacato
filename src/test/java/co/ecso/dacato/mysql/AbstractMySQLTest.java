@@ -22,25 +22,23 @@ import java.util.stream.Collectors;
  * @version $Id:$
  * @since 10.10.16
  */
-@SuppressWarnings("Duplicates")
-abstract class AbstractMySQLTest extends AbstractTest {
+public abstract class AbstractMySQLTest extends AbstractTest {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractMySQLTest.class.getName());
-    private static DB db = null;
 
     static {
         DBConfigurationBuilder configBuilder = DBConfigurationBuilder.newBuilder();
         configBuilder.setPort(3399);
         configBuilder.setDataDir("src/test/conf/");
         try {
-            db = DB.newEmbeddedDB(configBuilder.build());
+            DB db = DB.newEmbeddedDB(configBuilder.build());
             db.start();
         } catch (final Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    final void setUpMySQLDatabase() throws Exception {
+    protected final void setUpMySQLDatabase() throws Exception {
         final String lines = Files.readAllLines(Paths.get("test.sql"))
                 .stream()
                 .filter(CreateTableOnlyFilter::filter)
@@ -66,7 +64,7 @@ abstract class AbstractMySQLTest extends AbstractTest {
         return dataSource;
     }
 
-    final void cleanupMySQLDatabase() {
+    protected final void cleanupMySQLDatabase() {
         try (final Connection connection = getMySQLDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("DROP DATABASE server_v5");

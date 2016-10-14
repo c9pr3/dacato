@@ -8,13 +8,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * RedisTestApplicationConfig.
+ * HSQLTestApplicationConfig.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
-final class HSQLTestApplicationConfig implements ApplicationConfig {
+public final class HSQLTestApplicationConfig implements ApplicationConfig {
     private static volatile snaq.db.ConnectionPool connectionPool = null;
     private static volatile ExecutorService threadPool = null;
 

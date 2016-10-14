@@ -71,4 +71,12 @@ public final class DatabaseResultField<T> {
     public int hashCode() {
         return Objects.hash(selectedField, resultValue);
     }
+
+    @Override
+    public String toString() {
+        return "DatabaseResultField{" +
+                "selectedField=" + selectedField +
+                ", resultValue=" + resultValue +
+                '}';
+    }
 }

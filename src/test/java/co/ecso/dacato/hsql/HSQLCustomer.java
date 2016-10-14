@@ -1,11 +1,8 @@
-package co.ecso.dacato.helpers;
+package co.ecso.dacato.hsql;
 
-import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.config.ApplicationConfig;
-import co.ecso.dacato.database.CachedDatabaseEntity;
 import co.ecso.dacato.database.ColumnList;
-import co.ecso.dacato.database.cache.Cache;
-import co.ecso.dacato.database.cache.CacheKey;
+import co.ecso.dacato.database.DatabaseEntity;
 import co.ecso.dacato.database.query.DatabaseField;
 import co.ecso.dacato.database.query.DatabaseResultField;
 import co.ecso.dacato.database.query.SingleColumnQuery;
@@ -16,46 +13,27 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * CachedCustomer.
+ * HSQLCustomer.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
- * @since 17.09.16
+ * @since 29.08.16
  */
-public final class CachedCustomer implements CachedDatabaseEntity<Long> {
-
+final class HSQLCustomer implements DatabaseEntity<Long> {
     private static final String TABLE_NAME = "customer";
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
-    private final ApplicationConfig config;
     private final Long id;
-    private AtomicBoolean objectValid = new AtomicBoolean(true);
+    private final ApplicationConfig config;
+    private final AtomicBoolean objectValid = new AtomicBoolean(true);
 
-    @SuppressWarnings("WeakerAccess")
-    public CachedCustomer(final ApplicationConfig config, final Long id) {
-        this.config = config;
+    HSQLCustomer(final ApplicationConfig config, final Long id) {
         this.id = id;
-    }
-
-    @Override
-    public ApplicationConfig config() {
-        return config;
+        this.config = config;
     }
 
     @Override
     public Long primaryKey() {
-        return id;
-    }
-
-    @Override
-    public CompletableFuture<CachedCustomer> save(final ColumnList columnValuesToSet) {
-        return this.update(new SingleColumnUpdateQuery<>("UPDATE " + TABLE_NAME + " SET %s WHERE %%s = ?",
-                Fields.ID, this.id, columnValuesToSet), () -> objectValid).thenApply(rowsAffected ->
-                new CachedCustomer(config, id));
-    }
-
-    @Override
-    public Cache<CacheKey, CompletableFuture> cache() {
-        return AbstractTest.CACHE;
+        return this.id;
     }
 
     public CompletableFuture<DatabaseResultField<String>> firstName() {
@@ -68,11 +46,25 @@ public final class CachedCustomer implements CachedDatabaseEntity<Long> {
                 this.objectValid);
     }
 
+    @Override
+    public CompletableFuture<DatabaseEntity<Long>> save(final ColumnList columnValuesToSet) {
+        final SingleColumnUpdateQuery<Long> query =
+                new SingleColumnUpdateQuery<>("UPDATE customer SET %s WHERE %%s = ?", Fields.ID, id, columnValuesToSet);
+        final CompletableFuture<Integer> updated = this.update(query, () -> this.objectValid);
+        this.objectValid.set(false);
+        return updated.thenApply(rowsAffected -> new HSQLCustomer(config, id));
+    }
+
+    @Override
+    public ApplicationConfig config() {
+        return this.config;
+    }
+
     public static final class Fields {
+        public static final DatabaseField<Long> ID = new DatabaseField<>("id", Long.class, Types.BIGINT);
+        public static final DatabaseField<Long> NUMBER =
+                new DatabaseField<>("customer_number", Long.class, Types.BIGINT);
         public static final DatabaseField<String> FIRST_NAME =
                 new DatabaseField<>("customer_first_name", String.class, Types.VARCHAR);
-        static final DatabaseField<Long> ID = new DatabaseField<>("id", Long.class, Types.BIGINT);
-        static final DatabaseField<Long> NUMBER =
-                new DatabaseField<>("customer_number", Long.class, Types.BIGINT);
     }
 }

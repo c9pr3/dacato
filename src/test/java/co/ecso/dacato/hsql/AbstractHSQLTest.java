@@ -9,7 +9,6 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -19,11 +18,11 @@ import java.util.stream.Collectors;
  * @version $Id:$
  * @since 08.10.16
  */
-abstract class AbstractHSQLTest extends AbstractTest {
+public abstract class AbstractHSQLTest extends AbstractTest {
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractHSQLTest.class.getName());
+//    private static final Logger LOGGER = Logger.getLogger(AbstractHSQLTest.class.getName());
 
-    final void setUpHSQLDatabase() throws IOException {
+    protected final void setUpHSQLDatabase() throws IOException {
         final String lines = Files.readAllLines(Paths.get("test.sql"))
                 .stream()
                 .filter(CreateTableOnlyFilter::filter)
@@ -32,11 +31,11 @@ abstract class AbstractHSQLTest extends AbstractTest {
         try (final Connection connection = getHSQLDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("CREATE SCHEMA server_v5;");
+//                System.out.println("EXECUTING " + lines);
                 stmt.execute(lines);
             }
         } catch (final SQLException e) {
-            e.printStackTrace();
-            LOGGER.warning(e.getMessage());
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -49,7 +48,7 @@ abstract class AbstractHSQLTest extends AbstractTest {
     /**
      * Clean up Database.
      */
-    final void cleanupHSQLDatabase() throws SQLException {
+    protected final void cleanupHSQLDatabase() {
         try (final Connection connection = this.getHSQLDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("DROP SCHEMA server_v5 CASCADE");

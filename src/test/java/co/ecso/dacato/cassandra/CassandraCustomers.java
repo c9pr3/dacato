@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * Customers.
+ * HSQLCustomers.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$

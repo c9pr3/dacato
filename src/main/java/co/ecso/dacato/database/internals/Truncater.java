@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
  * @version $Id:$
  * @since 11.09.16
  */
-public interface Truncater extends ConfigGetter {
+public interface Truncater extends ConfigGetter, StatementPreparer {
 
     /**
      * Truncate.
@@ -26,7 +26,7 @@ public interface Truncater extends ConfigGetter {
         final CompletableFuture<Boolean> retValFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
-                try (final PreparedStatement stmt = c.prepareStatement(query)) {
+                try (final PreparedStatement stmt = this.prepareStatement(query, c, this.statementOptions())) {
                     if (stmt.isClosed()) {
                         throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
                     }
@@ -38,5 +38,7 @@ public interface Truncater extends ConfigGetter {
         }, config().threadPool());
         return retValFuture;
     }
+
+    int statementOptions();
 
 }
