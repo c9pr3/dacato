@@ -2,8 +2,8 @@ package co.ecso.dacato.database;
 
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.cache.*;
-import co.ecso.dacato.database.internals.EntityFinder;
-import co.ecso.dacato.database.internals.Updater;
+import co.ecso.dacato.database.query.EntityFinder;
+import co.ecso.dacato.database.query.Updater;
 
 import java.util.concurrent.CompletableFuture;
 

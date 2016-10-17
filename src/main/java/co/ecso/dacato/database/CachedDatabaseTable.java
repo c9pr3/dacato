@@ -2,13 +2,13 @@ package co.ecso.dacato.database;
 
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.cache.*;
-import co.ecso.dacato.database.internals.EntityFinder;
-import co.ecso.dacato.database.internals.EntityRemover;
-import co.ecso.dacato.database.internals.Inserter;
-import co.ecso.dacato.database.internals.Truncater;
-import co.ecso.dacato.database.query.DatabaseResultField;
-import co.ecso.dacato.database.query.InsertQuery;
-import co.ecso.dacato.database.query.SingleColumnQuery;
+import co.ecso.dacato.database.query.EntityFinder;
+import co.ecso.dacato.database.query.EntityRemover;
+import co.ecso.dacato.database.query.Inserter;
+import co.ecso.dacato.database.query.Truncater;
+import co.ecso.dacato.database.querywrapper.DatabaseResultField;
+import co.ecso.dacato.database.querywrapper.InsertQuery;
+import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

@@ -2,7 +2,7 @@ package co.ecso.dacato.sqlite;
 
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.DatabaseTable;
-import co.ecso.dacato.database.query.*;
+import co.ecso.dacato.database.querywrapper.*;
 
 import java.sql.ResultSet;
 import java.util.HashMap;

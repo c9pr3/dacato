@@ -1,6 +1,6 @@
 package co.ecso.dacato.database;
 
-import co.ecso.dacato.database.query.DatabaseField;
+import co.ecso.dacato.database.querywrapper.DatabaseField;
 
 import java.util.Map;
 

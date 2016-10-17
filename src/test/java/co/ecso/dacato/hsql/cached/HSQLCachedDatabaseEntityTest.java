@@ -1,6 +1,6 @@
 package co.ecso.dacato.hsql.cached;
 
-import co.ecso.dacato.database.query.DatabaseField;
+import co.ecso.dacato.database.querywrapper.DatabaseField;
 import co.ecso.dacato.hsql.AbstractHSQLTest;
 import co.ecso.dacato.hsql.HSQLTestApplicationConfig;
 import org.junit.After;

@@ -1,8 +1,8 @@
 package co.ecso.dacato.sqlite;
 
-import co.ecso.dacato.database.query.DatabaseField;
-import co.ecso.dacato.database.query.DatabaseResultField;
-import co.ecso.dacato.database.query.SingleColumnQuery;
+import co.ecso.dacato.database.querywrapper.DatabaseField;
+import co.ecso.dacato.database.querywrapper.DatabaseResultField;
+import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

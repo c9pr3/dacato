@@ -1,6 +1,6 @@
 package co.ecso.dacato.database.cache;
 
-import co.ecso.dacato.database.internals.Truncater;
+import co.ecso.dacato.database.query.Truncater;
 
 import java.util.concurrent.CompletableFuture;
 

@@ -1,6 +1,6 @@
 package co.ecso.dacato.mysql.cached;
 
-import co.ecso.dacato.database.query.DatabaseField;
+import co.ecso.dacato.database.querywrapper.DatabaseField;
 import co.ecso.dacato.mysql.AbstractMySQLTest;
 import co.ecso.dacato.mysql.MySQLTestApplicationConfig;
 import org.junit.After;

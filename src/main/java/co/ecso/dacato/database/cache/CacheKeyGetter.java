@@ -1,6 +1,6 @@
 package co.ecso.dacato.database.cache;
 
-import co.ecso.dacato.database.query.Query;
+import co.ecso.dacato.database.querywrapper.Query;
 
 /**
  * CacheKeyGetter.

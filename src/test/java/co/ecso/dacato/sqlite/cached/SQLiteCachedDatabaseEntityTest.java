@@ -1,6 +1,6 @@
 package co.ecso.dacato.sqlite.cached;
 
-import co.ecso.dacato.database.query.DatabaseField;
+import co.ecso.dacato.database.querywrapper.DatabaseField;
 import co.ecso.dacato.sqlite.AbstractSQLiteTest;
 import co.ecso.dacato.sqlite.SQLiteTestApplicationConfig;
 import org.junit.After;

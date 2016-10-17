@@ -1,6 +1,6 @@
-package co.ecso.dacato.database.internals;
+package co.ecso.dacato.database.statement;
 
-import co.ecso.dacato.database.query.DatabaseField;
+import co.ecso.dacato.database.querywrapper.DatabaseField;
 
 import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
@@ -16,7 +16,6 @@ import java.util.List;
  * @version $Id:$
  * @since 02.09.16
  */
-@SuppressWarnings("WeakerAccess")
 public interface StatementFiller {
 
     /**

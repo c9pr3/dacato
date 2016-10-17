@@ -1,4 +1,4 @@
-package co.ecso.dacato.database.internals;
+package co.ecso.dacato.database.statement;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +11,7 @@ import java.sql.SQLException;
  * @version $Id:$
  * @since 11.10.16
  */
-interface StatementPreparer {
+public interface StatementPreparer {
 
     /**
      * Prepare a statement.

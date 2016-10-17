@@ -2,7 +2,7 @@ package co.ecso.dacato.cassandra;
 
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.DatabaseTable;
-import co.ecso.dacato.database.query.*;
+import co.ecso.dacato.database.querywrapper.*;
 
 import java.nio.ByteBuffer;
 import java.util.*;

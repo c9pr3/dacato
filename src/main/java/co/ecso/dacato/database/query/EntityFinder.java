@@ -1,9 +1,11 @@
-package co.ecso.dacato.database.internals;
+package co.ecso.dacato.database.query;
 
 import co.ecso.dacato.config.ConfigGetter;
 import co.ecso.dacato.database.ColumnList;
 import co.ecso.dacato.database.SQLNoResultException;
-import co.ecso.dacato.database.query.*;
+import co.ecso.dacato.database.querywrapper.*;
+import co.ecso.dacato.database.statement.StatementFiller;
+import co.ecso.dacato.database.statement.StatementPreparer;
 
 import java.sql.*;
 import java.util.*;

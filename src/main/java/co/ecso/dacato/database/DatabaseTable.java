@@ -2,11 +2,11 @@ package co.ecso.dacato.database;
 
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.config.ConfigGetter;
-import co.ecso.dacato.database.internals.EntityFinder;
-import co.ecso.dacato.database.internals.EntityRemover;
-import co.ecso.dacato.database.internals.Inserter;
-import co.ecso.dacato.database.internals.Truncater;
-import co.ecso.dacato.database.query.*;
+import co.ecso.dacato.database.query.EntityFinder;
+import co.ecso.dacato.database.query.EntityRemover;
+import co.ecso.dacato.database.query.Inserter;
+import co.ecso.dacato.database.query.Truncater;
+import co.ecso.dacato.database.querywrapper.*;
 
 import java.util.List;
 import java.util.Map;

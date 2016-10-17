@@ -1,6 +1,7 @@
-package co.ecso.dacato.database.internals;
+package co.ecso.dacato.database.query;
 
 import co.ecso.dacato.config.ConfigGetter;
+import co.ecso.dacato.database.statement.StatementPreparer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

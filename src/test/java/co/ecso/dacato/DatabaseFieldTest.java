@@ -1,6 +1,6 @@
 package co.ecso.dacato;
 
-import co.ecso.dacato.database.query.DatabaseField;
+import co.ecso.dacato.database.querywrapper.DatabaseField;
 import org.junit.Assert;
 import org.junit.Test;
 

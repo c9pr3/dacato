@@ -1,4 +1,4 @@
-package co.ecso.dacato.database.query;
+package co.ecso.dacato.database.querywrapper;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

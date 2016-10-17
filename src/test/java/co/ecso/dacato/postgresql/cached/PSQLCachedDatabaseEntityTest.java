@@ -1,6 +1,6 @@
 package co.ecso.dacato.postgresql.cached;
 
-import co.ecso.dacato.database.query.DatabaseField;
+import co.ecso.dacato.database.querywrapper.DatabaseField;
 import co.ecso.dacato.postgresql.AbstractPSQLTest;
 import co.ecso.dacato.postgresql.PSQLTestApplicationConfig;
 import org.junit.After;

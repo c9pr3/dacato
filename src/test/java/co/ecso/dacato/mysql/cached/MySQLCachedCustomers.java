@@ -5,8 +5,8 @@ import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.CachedDatabaseTable;
 import co.ecso.dacato.database.cache.Cache;
 import co.ecso.dacato.database.cache.CacheKey;
-import co.ecso.dacato.database.query.InsertQuery;
-import co.ecso.dacato.database.query.SingleColumnQuery;
+import co.ecso.dacato.database.querywrapper.InsertQuery;
+import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

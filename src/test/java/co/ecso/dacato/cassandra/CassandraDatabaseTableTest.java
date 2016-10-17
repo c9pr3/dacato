@@ -1,7 +1,7 @@
 package co.ecso.dacato.cassandra;
 
-import co.ecso.dacato.database.query.DatabaseField;
-import co.ecso.dacato.database.query.DatabaseResultField;
+import co.ecso.dacato.database.querywrapper.DatabaseField;
+import co.ecso.dacato.database.querywrapper.DatabaseResultField;
 import org.cassandraunit.CassandraUnit;
 import org.cassandraunit.dataset.xml.AbstractXmlDataSet;
 import org.junit.*;

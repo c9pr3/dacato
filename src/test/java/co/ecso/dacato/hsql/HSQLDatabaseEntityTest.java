@@ -1,6 +1,6 @@
 package co.ecso.dacato.hsql;
 
-import co.ecso.dacato.database.query.DatabaseField;
+import co.ecso.dacato.database.querywrapper.DatabaseField;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
