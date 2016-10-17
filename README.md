@@ -13,6 +13,7 @@ A project written by [Christian Senkowski](http://e-cs.co/).
     - [PostgreSQL Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/postgresql)
     - [Cassandra Example (In development)](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/cassandra)
     - [SQLite Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/sqlite/)
+    - [H2 Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/h2/)
     - [MongoDB Example (Todo)]()
 - [Why use it?](#why-the--should-i-use-dacato-tons-of-more-major-frameworks-out-there)
 - [Why is the "T" silent?](#why-is-the-t-silent)
@@ -22,9 +23,9 @@ A project written by [Christian Senkowski](http://e-cs.co/).
 
 DACATO aims to be a asynchronous, cachable data access framework/library for small to middle projects which have to interact with a **relational** database.
 While most frameworks are bloated and force the user to do things in a *specific* way, DACATO offers full flexibility. You *may* do things as provided or overwrite everything to have it *your* way.<br/>
-DACATO does not have **any** dependencies except for JDK8+ and does not need reflection in any way.
+DACATO does not have **any** dependencies except for JDK8+.
 
-It has been tested with [MySQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/mysql), [HSQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/hsql), [PostgreSQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/postgresql), [SQLite](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/sqlite/) and currently working on [Cassandra](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/cassandra).<br/>
+It has been tested with [MySQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/mysql), [HSQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/hsql), [PostgreSQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/postgresql), [SQLite](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/sqlite/), [H2](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/h2/) and currently working on [Cassandra](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/cassandra).<br/>
 If you use it successfully with a different database, **please let me know!**
 
 
@@ -191,7 +192,7 @@ Pro's:
 * **Immutable** by design
 * **Asynchronous** with CompletableFuture which offers great flexibility.
 * **No dependencies**
-* **No annotations** (hence no reflection)
+* **No annotations** (hence no heavy reflection)
 * **Flexible** to a point where you can totally ignore what I had in mind and do your own thing. 
 
 

@@ -117,6 +117,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         format.add(columnWhere.name());
         final String finalQuery = String.format(query.query(), format.toArray());
 
+//        System.out.println("FINDING: " + finalQuery + ", " + columnWhere.toString() + " = " + whereValueToFind);
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
@@ -299,8 +300,15 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         for (final DatabaseField column : columnsToSelect) {
             Object rval;
             try {
+                if (rs.getClass().getMethod("getObject", int.class, Class.class) == null) {
+                    throw new NoSuchMethodError("Driver does not support getObject with class");
+                }
                 rval = rs.getObject(column.name(), column.valueClass());
-            } catch (final SQLFeatureNotSupportedException e) {
+                if (rval == null) {
+                    throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
+                            "getObject(int, class)");
+                }
+            } catch (final SQLFeatureNotSupportedException | NoSuchMethodException e) {
                 rval = rs.getObject(column.name());
             }
             if (rval == null) {
@@ -332,8 +340,15 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
             while (rs.next()) {
                 R rval;
                 try {
+                    if (rs.getClass().getMethod("getObject", int.class, Class.class) == null) {
+                        throw new NoSuchMethodError("Driver does not support getObject with class");
+                    }
                     rval = rs.getObject(1, columnToSelect.valueClass());
-                } catch (final SQLFeatureNotSupportedException e) {
+                    if (rval == null) {
+                        throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
+                                "getObject(int, class)");
+                    }
+                } catch (final SQLFeatureNotSupportedException | NoSuchMethodException e) {
                     //noinspection unchecked
                     rval = (R) rs.getObject(1);
                 }
@@ -377,8 +392,15 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
 
             R rval;
             try {
+                if (rs.getClass().getMethod("getObject", int.class, Class.class) == null) {
+                    throw new NoSuchMethodError("Driver does not support getObject with class");
+                }
                 rval = rs.getObject(1, columnToSelect.valueClass());
-            } catch (final SQLFeatureNotSupportedException ignored) {
+                if (rval == null) {
+                    throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
+                            "getObject(int, class)");
+                }
+            } catch (final SQLFeatureNotSupportedException | NoSuchMethodException ignored) {
                 //noinspection unchecked
                 rval = (R) rs.getObject(1);
             }

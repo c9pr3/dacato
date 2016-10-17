@@ -1,10 +1,9 @@
-package co.ecso.dacato.mysql;
+package co.ecso.dacato.h2;
 
-import ch.vorburger.mariadb4j.DB;
-import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.helpers.CreateTableOnlyFilter;
-import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
+import org.h2.jdbcx.JdbcDataSource;
+import org.h2.tools.Server;
 
 import javax.sql.DataSource;
 import java.nio.file.Files;
@@ -16,37 +15,31 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * AbstractMySQLTest.
+ * AbstractHTwoTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 10.10.16
  */
-public abstract class AbstractMySQLTest extends AbstractTest {
+public abstract class AbstractHTwoTest extends AbstractTest {
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractMySQLTest.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AbstractHTwoTest.class.getName());
 
     static {
-        DBConfigurationBuilder configBuilder = DBConfigurationBuilder.newBuilder();
-        configBuilder.setPort(3399);
-        configBuilder.setDataDir("src/test/conf/");
         try {
-            DB db = DB.newEmbeddedDB(configBuilder.build());
-            db.start();
-        } catch (final Exception e) {
+            Server.createTcpServer().start();
+        } catch (final SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    protected final void setUpMySQLDatabase() throws Exception {
+    protected final void setUpHTwoDatabase() throws Exception {
         final String lines = Files.readAllLines(Paths.get("test.sql"))
                 .stream()
                 .filter(CreateTableOnlyFilter::filter)
                 .collect(Collectors.joining());
-        try (final Connection connection = getMySQLDataSource().getConnection()) {
+        try (final Connection connection = getHTwoDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
-                stmt.execute("CREATE DATABASE server_v5");
-                stmt.execute("USE server_v5");
                 final String[] splittedLines = lines.split(";");
                 for (final String line : splittedLines) {
                     stmt.execute(line);
@@ -58,16 +51,22 @@ public abstract class AbstractMySQLTest extends AbstractTest {
         }
     }
 
-    private DataSource getMySQLDataSource() {
-        final MysqlConnectionPoolDataSource dataSource = new MysqlConnectionPoolDataSource();
-        dataSource.setUrl("jdbc:mysql://127.0.0.1:3399/?user=root");
+    private DataSource getHTwoDataSource() {
+        try {
+            Class.forName("org.h2.Driver");
+        } catch (final ClassNotFoundException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        final JdbcDataSource dataSource = new JdbcDataSource();
+        dataSource.setUrl("jdbc:h2:tcp://localhost/~/test");
         return dataSource;
     }
 
-    protected final void cleanupMySQLDatabase() {
-        try (final Connection connection = getMySQLDataSource().getConnection()) {
+    protected final void cleanupHTwoDatabase() {
+        try (final Connection connection = getHTwoDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
-                stmt.execute("DROP DATABASE server_v5");
+                stmt.execute("DROP TABLE customer");
+                stmt.execute("DROP TABLE products");
             }
         } catch (final SQLException e) {
             throw new RuntimeException(e.getMessage(), e);

@@ -112,11 +112,22 @@ public interface Inserter<T> extends ConfigGetter, StatementPreparer {
                 throw new SQLException(String.format("Query %s failed, resultset empty", finalQuery));
             }
             try {
-                return new DatabaseResultField<>(columnToSelect,
-                        generatedKeys.getObject(1, columnToSelect.valueClass()));
-            } catch (final SQLFeatureNotSupportedException ignored) {
+                if (generatedKeys.getClass().getMethod("getObject", int.class, Class.class) == null) {
+                    throw new NoSuchMethodError("Driver does not support getObject with class");
+                }
+                final T value = generatedKeys.getObject(1, columnToSelect.valueClass());
+                if (value == null) {
+                    throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
+                            "getObject(int, class)");
+                }
+                return new DatabaseResultField<>(columnToSelect, value);
+            } catch (final SQLFeatureNotSupportedException | NoSuchMethodException ignored) {
                 //noinspection unchecked
-                return new DatabaseResultField<>(columnToSelect, (T) generatedKeys.getObject(1));
+                final T value = (T) generatedKeys.getObject(1);
+                if (value == null) {
+                    throw new SQLFeatureNotSupportedException("Broken driver, gave back null for getObject(int)");
+                }
+                return new DatabaseResultField<>(columnToSelect, value);
             }
         }
     }

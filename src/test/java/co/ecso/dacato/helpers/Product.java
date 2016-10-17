@@ -23,7 +23,7 @@ import static co.ecso.dacato.AbstractTest.CACHE;
  * @version $Id:$
  * @since 24.09.16
  */
-public final class Product implements CachedDatabaseEntity<Integer> {
+final class Product implements CachedDatabaseEntity<Integer> {
     static final String TABLE_NAME = "products";
     public static final String QUERY = String.format("SELECT %%s FROM %s WHERE products_id = ?", TABLE_NAME);
     private final Integer id;
