@@ -33,7 +33,7 @@
         <dependency>
             <groupId>net.snaq</groupId>
             <artifactId>dbpool</artifactId>
-            <version>7.0</version>
+            <version>7.0.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
