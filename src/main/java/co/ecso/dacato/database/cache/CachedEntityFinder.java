@@ -31,10 +31,8 @@ public interface CachedEntityFinder extends EntityFinder, CacheGetter, CacheKeyG
                                                                             final Callable<AtomicBoolean>
                                                                                     validityCallback) {
         try {
-            //@TODO find better solution than unchecked cast
-            //noinspection unchecked
-            return (CompletableFuture<List<DatabaseResultField<S>>>) cache().get(getCacheKey(query), () ->
-                    EntityFinder.super.findMany(query, validityCallback));
+            final Cache cache = cache();
+            return cache.get(getCacheKey(query), () -> EntityFinder.super.findMany(query, validityCallback));
         } catch (final ExecutionException e) {
             final CompletableFuture<List<DatabaseResultField<S>>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);
@@ -47,9 +45,8 @@ public interface CachedEntityFinder extends EntityFinder, CacheGetter, CacheKeyG
     default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query,
                                                                   final Callable<AtomicBoolean> validityCallback) {
         try {
-            //@TODO find better solution than unchecked cast
-            //noinspection unchecked
-            return (CompletableFuture<DatabaseResultField<S>>) cache().get(getCacheKey(query), () ->
+            final Cache cache = cache();
+            return cache.get(getCacheKey(query), () -> (CompletableFuture<DatabaseResultField<S>>)
                     EntityFinder.super.findOne(query, validityCallback));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
@@ -61,12 +58,10 @@ public interface CachedEntityFinder extends EntityFinder, CacheGetter, CacheKeyG
     @SuppressWarnings("Duplicates")
     @Override
     default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query,
-                                                                     final Callable<AtomicBoolean> validityCheck) {
+                                                                     final Callable<AtomicBoolean> validityCallback) {
         try {
-            //@TODO find better solution than unchecked cast
-            //noinspection unchecked
-            return (CompletableFuture<DatabaseResultField<S>>) cache().get(getCacheKey(query), () ->
-                    EntityFinder.super.findOne(query, validityCheck));
+            final Cache cache = cache();
+            return cache.get(getCacheKey(query), () -> EntityFinder.super.findOne(query, validityCallback));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);

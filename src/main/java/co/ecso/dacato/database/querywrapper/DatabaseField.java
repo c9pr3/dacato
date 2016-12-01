@@ -1,5 +1,6 @@
 package co.ecso.dacato.database.querywrapper;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Objects;
  * @version $Id:$
  * @since 09.09.16
  */
-public final class DatabaseField<T> {
+public final class DatabaseField<T> implements Serializable {
 
     /**
      * Field name.
@@ -90,4 +91,5 @@ public final class DatabaseField<T> {
     public int hashCode() {
         return Objects.hash(name, valueClass, sqlType);
     }
+
 }

@@ -4,7 +4,6 @@ import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.CachedDatabaseTable;
 import co.ecso.dacato.database.cache.Cache;
-import co.ecso.dacato.database.cache.CacheKey;
 import co.ecso.dacato.database.querywrapper.InsertQuery;
 import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
 
@@ -49,8 +48,9 @@ final class HTwoCachedCustomers implements CachedDatabaseTable<Long, HTwoCachedC
     @Override
     public CompletableFuture<List<HTwoCachedCustomer>> findAll() {
         return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", HTwoCachedCustomer.Fields.ID))
-                .thenApply(list -> list.stream().map(foundId -> new HTwoCachedCustomer(config, foundId.resultValue()))
-                        .collect(Collectors.toList()));
+                .thenApply(list ->
+                        list.stream().map(foundId ->
+                                new HTwoCachedCustomer(config, foundId.resultValue())).collect(Collectors.toList()));
     }
 
     @Override
@@ -59,7 +59,7 @@ final class HTwoCachedCustomers implements CachedDatabaseTable<Long, HTwoCachedC
     }
 
     @Override
-    public Cache<CacheKey, CompletableFuture> cache() {
+    public Cache cache() {
         return AbstractTest.CACHE;
     }
 }

@@ -4,7 +4,6 @@ import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.CachedDatabaseTable;
 import co.ecso.dacato.database.cache.Cache;
-import co.ecso.dacato.database.cache.CacheKey;
 import co.ecso.dacato.database.querywrapper.InsertQuery;
 import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
 
@@ -59,7 +58,7 @@ final class PSQLCachedCustomers implements CachedDatabaseTable<Long, PSQLCachedC
     }
 
     @Override
-    public Cache<CacheKey, CompletableFuture> cache() {
+    public Cache cache() {
         return AbstractTest.CACHE;
     }
 }

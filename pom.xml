@@ -139,6 +139,12 @@
             <version>1.4.192</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.7.3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -4,7 +4,6 @@ import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.CachedDatabaseEntity;
 import co.ecso.dacato.database.ColumnList;
 import co.ecso.dacato.database.cache.Cache;
-import co.ecso.dacato.database.cache.CacheKey;
 import co.ecso.dacato.database.querywrapper.DatabaseField;
 import co.ecso.dacato.database.querywrapper.SingleColumnUpdateQuery;
 
@@ -56,7 +55,7 @@ final class Product implements CachedDatabaseEntity<Integer> {
     }
 
     @Override
-    public Cache<CacheKey, CompletableFuture> cache() {
+    public Cache cache() {
         return CACHE;
     }
 

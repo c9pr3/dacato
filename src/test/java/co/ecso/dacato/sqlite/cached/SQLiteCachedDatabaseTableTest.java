@@ -2,6 +2,7 @@ package co.ecso.dacato.sqlite.cached;
 
 import co.ecso.dacato.TestApplicationCache;
 import co.ecso.dacato.database.cache.Cache;
+import co.ecso.dacato.database.cache.CacheKey;
 import co.ecso.dacato.sqlite.AbstractSQLiteTest;
 import co.ecso.dacato.sqlite.SQLiteTestApplicationConfig;
 import org.junit.After;
@@ -78,12 +79,17 @@ public final class SQLiteCachedDatabaseTableTest extends AbstractSQLiteTest {
     @SuppressWarnings("Duplicates")
     @Test
     public void testCache() throws ExecutionException, InterruptedException, TimeoutException {
-        final Cache<String, CompletableFuture<Long>> myCache = new TestApplicationCache<>();
-        final Long longValue = myCache.get("foo", this::getLong).get(10, TimeUnit.SECONDS);
-        final Long longValue2 = myCache.get("foo", this::getLong).get(10, TimeUnit.SECONDS);
-        final Long longValue3 = myCache.get("foo", this::getLong).get(10, TimeUnit.SECONDS);
-        final Long longValue4 = myCache.get("foo", this::getLong).get(10, TimeUnit.SECONDS);
-        final Long longValue5 = myCache.get("foo", this::getLong).get(10, TimeUnit.SECONDS);
+        final Cache myCache = new TestApplicationCache();
+        final Long longValue  = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+                .get(10, TimeUnit.SECONDS);
+        final Long longValue2 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+                .get(10, TimeUnit.SECONDS);
+        final Long longValue3 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+                .get(10, TimeUnit.SECONDS);
+        final Long longValue4 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+                .get(10, TimeUnit.SECONDS);
+        final Long longValue5 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+                .get(10, TimeUnit.SECONDS);
 
         Assert.assertEquals(longValue, longValue2);
         Assert.assertEquals(longValue, longValue3);
@@ -92,7 +98,7 @@ public final class SQLiteCachedDatabaseTableTest extends AbstractSQLiteTest {
     }
 
     private CompletableFuture<Long> getLong() {
-        CompletableFuture<Long> c = new CompletableFuture<>();
+        final CompletableFuture<Long> c = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {
                 TimeUnit.SECONDS.sleep(5);
@@ -106,7 +112,11 @@ public final class SQLiteCachedDatabaseTableTest extends AbstractSQLiteTest {
     @SuppressWarnings("Duplicates")
     @Test
     public void testFindAll() throws Exception {
-        Assert.assertEquals(Integer.valueOf(0), this.customers.findAll().thenApply(List::size).get());
+        Assert.assertEquals(Integer.valueOf(0),
+                this.customers
+                        .findAll()
+                        .thenApply(List::size)
+                        .get());
 
         CompletableFuture.allOf(
                 this.customers.create("foo1", 12345),

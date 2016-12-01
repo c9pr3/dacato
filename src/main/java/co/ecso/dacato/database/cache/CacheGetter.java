@@ -1,7 +1,5 @@
 package co.ecso.dacato.database.cache;
 
-import java.util.concurrent.CompletableFuture;
-
 /**
  * CacheGetter.
  *
@@ -16,5 +14,5 @@ public interface CacheGetter {
      *
      * @return Cache.
      */
-    Cache<CacheKey, CompletableFuture> cache();
+    Cache cache();
 }

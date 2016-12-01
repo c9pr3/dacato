@@ -1,5 +1,7 @@
 package co.ecso.dacato.database.querywrapper;
 
+import java.io.Serializable;
+
 /**
  * Query.
  *
@@ -8,7 +10,7 @@ package co.ecso.dacato.database.querywrapper;
  * @version $Id:$
  * @since 19.09.16
  */
-public interface Query<T> {
+public interface Query<T> extends Serializable {
 
     /**
      * Get query.

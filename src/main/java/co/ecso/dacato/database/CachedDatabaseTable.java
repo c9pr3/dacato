@@ -62,7 +62,7 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
             }
 
             @Override
-            public Cache<CacheKey, CompletableFuture> cache() {
+            public Cache cache() {
                 return CachedDatabaseTable.this.cache();
             }
 
@@ -97,7 +97,7 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
             }
 
             @Override
-            public Cache<CacheKey, CompletableFuture> cache() {
+            public Cache cache() {
                 return CachedDatabaseTable.this.cache();
             }
 
@@ -122,7 +122,7 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
             }
 
             @Override
-            public Cache<CacheKey, CompletableFuture> cache() {
+            public Cache cache() {
                 return CachedDatabaseTable.this.cache();
             }
         };

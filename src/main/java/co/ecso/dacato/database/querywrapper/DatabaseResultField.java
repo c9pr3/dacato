@@ -1,5 +1,6 @@
 package co.ecso.dacato.database.querywrapper;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Objects;
  * @version $Id:$
  * @since 09.09.16
  */
-public final class DatabaseResultField<T> {
+public final class DatabaseResultField<T> implements Serializable {
 
     /**
      * Selected field.

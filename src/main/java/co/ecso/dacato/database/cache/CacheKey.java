@@ -1,5 +1,6 @@
 package co.ecso.dacato.database.cache;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Objects;
  * @version $Id:$
  * @since 20.09.16
  */
-public final class CacheKey {
+public final class CacheKey implements Serializable {
 
     /**
      * Key.

@@ -1,11 +1,12 @@
 package co.ecso.dacato.database;
 
 import co.ecso.dacato.config.ApplicationConfig;
-import co.ecso.dacato.database.cache.*;
+import co.ecso.dacato.database.cache.Cache;
+import co.ecso.dacato.database.cache.CacheGetter;
+import co.ecso.dacato.database.cache.CachedEntityFinder;
+import co.ecso.dacato.database.cache.CachedUpdater;
 import co.ecso.dacato.database.query.EntityFinder;
 import co.ecso.dacato.database.query.Updater;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * CachedDatabaseEntity.
@@ -32,7 +33,7 @@ public interface CachedDatabaseEntity<T> extends DatabaseEntity<T>, CacheGetter 
             }
 
             @Override
-            public Cache<CacheKey, CompletableFuture> cache() {
+            public Cache cache() {
                 return CachedDatabaseEntity.this.cache();
             }
 
@@ -53,7 +54,7 @@ public interface CachedDatabaseEntity<T> extends DatabaseEntity<T>, CacheGetter 
             }
 
             @Override
-            public Cache<CacheKey, CompletableFuture> cache() {
+            public Cache cache() {
                 return CachedDatabaseEntity.this.cache();
             }
 

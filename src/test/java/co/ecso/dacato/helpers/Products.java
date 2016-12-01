@@ -3,7 +3,6 @@ package co.ecso.dacato.helpers;
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.CachedDatabaseTable;
 import co.ecso.dacato.database.cache.Cache;
-import co.ecso.dacato.database.cache.CacheKey;
 import co.ecso.dacato.database.querywrapper.InsertQuery;
 import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
 
@@ -111,7 +110,7 @@ public class Products implements CachedDatabaseTable<Integer, Product> {
     }
 
     @Override
-    public final Cache<CacheKey, CompletableFuture> cache() {
+    public final Cache cache() {
         return CACHE;
     }
 }

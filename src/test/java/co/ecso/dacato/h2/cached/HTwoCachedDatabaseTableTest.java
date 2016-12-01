@@ -2,6 +2,9 @@ package co.ecso.dacato.h2.cached;
 
 import co.ecso.dacato.TestApplicationCache;
 import co.ecso.dacato.database.cache.Cache;
+import co.ecso.dacato.database.cache.CacheKey;
+import co.ecso.dacato.database.querywrapper.DatabaseField;
+import co.ecso.dacato.database.querywrapper.DatabaseResultField;
 import co.ecso.dacato.h2.AbstractHTwoTest;
 import co.ecso.dacato.h2.HTwoTestApplicationConfig;
 import org.junit.After;
@@ -9,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.Types;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -46,7 +50,8 @@ public final class HTwoCachedDatabaseTableTest extends AbstractHTwoTest {
 
     @Test
     public void testFindOne() throws Exception {
-        final HTwoCachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
+        final HTwoCachedCustomer newCustomer = this.customers.create("foo1", 12345L)
+                .get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
 
         final HTwoCachedCustomer foundCustomer1 = this.customers.findOne(newCustomer.primaryKey())
@@ -78,12 +83,17 @@ public final class HTwoCachedDatabaseTableTest extends AbstractHTwoTest {
     @SuppressWarnings("Duplicates")
     @Test
     public void testCache() throws ExecutionException, InterruptedException, TimeoutException {
-        final Cache<String, CompletableFuture<Long>> myCache = new TestApplicationCache<>();
-        final Long longValue = myCache.get("foo", this::getLong).get(10, TimeUnit.SECONDS);
-        final Long longValue2 = myCache.get("foo", this::getLong).get(10, TimeUnit.SECONDS);
-        final Long longValue3 = myCache.get("foo", this::getLong).get(10, TimeUnit.SECONDS);
-        final Long longValue4 = myCache.get("foo", this::getLong).get(10, TimeUnit.SECONDS);
-        final Long longValue5 = myCache.get("foo", this::getLong).get(10, TimeUnit.SECONDS);
+        final Cache myCache = new TestApplicationCache();
+        final Long longValue = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+                .get(10, TimeUnit.SECONDS).resultValue();
+        final Long longValue2 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+                .get(10, TimeUnit.SECONDS).resultValue();
+        final Long longValue3 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+                .get(10, TimeUnit.SECONDS).resultValue();
+        final Long longValue4 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+                .get(10, TimeUnit.SECONDS).resultValue();
+        final Long longValue5 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+                .get(10, TimeUnit.SECONDS).resultValue();
 
         Assert.assertEquals(longValue, longValue2);
         Assert.assertEquals(longValue, longValue3);
@@ -91,12 +101,13 @@ public final class HTwoCachedDatabaseTableTest extends AbstractHTwoTest {
         Assert.assertEquals(longValue, longValue5);
     }
 
-    private CompletableFuture<Long> getLong() {
-        CompletableFuture<Long> c = new CompletableFuture<>();
+    private CompletableFuture<DatabaseResultField<Long>> getLong() {
+        final CompletableFuture<DatabaseResultField<Long>> c = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {
                 TimeUnit.SECONDS.sleep(5);
-                c.complete(System.currentTimeMillis());
+                final DatabaseField<Long> field = new DatabaseField<>("none", Long.class, Types.BIGINT);
+                c.complete(new DatabaseResultField<>(field, System.currentTimeMillis()));
             } catch (final InterruptedException ignored) {
             }
         });
