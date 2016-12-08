@@ -4,8 +4,6 @@ import co.ecso.dacato.config.ConfigGetter;
 import co.ecso.dacato.database.ColumnList;
 import co.ecso.dacato.database.SQLNoResultException;
 import co.ecso.dacato.database.querywrapper.*;
-import co.ecso.dacato.database.statement.StatementFiller;
-import co.ecso.dacato.database.statement.StatementPreparer;
 
 import java.sql.*;
 import java.util.*;
@@ -34,8 +32,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param returnValueFuture ReturnValue to complete exceptionally if validity fails.
      * @return true or false for early return purposes.
      */
-    default boolean validityFails(final Callable<AtomicBoolean> validityCheck,
-                                  final CompletableFuture<?> returnValueFuture) {
+    default boolean validityFails(Callable<AtomicBoolean> validityCheck, CompletableFuture<?> returnValueFuture) {
         try {
             if (!validityCheck.call().get()) {
                 returnValueFuture.completeExceptionally(new IllegalArgumentException("Object already destroyed"));
@@ -56,8 +53,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param <S>           Type to return, p.e. String in select x from y where name = z.
      * @return DatabaseResultField with type to select (S), p.e. String
      */
-    default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query,
-                                                                  final Callable<AtomicBoolean> validityCheck) {
+    default <S> CompletableFuture<DatabaseResultField<S>> findOne(MultiColumnQuery<S> query,
+                                                                  Callable<AtomicBoolean> validityCheck) {
 
         final CompletableFuture<DatabaseResultField<S>> returnValueFuture = new CompletableFuture<>();
 
@@ -100,8 +97,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param validityCheck Validity check callback.
      * @return DatabaseResultField with type to select (W), p.e. String
      */
-    default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query,
-                                                                     final Callable<AtomicBoolean> validityCheck) {
+    default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(SingleColumnQuery<S, W> query,
+                                                                     Callable<AtomicBoolean> validityCheck) {
 
         final CompletableFuture<DatabaseResultField<S>> returnValueFuture = new CompletableFuture<>();
 
@@ -143,9 +140,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param validityCheck Validity Check.
      * @return List of DatabaseResultFields.
      */
-    default CompletableFuture<Map<DatabaseField, DatabaseResultField>> findOne(final MultiColumnSelectQuery<?> query,
-                                                                               final Callable<AtomicBoolean>
-                                                                                       validityCheck) {
+    default CompletableFuture<Map<DatabaseField, DatabaseResultField>> findOne(MultiColumnSelectQuery<?> query,
+                                                                               Callable<AtomicBoolean> validityCheck) {
 
         final CompletableFuture<Map<DatabaseField, DatabaseResultField>> returnValueFuture =
                 new CompletableFuture<>();
@@ -187,8 +183,9 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param validityCheck Validity Check.
      * @return List of DatabaseResultFields.
      */
-    default CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findMany(
-            final MultiColumnSelectQuery<?> query, final Callable<AtomicBoolean> validityCheck) {
+    default CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findMany(MultiColumnSelectQuery<?> query,
+                                                                                      Callable<AtomicBoolean>
+                                                                                              validityCheck) {
 
         final CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> returnValueFuture =
                 new CompletableFuture<>();
@@ -231,9 +228,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param validityCheck Validity check callback.
      * @return List of DatabaseResultFields with type to select (W), p.e. String
      */
-    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query,
-                                                                            final Callable<AtomicBoolean>
-                                                                                    validityCheck) {
+    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(SingleColumnQuery<S, W> query,
+                                                                            Callable<AtomicBoolean> validityCheck) {
         final CompletableFuture<List<DatabaseResultField<S>>> returnValueFuture =
                 new CompletableFuture<>();
 
@@ -262,61 +258,67 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         return returnValueFuture;
     }
 
-    default Map<DatabaseField, DatabaseResultField> getMapRowResult(final String finalQuery,
-                                                                    final List<DatabaseField> columnsToSelect,
-                                                                    final PreparedStatement stmt) throws SQLException {
-        final Map<DatabaseField, DatabaseResultField> result = new LinkedHashMap<>();
-        if (stmt.isClosed()) {
-            throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
-        }
-        try (final ResultSet rs = stmt.executeQuery()) {
-            if (!rs.next()) {
-                throw new SQLNoResultException(String.format("No Results for %s", finalQuery));
+    default Map<DatabaseField, DatabaseResultField> getMapRowResult(String finalQuery,
+                                                                    List<DatabaseField> columnsToSelect,
+                                                                    PreparedStatement stmt) throws SQLException {
+        synchronized (stmt) {
+            final Map<DatabaseField, DatabaseResultField> result = new LinkedHashMap<>();
+            if (stmt.isClosed()) {
+                throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
             }
-            listMapColumns(columnsToSelect, rs, result);
+            try (final ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next()) {
+                    throw new SQLNoResultException(String.format("No Results for %s", finalQuery));
+                }
+                listMapColumns(columnsToSelect, rs, result);
+            }
+            return result;
         }
-        return result;
     }
 
-    default List<Map<DatabaseField, DatabaseResultField>> getListMapRowResult(final List<DatabaseField> columnsToSelect,
-                                                                              final PreparedStatement stmt)
+    default List<Map<DatabaseField, DatabaseResultField>> getListMapRowResult(List<DatabaseField> columnsToSelect,
+                                                                              PreparedStatement stmt)
             throws SQLException {
-        final List<Map<DatabaseField, DatabaseResultField>> result = new LinkedList<>();
-        if (stmt.isClosed()) {
-            throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
-        }
-        try (final ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                Map<DatabaseField, DatabaseResultField> map = new HashMap<>();
-                listMapColumns(columnsToSelect, rs, map);
-                result.add(map);
+        synchronized (stmt) {
+            final List<Map<DatabaseField, DatabaseResultField>> result = new LinkedList<>();
+            if (stmt.isClosed()) {
+                throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
             }
+            try (final ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<DatabaseField, DatabaseResultField> map = new HashMap<>();
+                    listMapColumns(columnsToSelect, rs, map);
+                    result.add(map);
+                }
+            }
+            return result;
         }
-        return result;
     }
 
-    default void listMapColumns(final List<DatabaseField> columnsToSelect, final ResultSet rs,
-                                final Map<DatabaseField, DatabaseResultField> map) throws SQLException {
-        for (final DatabaseField column : columnsToSelect) {
-            Object rval;
-            try {
-                if (rs.getClass().getMethod("getObject", int.class, Class.class) == null) {
-                    throw new NoSuchMethodError("Driver does not support getObject with class");
+    default void listMapColumns(List<DatabaseField> columnsToSelect, ResultSet rs,
+                                Map<DatabaseField, DatabaseResultField> map) throws SQLException {
+        synchronized (rs) {
+            for (final DatabaseField column : columnsToSelect) {
+                Object rval;
+                try {
+                    if (rs.getClass().getMethod("getObject", int.class, Class.class) == null) {
+                        throw new NoSuchMethodError("Driver does not support getObject with class");
+                    }
+                    rval = rs.getObject(column.name(), column.valueClass());
+                    if (rval == null) {
+                        throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
+                                "getObject(int, class)");
+                    }
+                } catch (final SQLFeatureNotSupportedException | NoSuchMethodException e) {
+                    rval = rs.getObject(column.name());
                 }
-                rval = rs.getObject(column.name(), column.valueClass());
                 if (rval == null) {
-                    throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
-                            "getObject(int, class)");
+                    //noinspection unchecked
+                    map.put(column, new DatabaseResultField<>(column, null));
+                } else {
+                    //noinspection unchecked
+                    map.put(column, castResultValue(column, rval, column.valueClass()));
                 }
-            } catch (final SQLFeatureNotSupportedException | NoSuchMethodException e) {
-                rval = rs.getObject(column.name());
-            }
-            if (rval == null) {
-                //noinspection unchecked
-                map.put(column, new DatabaseResultField<>(column, null));
-            } else {
-                //noinspection unchecked
-                map.put(column, castResultValue(column, rval, column.valueClass()));
             }
         }
     }
@@ -330,36 +332,39 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @return List of DatabaseResultFields with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */
-    default <R> List<DatabaseResultField<R>> getListRowResult(final DatabaseField<R> columnToSelect,
-                                                              final PreparedStatement stmt) throws SQLException {
-        final List<DatabaseResultField<R>> result = new LinkedList<>();
-        if (stmt.isClosed()) {
-            throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
-        }
-        try (final ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                R rval;
-                try {
-                    if (rs.getClass().getMethod("getObject", int.class, Class.class) == null) {
-                        throw new NoSuchMethodError("Driver does not support getObject with class");
+    @SuppressWarnings("Duplicates")
+    default <R> List<DatabaseResultField<R>> getListRowResult(DatabaseField<R> columnToSelect, PreparedStatement stmt)
+            throws SQLException {
+        synchronized (stmt) {
+            final List<DatabaseResultField<R>> result = new LinkedList<>();
+            if (stmt.isClosed()) {
+                throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
+            }
+            try (final ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    R rval;
+                    try {
+                        if (rs.getClass().getMethod("getObject", int.class, Class.class) == null) {
+                            throw new NoSuchMethodError("Driver does not support getObject with class");
+                        }
+                        rval = rs.getObject(1, columnToSelect.valueClass());
+                        if (rval == null) {
+                            throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
+                                    "getObject(int, class)");
+                        }
+                    } catch (final SQLFeatureNotSupportedException | NoSuchMethodException e) {
+                        //noinspection unchecked
+                        rval = (R) rs.getObject(1);
                     }
-                    rval = rs.getObject(1, columnToSelect.valueClass());
                     if (rval == null) {
-                        throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
-                                "getObject(int, class)");
+                        result.add(new DatabaseResultField<>(columnToSelect, null));
+                    } else {
+                        result.add(castResultValue(columnToSelect, rval, columnToSelect.valueClass()));
                     }
-                } catch (final SQLFeatureNotSupportedException | NoSuchMethodException e) {
-                    //noinspection unchecked
-                    rval = (R) rs.getObject(1);
-                }
-                if (rval == null) {
-                    result.add(new DatabaseResultField<>(columnToSelect, null));
-                } else {
-                    result.add(castResultValue(columnToSelect, rval, columnToSelect.valueClass()));
                 }
             }
+            return result;
         }
-        return result;
     }
 
     /**
@@ -374,43 +379,44 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @return DatabaseResultField with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */
-    default <R> DatabaseResultField<R> getSingleRowResult(final String finalQuery,
-                                                          final DatabaseField<R> columnToSelect,
-                                                          final PreparedStatement stmt,
-                                                          final Set<DatabaseField<?>> databaseFields,
-                                                          final Collection<?> values) throws SQLException {
-        final DatabaseResultField<R> result;
-        if (stmt.isClosed()) {
-            throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
-        }
-        try (final ResultSet rs = stmt.executeQuery()) {
-            if (!rs.next()) {
-                throw new SQLNoResultException(String.format("No Results for %s, columnToSelect: %s, " +
-                                "columnWhere: %s, whereValueToFind: %s", finalQuery, columnToSelect.toString(),
-                        databaseFields.toString(), values.toString()));
+    @SuppressWarnings("Duplicates")
+    default <R> DatabaseResultField<R> getSingleRowResult(String finalQuery, DatabaseField<R> columnToSelect,
+                                                          PreparedStatement stmt, Set<DatabaseField<?>> databaseFields,
+                                                          Collection<?> values) throws SQLException {
+        synchronized (stmt) {
+            final DatabaseResultField<R> result;
+            if (stmt.isClosed()) {
+                throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
             }
+            try (final ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next()) {
+                    throw new SQLNoResultException(String.format("No Results for %s, columnToSelect: %s, " +
+                                    "columnWhere: %s, whereValueToFind: %s", finalQuery, columnToSelect.toString(),
+                            databaseFields.toString(), values.toString()));
+                }
 
-            R rval;
-            try {
-                if (rs.getClass().getMethod("getObject", int.class, Class.class) == null) {
-                    throw new NoSuchMethodError("Driver does not support getObject with class");
+                R rval;
+                try {
+                    if (rs.getClass().getMethod("getObject", int.class, Class.class) == null) {
+                        throw new NoSuchMethodError("Driver does not support getObject with class");
+                    }
+                    rval = rs.getObject(1, columnToSelect.valueClass());
+                    if (rval == null) {
+                        throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
+                                "getObject(int, class)");
+                    }
+                } catch (final SQLFeatureNotSupportedException | NoSuchMethodException ignored) {
+                    //noinspection unchecked
+                    rval = (R) rs.getObject(1);
                 }
-                rval = rs.getObject(1, columnToSelect.valueClass());
                 if (rval == null) {
-                    throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
-                            "getObject(int, class)");
+                    result = new DatabaseResultField<>(columnToSelect, null);
+                } else {
+                    result = castResultValue(columnToSelect, rval, columnToSelect.valueClass());
                 }
-            } catch (final SQLFeatureNotSupportedException | NoSuchMethodException ignored) {
-                //noinspection unchecked
-                rval = (R) rs.getObject(1);
             }
-            if (rval == null) {
-                result = new DatabaseResultField<>(columnToSelect, null);
-            } else {
-                result = castResultValue(columnToSelect, rval, columnToSelect.valueClass());
-            }
+            return result;
         }
-        return result;
     }
 
     /**
@@ -422,8 +428,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param databaseValue  Value from database.
      * @param valueClass     Value class.
      */
-    default <R> DatabaseResultField<R> castResultValue(final DatabaseField<R> columnToSelect,
-                                                       final R databaseValue, final Class valueClass) {
+    default <R> DatabaseResultField<R> castResultValue(DatabaseField<R> columnToSelect, R databaseValue,
+                                                       final Class valueClass) {
         final DatabaseResultField<R> result;
         if (valueClass == String.class) {
             result = new DatabaseResultField<>(columnToSelect,

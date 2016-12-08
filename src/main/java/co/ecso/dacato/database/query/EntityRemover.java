@@ -3,8 +3,6 @@ package co.ecso.dacato.database.query;
 import co.ecso.dacato.config.ConfigGetter;
 import co.ecso.dacato.database.ColumnList;
 import co.ecso.dacato.database.querywrapper.RemoveQuery;
-import co.ecso.dacato.database.statement.StatementFiller;
-import co.ecso.dacato.database.statement.StatementPreparer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +26,7 @@ public interface EntityRemover extends ConfigGetter, StatementPreparer {
         };
     }
 
-    default <S> CompletableFuture<Integer> removeOne(final RemoveQuery<S> query) {
+    default <S> CompletableFuture<Integer> removeOne(RemoveQuery<S> query) {
         final CompletableFuture<Integer> returnValueFuture = new CompletableFuture<>();
 
         final ColumnList valuesWhere = query.values();
@@ -63,11 +61,13 @@ public interface EntityRemover extends ConfigGetter, StatementPreparer {
      * @return DatabaseResultField with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */
-    default Integer getSingleRowResult(final PreparedStatement stmt) throws SQLException {
-        if (stmt.isClosed()) {
-            throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
+    default Integer getSingleRowResult(PreparedStatement stmt) throws SQLException {
+        synchronized (stmt) {
+            if (stmt.isClosed()) {
+                throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
+            }
+            return stmt.executeUpdate();
         }
-        return stmt.executeUpdate();
     }
 
 }

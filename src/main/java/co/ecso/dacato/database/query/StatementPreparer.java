@@ -1,4 +1,4 @@
-package co.ecso.dacato.database.statement;
+package co.ecso.dacato.database.query;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,12 +21,14 @@ public interface StatementPreparer {
      * @return PreparedStatement.
      * @throws SQLException if SQL fails.
      */
-    default PreparedStatement prepareStatement(final String finalQuery, final Connection connection, int option)
+    default PreparedStatement prepareStatement(String finalQuery, Connection connection, int option)
             throws SQLException {
-        if (option > 0) {
-            return connection.prepareStatement(finalQuery, option);
-        } else {
-            return connection.prepareStatement(finalQuery);
+        synchronized (finalQuery) {
+            if (option > 0) {
+                return connection.prepareStatement(finalQuery, option);
+            } else {
+                return connection.prepareStatement(finalQuery);
+            }
         }
     }
 }

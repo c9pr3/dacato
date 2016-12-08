@@ -3,8 +3,6 @@ package co.ecso.dacato.database.query;
 import co.ecso.dacato.config.ConfigGetter;
 import co.ecso.dacato.database.querywrapper.DatabaseField;
 import co.ecso.dacato.database.querywrapper.SingleColumnUpdateQuery;
-import co.ecso.dacato.database.statement.StatementFiller;
-import co.ecso.dacato.database.statement.StatementPreparer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,8 +40,7 @@ public interface Updater<T> extends ConfigGetter, StatementPreparer {
      * @param validityCheck Validity check callback.
      * @return Number of affected rows.
      */
-    default CompletableFuture<Integer> update(final SingleColumnUpdateQuery<T> query,
-                                              final Callable<AtomicBoolean> validityCheck) {
+    default CompletableFuture<Integer> update(SingleColumnUpdateQuery<T> query, Callable<AtomicBoolean> validityCheck) {
         final CompletableFuture<Integer> returnValueFuture = new CompletableFuture<>();
 
         try {
@@ -88,13 +85,15 @@ public interface Updater<T> extends ConfigGetter, StatementPreparer {
      * @throws SQLException if query fails.
      */
     default int getResult(final String finalQuery, final PreparedStatement stmt) throws SQLException {
-        if (stmt.isClosed()) {
-            throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
-        }
-        try {
-            return stmt.executeUpdate();
-        } catch (final SQLException e) {
-            throw new SQLException(String.format("%s, query %s", e.getMessage(), finalQuery), e);
+        synchronized (stmt) {
+            if (stmt.isClosed()) {
+                throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
+            }
+            try {
+                return stmt.executeUpdate();
+            } catch (final SQLException e) {
+                throw new SQLException(String.format("%s, query %s", e.getMessage(), finalQuery), e);
+            }
         }
     }
 

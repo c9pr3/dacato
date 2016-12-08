@@ -14,10 +14,10 @@ import java.util.concurrent.CompletableFuture;
 public interface CachedTruncater extends Truncater, CacheGetter {
 
     @Override
-    default CompletableFuture<Boolean> truncate(final String query) {
+    default CompletableFuture<Boolean> truncate(final String finalQuery) {
         cache().invalidateAll();
         cache().cleanUp();
-        return Truncater.super.truncate(query);
+        return Truncater.super.truncate(finalQuery);
     }
 
 }
