@@ -1,4 +1,4 @@
-package co.ecso.dacato.sqlite.cached;
+package co.ecso.dacato.sqlite;
 
 import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.config.ApplicationConfig;

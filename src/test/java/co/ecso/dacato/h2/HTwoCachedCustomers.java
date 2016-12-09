@@ -1,4 +1,4 @@
-package co.ecso.dacato.h2.cached;
+package co.ecso.dacato.h2;
 
 import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.config.ApplicationConfig;

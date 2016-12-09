@@ -1,4 +1,4 @@
-package co.ecso.dacato.helpers;
+package co.ecso.dacato.cassandra;
 
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.ColumnList;
@@ -18,14 +18,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @version $Id:$
  * @since 24.09.16
  */
-public final class Product implements DatabaseEntity<Integer> {
+final class CassandraProduct implements DatabaseEntity<Integer> {
     static final String TABLE_NAME = "products";
     public static final String QUERY = String.format("SELECT %%s FROM %s WHERE products_id = ?", TABLE_NAME);
     private final Integer id;
     private final ApplicationConfig config;
     private final AtomicBoolean objectValid = new AtomicBoolean(true);
 
-    Product(final ApplicationConfig config, final Integer id) {
+    CassandraProduct(final ApplicationConfig config, final Integer id) {
         this.config = config;
         Objects.requireNonNull(id);
         this.id = id;
@@ -37,12 +37,12 @@ public final class Product implements DatabaseEntity<Integer> {
     }
 
     @Override
-    public CompletableFuture<Product> save(final ColumnList columnList) {
+    public CompletableFuture<CassandraProduct> save(final ColumnList columnList) {
         SingleColumnUpdateQuery<Integer> query = new SingleColumnUpdateQuery<>(
                 String.format("UPDATE %s SET %%s WHERE %%%%s = ?", TABLE_NAME), Fields.ID, id, columnList);
         final CompletableFuture<Integer> updated = this.update(query, () -> this.objectValid);
         this.objectValid.set(false);
-        return updated.thenApply(l -> new Product(config, id));
+        return updated.thenApply(l -> new CassandraProduct(config, id));
     }
 
     @Override

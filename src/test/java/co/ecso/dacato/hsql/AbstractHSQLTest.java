@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
  * @version $Id:$
  * @since 08.10.16
  */
-public abstract class AbstractHSQLTest extends AbstractTest {
+abstract class AbstractHSQLTest extends AbstractTest {
 
 //    private static final Logger LOGGER = Logger.getLogger(AbstractHSQLTest.class.getName());
 
-    protected final void setUpHSQLDatabase() throws IOException {
+    final void setUpHSQLDatabase() throws IOException {
         final String lines = Files.readAllLines(Paths.get("test.sql"))
                 .stream()
                 .filter(CreateTableOnlyFilter::filter)
@@ -48,7 +48,7 @@ public abstract class AbstractHSQLTest extends AbstractTest {
     /**
      * Clean up Database.
      */
-    protected final void cleanupHSQLDatabase() {
+    final void cleanupHSQLDatabase() {
         try (final Connection connection = this.getHSQLDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("DROP SCHEMA server_v5 CASCADE");

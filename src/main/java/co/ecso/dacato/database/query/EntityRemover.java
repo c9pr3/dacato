@@ -3,6 +3,7 @@ package co.ecso.dacato.database.query;
 import co.ecso.dacato.config.ConfigGetter;
 import co.ecso.dacato.database.ColumnList;
 import co.ecso.dacato.database.querywrapper.RemoveQuery;
+import co.ecso.dacato.database.transaction.Transaction;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,20 +37,40 @@ public interface EntityRemover extends ConfigGetter, StatementPreparer {
         final String finalQuery = String.format(query.query(), format.toArray());
 
         CompletableFuture.runAsync(() -> {
-            try (final Connection c = config().databaseConnectionPool().getConnection()) {
+            Connection c = null;
+            Integer singleRowResult = null;
+            try {
+                c = config().databaseConnectionPool().getConnection();
+                if (c == null) {
+                    throw new SQLException("Could not obtain connection");
+                }
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
                             new LinkedList<>(valuesWhere.values().values()), stmt);
-                    final Integer singleRowResult = getSingleRowResult(filledStatement);
-                    returnValueFuture.complete(singleRowResult);
+                    singleRowResult = getSingleRowResult(filledStatement);
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
+            } finally {
+                if (c != null && transaction() == null) {
+                    try {
+                        c.close();
+                    } catch (final SQLException e) {
+                        returnValueFuture.completeExceptionally(e);
+                    }
+                }
+                if (!returnValueFuture.isCompletedExceptionally()) {
+                    returnValueFuture.complete(singleRowResult);
+                }
             }
         }, config().threadPool());
 
         return returnValueFuture;
+    }
+
+    default Transaction transaction() {
+        return null;
     }
 
     int statementOptions();
@@ -70,4 +91,7 @@ public interface EntityRemover extends ConfigGetter, StatementPreparer {
         }
     }
 
+    default Connection connection() throws SQLException {
+        return config().databaseConnectionPool().getConnection();
+    }
 }

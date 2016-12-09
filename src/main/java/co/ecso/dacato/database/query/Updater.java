@@ -3,6 +3,7 @@ package co.ecso.dacato.database.query;
 import co.ecso.dacato.config.ConfigGetter;
 import co.ecso.dacato.database.querywrapper.DatabaseField;
 import co.ecso.dacato.database.querywrapper.SingleColumnUpdateQuery;
+import co.ecso.dacato.database.transaction.Transaction;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -58,21 +59,44 @@ public interface Updater<T> extends ConfigGetter, StatementPreparer {
         final List<Object> values = new LinkedList<>();
 
         CompletableFuture.runAsync(() -> {
+            Connection c = null;
+            Integer result = null;
             try {
                 final String finalQuery = String.format(query.query(), newArr.toArray());
-                try (final Connection c = config().databaseConnectionPool().getConnection()) {
-                    try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
-                        query.columnValuesToSet().values().forEach(values::add);
-                        values.add(query.whereValue());
-                        returnValueFuture.complete(getResult(finalQuery,
-                                statementFiller().fillStatement(finalQuery, newArr, values, stmt)));
-                    }
+                c = connection();
+                if (c == null) {
+                    throw new SQLException("Could not obtain connection");
+                }
+                try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
+                    query.columnValuesToSet().values().forEach(values::add);
+                    values.add(query.whereValue());
+                    result = getResult(finalQuery,
+                            statementFiller().fillStatement(finalQuery, newArr, values, stmt));
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
+            } finally {
+                if (c != null && transaction() == null) {
+                    try {
+                        c.close();
+                    } catch (final SQLException e) {
+                        returnValueFuture.completeExceptionally(e);
+                    }
+                }
+                if (!returnValueFuture.isCompletedExceptionally()) {
+                    returnValueFuture.complete(result);
+                }
             }
         }, config().threadPool());
         return returnValueFuture;
+    }
+
+    default Transaction transaction() {
+        return null;
+    }
+
+    default Connection connection() throws SQLException {
+        return config().databaseConnectionPool().getConnection();
     }
 
     int statementOptions();

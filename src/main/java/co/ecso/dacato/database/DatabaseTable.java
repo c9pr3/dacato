@@ -7,7 +7,10 @@ import co.ecso.dacato.database.query.EntityRemover;
 import co.ecso.dacato.database.query.Inserter;
 import co.ecso.dacato.database.query.Truncater;
 import co.ecso.dacato.database.querywrapper.*;
+import co.ecso.dacato.database.transaction.Transaction;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -57,7 +60,8 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      *
      * @return Entity Remover.
      */
-    default EntityRemover entityRemover() {
+    @SuppressWarnings("Duplicates")
+    default EntityRemover entityRemover(final Transaction transaction) {
         return new EntityRemover() {
             @Override
             public int statementOptions() {
@@ -67,6 +71,20 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
             @Override
             public ApplicationConfig config() {
                 return DatabaseTable.this.config();
+            }
+
+            @Override
+            public Transaction transaction() {
+                return transaction;
+            }
+
+            @Override
+            public Connection connection() throws SQLException {
+                if (transaction != null) {
+                    return transaction.connection();
+                } else {
+                    return config().databaseConnectionPool().getConnection();
+                }
             }
         };
     }
@@ -78,7 +96,17 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @return Boolean.
      */
     default <S> CompletableFuture<Integer> removeOne(final RemoveQuery<S> query) {
-        return this.entityRemover().removeOne(query);
+        return this.entityRemover(null).removeOne(query);
+    }
+
+    /**
+     * Remove one entry.
+     *
+     * @param query Remove Query.
+     * @return Boolean.
+     */
+    default <S> CompletableFuture<Integer> removeOne(final RemoveQuery<S> query, Transaction transaction) {
+        return this.entityRemover(transaction).removeOne(query);
     }
 
     /**
@@ -174,7 +202,8 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      *
      * @return Truncater.
      */
-    default Truncater truncater() {
+    @SuppressWarnings("Duplicates")
+    default Truncater truncater(final Transaction transaction) {
         return new Truncater() {
             @Override
             public int statementOptions() {
@@ -184,6 +213,20 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
             @Override
             public ApplicationConfig config() {
                 return DatabaseTable.this.config();
+            }
+
+            @Override
+            public Transaction transaction() {
+                return transaction;
+            }
+
+            @Override
+            public Connection connection() throws SQLException {
+                if (transaction != null) {
+                    return transaction.connection();
+                } else {
+                    return config().databaseConnectionPool().getConnection();
+                }
             }
         };
     }
@@ -195,7 +238,17 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @return True or false.
      */
     default CompletableFuture<Boolean> truncate(final String query) {
-        return this.truncater().truncate(query);
+        return this.truncater(null).truncate(query);
+    }
+
+    /**
+     * Truncate a table.
+     *
+     * @param query Query to execute.
+     * @return True or false.
+     */
+    default CompletableFuture<Boolean> truncate(final String query, final Transaction transaction) {
+        return this.truncater(transaction).truncate(query);
     }
 
     /**
@@ -203,8 +256,17 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      *
      * @return Inserter.
      */
-    default Inserter<T> inserter() {
+    default Inserter<T> inserter(final Transaction transaction) {
         return new Inserter<T>() {
+            @Override
+            public Connection connection() throws SQLException {
+                if (transaction != null) {
+                    return transaction.connection();
+                } else {
+                    return config().databaseConnectionPool().getConnection();
+                }
+            }
+
             @Override
             public int statementOptions() {
                 return DatabaseTable.this.statementOptions();
@@ -213,6 +275,11 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
             @Override
             public ApplicationConfig config() {
                 return DatabaseTable.this.config();
+            }
+
+            @Override
+            public Transaction transaction() {
+                return transaction;
             }
         };
     }
@@ -224,7 +291,18 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @return DatbaseResultField of type T.
      */
     default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query) {
-        return inserter().add(query);
+        return inserter(null).add(query);
+    }
+
+    /**
+     * Add a row with transaction.
+     *
+     * @param query Query to execute.
+     * @param transaction Transaction.
+     * @return DatbaseResultField of type T.
+     */
+    default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query, final Transaction transaction) {
+        return inserter(transaction).add(query);
     }
 
 }

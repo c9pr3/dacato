@@ -1,8 +1,11 @@
 package co.ecso.dacato.sqlite;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.sql.Connection;
 
 /**
  * SQLiteConnectionTest
@@ -25,6 +28,8 @@ public final class SQLiteConnectionTest extends AbstractSQLiteTest {
 
     @Test
     public void testConnection() throws Exception {
-
+        final Connection c = new SQLiteTestApplicationConfig().databaseConnectionPool().getConnection();
+        Assert.assertNotNull(c);
+        c.close();
     }
 }

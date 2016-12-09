@@ -1,41 +1,41 @@
-package co.ecso.dacato.cassandra.cached;
+package co.ecso.dacato.sqlite;
 
 import co.ecso.dacato.database.querywrapper.DatabaseField;
-import co.ecso.dacato.hsql.AbstractHSQLTest;
-import co.ecso.dacato.hsql.HSQLTestApplicationConfig;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * CassandraCachedDatabaseEntityTest.
+ * SQLiteCachedDatabaseEntityTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
-@Ignore
-public final class CassandraCachedDatabaseEntityTest extends AbstractHSQLTest {
+public final class SQLiteCachedDatabaseEntityTest extends AbstractSQLiteTest {
 
-    private CassandraCachedCustomer customer;
+    private SQLiteCachedCustomer customer;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpHSQLDatabase();
-        this.customer = new CassandraCachedCustomers(new HSQLTestApplicationConfig()).create("firstName", 1234L)
+        this.setUpSQLiteDatabase();
+        this.customer = new SQLiteCachedCustomers(new SQLiteTestApplicationConfig()).create("firstName", 1234)
                 .get(10, TimeUnit.SECONDS);
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupHSQLDatabase();
+        this.cleanupMySQLiteDatabase();
     }
 
     @Test
     public void testId() throws Exception {
-        Assert.assertEquals(Long.valueOf(0L), this.customer.primaryKey());
+        Assert.assertEquals(Integer.valueOf(1), this.customer.primaryKey());
     }
 
     @Test
@@ -45,14 +45,14 @@ public final class CassandraCachedDatabaseEntityTest extends AbstractHSQLTest {
 
     @Test
     public void testNumber() throws Exception {
-        Assert.assertEquals(Long.valueOf(1234L), this.customer.number().get().resultValue());
+        Assert.assertEquals(Integer.valueOf(1234), this.customer.number().get().resultValue());
     }
 
     @Test
     public void testSave() throws Exception {
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
-        map.put(CassandraCachedCustomer.Fields.FIRST_NAME, "foobar1");
-        final CassandraCachedCustomer newCustomer = this.customer.save(() -> map)
+        map.put(SQLiteCachedCustomer.Fields.FIRST_NAME, "foobar1");
+        final SQLiteCachedCustomer newCustomer = this.customer.save(() -> map)
                 .get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
         Assert.assertEquals(customer.primaryKey(), this.customer.primaryKey());

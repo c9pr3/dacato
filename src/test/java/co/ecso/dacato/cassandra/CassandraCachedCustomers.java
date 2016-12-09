@@ -1,4 +1,4 @@
-package co.ecso.dacato.cassandra.cached;
+package co.ecso.dacato.cassandra;
 
 import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.config.ApplicationConfig;

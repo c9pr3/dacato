@@ -85,4 +85,13 @@ public final class CacheKey implements Serializable {
     public StringBuilder textKey() {
         return textKey;
     }
+
+    @Override
+    public String toString() {
+        return "CacheKey{" +
+                "key=" + key +
+                ", type=" + type +
+                ", textKey=" + textKey +
+                '}';
+    }
 }

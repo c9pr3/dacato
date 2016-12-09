@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * @version $Id:$
  * @since 10.10.16
  */
-public abstract class AbstractHTwoTest extends AbstractTest {
+abstract class AbstractHTwoTest extends AbstractTest {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractHTwoTest.class.getName());
 
@@ -33,7 +33,7 @@ public abstract class AbstractHTwoTest extends AbstractTest {
         }
     }
 
-    protected final void setUpHTwoDatabase() throws Exception {
+    final void setUpHTwoDatabase() throws Exception {
         final String lines = Files.readAllLines(Paths.get("test.sql"))
                 .stream()
                 .filter(CreateTableOnlyFilter::filter)
@@ -62,7 +62,7 @@ public abstract class AbstractHTwoTest extends AbstractTest {
         return dataSource;
     }
 
-    protected final void cleanupHTwoDatabase() {
+    final void cleanupHTwoDatabase() {
         try (final Connection connection = getHTwoDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("DROP TABLE customer");

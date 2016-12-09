@@ -1,4 +1,4 @@
-package co.ecso.dacato.mysql.cached;
+package co.ecso.dacato.mysql;
 
 import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.config.ApplicationConfig;

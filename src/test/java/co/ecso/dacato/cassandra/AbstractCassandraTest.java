@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @version $Id:$
  * @since 08.10.16
  */
-public abstract class AbstractCassandraTest extends AbstractTest {
+abstract class AbstractCassandraTest extends AbstractTest {
 
     static final String SRC_TEST_CONFIG_EXTENDED_DATA_SET_XML = "src/test/config/extendedDataSet.xml";
     private static final Logger LOGGER = Logger.getLogger(AbstractCassandraTest.class.getName());
@@ -37,7 +37,7 @@ public abstract class AbstractCassandraTest extends AbstractTest {
         }
     }
 
-    protected final void setupCassandraDatabase() throws Exception {
+    final void setupCassandraDatabase() throws Exception {
         final CassandraTestApplicationConfig config = new CassandraTestApplicationConfig();
         final List<String> lines = Files.readAllLines(Paths.get("test_cassandra.sql"))
                 .stream()
@@ -55,7 +55,7 @@ public abstract class AbstractCassandraTest extends AbstractTest {
         }
     }
 
-    protected final void cleanupCassandraDatabase() {
+    final void cleanupCassandraDatabase() {
         EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
         CACHE.invalidateAll();
         CACHE.cleanUp();

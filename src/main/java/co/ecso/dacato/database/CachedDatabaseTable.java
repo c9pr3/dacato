@@ -9,7 +9,10 @@ import co.ecso.dacato.database.query.Truncater;
 import co.ecso.dacato.database.querywrapper.DatabaseResultField;
 import co.ecso.dacato.database.querywrapper.InsertQuery;
 import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
+import co.ecso.dacato.database.transaction.Transaction;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -25,16 +28,16 @@ import java.util.concurrent.CompletableFuture;
 public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends DatabaseTable<T, E>, CacheGetter {
 
     @Override
-    default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query) {
-        final CompletableFuture<DatabaseResultField<T>> rVal = DatabaseTable.super.add(query);
+    default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query, final Transaction transaction) {
+        final CompletableFuture<DatabaseResultField<T>> rVal = DatabaseTable.super.add(query, transaction);
         cache().invalidateAll();
         cache().cleanUp();
         return rVal;
     }
 
     @Override
-    default CompletableFuture<Boolean> truncate(final String query) {
-        final CompletableFuture<Boolean> rVal = DatabaseTable.super.truncate(query);
+    default CompletableFuture<Boolean> truncate(final String query, final Transaction transaction) {
+        final CompletableFuture<Boolean> rVal = DatabaseTable.super.truncate(query, transaction);
         cache().invalidateAll();
         cache().cleanUp();
         return rVal;
@@ -46,46 +49,6 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
         cache().invalidateAll();
         cache().cleanUp();
         return rVal;
-    }
-
-    @Override
-    default int statementOptions() {
-        return -1;
-    }
-
-    @Override
-    default Truncater truncater() {
-        return new CachedTruncater() {
-            @Override
-            public int statementOptions() {
-                return CachedDatabaseTable.this.statementOptions();
-            }
-
-            @Override
-            public Cache cache() {
-                return CachedDatabaseTable.this.cache();
-            }
-
-            @Override
-            public ApplicationConfig config() {
-                return CachedDatabaseTable.this.config();
-            }
-        };
-    }
-
-    @Override
-    default Inserter<T> inserter() {
-        return new Inserter<T>() {
-            @Override
-            public int statementOptions() {
-                return CachedDatabaseTable.this.statementOptions();
-            }
-
-            @Override
-            public ApplicationConfig config() {
-                return CachedDatabaseTable.this.config();
-            }
-        };
     }
 
     @Override
@@ -109,7 +72,70 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
     }
 
     @Override
-    default EntityRemover entityRemover() {
+    default Truncater truncater(final Transaction transaction) {
+        return new CachedTruncater() {
+            @Override
+            public int statementOptions() {
+                return CachedDatabaseTable.this.statementOptions();
+            }
+
+            @Override
+            public Cache cache() {
+                return CachedDatabaseTable.this.cache();
+            }
+
+            @Override
+            public ApplicationConfig config() {
+                return CachedDatabaseTable.this.config();
+            }
+
+            @Override
+            public Transaction transaction() {
+                return transaction;
+            }
+
+            @Override
+            public Connection connection() throws SQLException {
+                if (transaction != null) {
+                    return transaction.connection();
+                } else {
+                    return config().databaseConnectionPool().getConnection();
+                }
+            }
+        };
+    }
+
+    @Override
+    default Inserter<T> inserter(final Transaction transaction) {
+        return new Inserter<T>() {
+            @Override
+            public int statementOptions() {
+                return CachedDatabaseTable.this.statementOptions();
+            }
+
+            @Override
+            public ApplicationConfig config() {
+                return CachedDatabaseTable.this.config();
+            }
+
+            @Override
+            public Transaction transaction() {
+                return transaction;
+            }
+
+            @Override
+            public Connection connection() throws SQLException {
+                if (transaction != null) {
+                    return transaction.connection();
+                } else {
+                    return config().databaseConnectionPool().getConnection();
+                }
+            }
+        };
+    }
+
+    @Override
+    default EntityRemover entityRemover(final Transaction transaction) {
         return new CachedEntityRemover() {
             @Override
             public int statementOptions() {
@@ -124,6 +150,20 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
             @Override
             public Cache cache() {
                 return CachedDatabaseTable.this.cache();
+            }
+
+            @Override
+            public Transaction transaction() {
+                return transaction;
+            }
+
+            @Override
+            public Connection connection() throws SQLException {
+                if (transaction != null) {
+                    return transaction.connection();
+                } else {
+                    return config().databaseConnectionPool().getConnection();
+                }
             }
         };
     }

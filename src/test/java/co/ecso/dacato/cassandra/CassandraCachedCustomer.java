@@ -1,4 +1,4 @@
-package co.ecso.dacato.mysql.cached;
+package co.ecso.dacato.cassandra;
 
 import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.config.ApplicationConfig;
@@ -15,13 +15,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * MySQLCachedCustomer.
+ * HSQLCachedCustomer.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 17.09.16
  */
-final class MySQLCachedCustomer implements CachedDatabaseEntity<Long> {
+final class CassandraCachedCustomer implements CachedDatabaseEntity<Long> {
 
     private static final String TABLE_NAME = "customer";
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
@@ -29,7 +29,7 @@ final class MySQLCachedCustomer implements CachedDatabaseEntity<Long> {
     private final Long id;
     private final AtomicBoolean objectValid = new AtomicBoolean(true);
 
-    MySQLCachedCustomer(final ApplicationConfig config, final Long id) {
+    CassandraCachedCustomer(final ApplicationConfig config, final Long id) {
         this.config = config;
         this.id = id;
     }
@@ -45,10 +45,10 @@ final class MySQLCachedCustomer implements CachedDatabaseEntity<Long> {
     }
 
     @Override
-    public CompletableFuture<MySQLCachedCustomer> save(final ColumnList columnValuesToSet) {
+    public CompletableFuture<CassandraCachedCustomer> save(final ColumnList columnValuesToSet) {
         return this.update(new SingleColumnUpdateQuery<>("UPDATE " + TABLE_NAME + " SET %s WHERE %%s = ?",
                 Fields.ID, this.id, columnValuesToSet), () -> objectValid).thenApply(rowsAffected ->
-                new MySQLCachedCustomer(config, id));
+                new CassandraCachedCustomer(config, id));
     }
 
     @Override

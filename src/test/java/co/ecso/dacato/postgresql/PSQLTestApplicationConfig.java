@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
  * @version $Id:$
  * @since 06.09.16
  */
-public final class PSQLTestApplicationConfig implements ApplicationConfig {
+final class PSQLTestApplicationConfig implements ApplicationConfig {
     private static volatile snaq.db.ConnectionPool connectionPool = null;
     private static volatile ExecutorService threadPool = null;
 

@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -39,8 +38,7 @@ public final class PSQLDatabaseTableTest extends AbstractPSQLTest {
 
     @Test
     public void add() throws Exception {
-        new Products(new PSQLTestApplicationConfig()).add(100, 10, 0, 0, 0, 0, 0, "image1", 1.0F, 0.0F, new Date(),
-                new Date(), new Date(), 10.0F, 1, 1, 1, 1.0F).get(10, TimeUnit.SECONDS);
+        new Products(new PSQLTestApplicationConfig()).create("200").get(10, TimeUnit.SECONDS);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package co.ecso.dacato.database.query;
 
 import co.ecso.dacato.config.ConfigGetter;
+import co.ecso.dacato.database.transaction.Transaction;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,20 +24,43 @@ public interface Truncater extends ConfigGetter, StatementPreparer {
      * @return True if truncation succeeded, false if not.
      */
     default CompletableFuture<Boolean> truncate(final String query) {
-        final CompletableFuture<Boolean> retValFuture = new CompletableFuture<>();
+        final CompletableFuture<Boolean> returnValueFuture = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
-            try (final Connection c = config().databaseConnectionPool().getConnection()) {
-                try (final PreparedStatement stmt = this.prepareStatement(query, c, this.statementOptions())) {
-                    if (stmt.isClosed()) {
-                        throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
-                    }
-                    retValFuture.complete(stmt.execute());
+            Connection c = null;
+            boolean result = false;
+            try {
+                c = connection();
+                if (c == null) {
+                    throw new SQLException("Could not obtain connection");
+                }
+                try (PreparedStatement stmt = this.prepareStatement(query, c, this.statementOptions())) {
+                    result = stmt.execute();
                 }
             } catch (final Exception e) {
-                retValFuture.completeExceptionally(e);
+                returnValueFuture.completeExceptionally(e);
+            } finally {
+                if (c != null && transaction() == null) {
+                    try {
+                        c.close();
+                    } catch (final SQLException e) {
+                        returnValueFuture.completeExceptionally(e);
+                    }
+                }
+                if (!returnValueFuture.isCompletedExceptionally()) {
+                    returnValueFuture.complete(result);
+                }
             }
         }, config().threadPool());
-        return retValFuture;
+
+        return returnValueFuture;
+    }
+
+    default Connection connection() throws SQLException {
+        return config().databaseConnectionPool().getConnection();
+    }
+
+    default Transaction transaction() {
+        return null;
     }
 
     int statementOptions();

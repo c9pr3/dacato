@@ -28,8 +28,10 @@ public final class TestApplicationCache implements Cache {
         if (!APPLICATION_CACHE.containsKey(key)) {
             try {
                 final CompletableFuture<V> future = callable.call();
-                future.thenAccept(toPut -> APPLICATION_CACHE.put(key, toPut));
-                return  future;
+                //well, we have to "get" here, otherwise we'd be *too* lazy.
+                //@TODO add timeout
+                future.thenApply(toPut -> APPLICATION_CACHE.put(key, toPut)).get();
+                return future;
             } catch (final Exception e) {
                 throw new ExecutionException(e.getMessage(), e);
             }

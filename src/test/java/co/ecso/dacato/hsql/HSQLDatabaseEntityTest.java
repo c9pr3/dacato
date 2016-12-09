@@ -1,6 +1,8 @@
 package co.ecso.dacato.hsql;
 
 import co.ecso.dacato.database.querywrapper.DatabaseField;
+import co.ecso.dacato.helpers.Customer;
+import co.ecso.dacato.helpers.Customers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,12 +22,12 @@ import java.util.concurrent.TimeUnit;
  */
 public final class HSQLDatabaseEntityTest extends AbstractHSQLTest {
 
-    private HSQLCustomer customer = null;
+    private Customer customer = null;
 
     @Before
     public void setUp() throws Exception {
         this.setUpHSQLDatabase();
-        this.customer = new HSQLCustomers(new HSQLTestApplicationConfig()).create("firstName", 1234L)
+        this.customer = new Customers(new HSQLTestApplicationConfig()).create("firstName", 1234L)
                 .get(10, TimeUnit.SECONDS);
     }
 
@@ -53,14 +55,14 @@ public final class HSQLDatabaseEntityTest extends AbstractHSQLTest {
     public void testSave() throws Exception {
         final Long id = this.customer.primaryKey();
         Map<DatabaseField<?>, Object> map = new HashMap<>();
-        map.put(HSQLCustomer.Fields.FIRST_NAME, "foo1");
+        map.put(Customer.Fields.FIRST_NAME, "foo1");
         this.customer.save(() -> map).get(5, TimeUnit.SECONDS);
 
-        this.customer = new HSQLCustomers(new HSQLTestApplicationConfig()).findOne(id).get(10, TimeUnit.SECONDS);
+        this.customer = new Customers(new HSQLTestApplicationConfig()).findOne(id).get(10, TimeUnit.SECONDS);
         Assert.assertEquals("foo1", this.customer.firstName().get(10, TimeUnit.SECONDS).resultValue());
 
         map.clear();
-        map.put(HSQLCustomer.Fields.FIRST_NAME, "foo2");
+        map.put(Customer.Fields.FIRST_NAME, "foo2");
         this.customer.save(() -> map).get(5, TimeUnit.SECONDS);
 
         Assert.assertEquals("foo2", this.customer.firstName().get(10, TimeUnit.SECONDS).resultValue());

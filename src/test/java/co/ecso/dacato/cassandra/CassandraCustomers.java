@@ -3,6 +3,7 @@ package co.ecso.dacato.cassandra;
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.DatabaseTable;
 import co.ecso.dacato.database.querywrapper.*;
+import co.ecso.dacato.database.transaction.Transaction;
 
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -10,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * HSQLCustomers.
+ * Customers.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
@@ -72,7 +73,7 @@ final class CassandraCustomers implements DatabaseTable<byte[], CassandraCustome
     }
 
     CompletableFuture<Boolean> removeAll() {
-        return this.truncate("TRUNCATE TABLE customer");
+        return this.truncate("TRUNCATE customer");
     }
 
     @Override
@@ -99,4 +100,17 @@ final class CassandraCustomers implements DatabaseTable<byte[], CassandraCustome
         return this.removeOne(new RemoveQuery<>("DELETE FROM customer WHERE %s = ?", () -> map));
     }
 
+    public CompletableFuture<CassandraCustomer> create(final String firstName, final Long number,
+                                                       final Transaction transaction) {
+        final InsertQuery<byte[]> query = new InsertQuery<>(
+                "INSERT INTO customer (%s, %s, %s) VALUES (?, ?, ?)");
+        final UUID uuid1 = UUID.randomUUID();
+        long hi = uuid1.getMostSignificantBits();
+        long lo = uuid1.getLeastSignificantBits();
+        byte[] uuidb = ByteBuffer.allocate(16).putLong(hi).putLong(lo).array();
+        query.add(CassandraCustomer.Fields.ID, uuidb);
+        query.add(CassandraCustomer.Fields.FIRST_NAME, firstName);
+        query.add(CassandraCustomer.Fields.NUMBER, number);
+        return this.add(query, transaction).thenApply(newId -> new CassandraCustomer(config, uuidb));
+    }
 }

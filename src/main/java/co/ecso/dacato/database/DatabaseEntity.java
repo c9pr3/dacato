@@ -7,7 +7,10 @@ import co.ecso.dacato.database.query.Updater;
 import co.ecso.dacato.database.querywrapper.DatabaseResultField;
 import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
 import co.ecso.dacato.database.querywrapper.SingleColumnUpdateQuery;
+import co.ecso.dacato.database.transaction.Transaction;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,15 +57,29 @@ public interface DatabaseEntity<T> extends ConfigGetter {
      */
     default CompletableFuture<Integer> update(final SingleColumnUpdateQuery<T> query,
                                               final Callable<AtomicBoolean> validityCheck) {
-        return updater().update(query, validityCheck);
+        return updater(null).update(query, validityCheck);
+    }
+
+    /**
+     * Wrapper for updater().update, usually called within save().
+     *
+     * @param query         Query to execute.
+     * @param validityCheck Validity check callback.
+     * @return Number of affected rows.
+     */
+    default CompletableFuture<Integer> update(final SingleColumnUpdateQuery<T> query,
+                                              final Callable<AtomicBoolean> validityCheck,
+                                              final Transaction transaction) {
+        return updater(transaction).update(query, validityCheck);
     }
 
     /**
      * Get updater.
      *
      * @return Updater.
+     * @param transaction Transaction.
      */
-    default Updater<T> updater() {
+    default Updater<T> updater(final Transaction transaction) {
         return new Updater<T>() {
             @Override
             public int statementOptions() {
@@ -72,6 +89,20 @@ public interface DatabaseEntity<T> extends ConfigGetter {
             @Override
             public ApplicationConfig config() {
                 return DatabaseEntity.this.config();
+            }
+
+            @Override
+            public Transaction transaction() {
+                return transaction;
+            }
+
+            @Override
+            public Connection connection() throws SQLException {
+                if (transaction != null) {
+                    return transaction.connection();
+                } else {
+                    return config().databaseConnectionPool().getConnection();
+                }
             }
         };
     }

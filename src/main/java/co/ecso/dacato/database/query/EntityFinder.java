@@ -71,6 +71,9 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
 
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
+                if (c == null) {
+                    throw new SQLException("Could not obtain connection");
+                }
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
@@ -117,6 +120,9 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
 //        System.out.println("FINDING: " + finalQuery + ", " + columnWhere.toString() + " = " + whereValueToFind);
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
+                if (c == null) {
+                    throw new SQLException("Could not obtain connection");
+                }
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             Collections.singletonList(columnWhere),
@@ -159,6 +165,9 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
 
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
+                if (c == null) {
+                    throw new SQLException("Could not obtain connection");
+                }
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
@@ -183,8 +192,9 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param validityCheck Validity Check.
      * @return List of DatabaseResultFields.
      */
-    default CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findMany(MultiColumnSelectQuery<?> query,
-                                                                                      Callable<AtomicBoolean>
+    default CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findMany(final MultiColumnSelectQuery<?>
+                                                                                              query,
+                                                                                      final Callable<AtomicBoolean>
                                                                                               validityCheck) {
 
         final CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> returnValueFuture =
@@ -203,6 +213,9 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
 
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
+                if (c == null) {
+                    throw new SQLException("Could not obtain connection");
+                }
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
@@ -228,8 +241,9 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param validityCheck Validity check callback.
      * @return List of DatabaseResultFields with type to select (W), p.e. String
      */
-    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(SingleColumnQuery<S, W> query,
-                                                                            Callable<AtomicBoolean> validityCheck) {
+    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query,
+                                                                            final Callable<AtomicBoolean>
+                                                                                    validityCheck) {
         final CompletableFuture<List<DatabaseResultField<S>>> returnValueFuture =
                 new CompletableFuture<>();
 
@@ -245,11 +259,14 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
 
         CompletableFuture.runAsync(() -> {
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
+                if (c == null) {
+                    throw new SQLException("Could not obtain connection");
+                }
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
-                    returnValueFuture.complete(getListRowResult(columnToSelect,
-                            statementFiller().fillStatement(finalQuery,
-                                    Collections.singletonList(columnWhere),
-                                    Collections.singletonList(query.columnWhereValue()), stmt)));
+                    final List<DatabaseResultField<S>> result = getListRowResult(columnToSelect,
+                            statementFiller().fillStatement(finalQuery, Collections.singletonList(columnWhere),
+                                    Collections.singletonList(query.columnWhereValue()), stmt));
+                    returnValueFuture.complete(result);
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);

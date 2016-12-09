@@ -7,6 +7,10 @@ import co.ecso.dacato.database.cache.CachedEntityFinder;
 import co.ecso.dacato.database.cache.CachedUpdater;
 import co.ecso.dacato.database.query.EntityFinder;
 import co.ecso.dacato.database.query.Updater;
+import co.ecso.dacato.database.transaction.Transaction;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * CachedDatabaseEntity.
@@ -24,7 +28,7 @@ public interface CachedDatabaseEntity<T> extends DatabaseEntity<T>, CacheGetter 
     }
 
     @Override
-    default Updater<T> updater() {
+    default Updater<T> updater(final Transaction transaction) {
         return new CachedUpdater<T>() {
 
             @Override
@@ -40,6 +44,20 @@ public interface CachedDatabaseEntity<T> extends DatabaseEntity<T>, CacheGetter 
             @Override
             public ApplicationConfig config() {
                 return CachedDatabaseEntity.this.config();
+            }
+
+            @Override
+            public Transaction transaction() {
+                return transaction;
+            }
+
+            @Override
+            public Connection connection() throws SQLException {
+                if (transaction != null) {
+                    return transaction.connection();
+                } else {
+                    return config().databaseConnectionPool().getConnection();
+                }
             }
         };
     }

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @version $Id:$
  * @since 10.10.16
  */
-public abstract class AbstractMySQLTest extends AbstractTest {
+abstract class AbstractMySQLTest extends AbstractTest {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractMySQLTest.class.getName());
 
@@ -38,7 +38,7 @@ public abstract class AbstractMySQLTest extends AbstractTest {
         }
     }
 
-    protected final void setUpMySQLDatabase() throws Exception {
+    final void setUpMySQLDatabase() throws Exception {
         final String lines = Files.readAllLines(Paths.get("test.sql"))
                 .stream()
                 .filter(CreateTableOnlyFilter::filter)
@@ -64,7 +64,7 @@ public abstract class AbstractMySQLTest extends AbstractTest {
         return dataSource;
     }
 
-    protected final void cleanupMySQLDatabase() {
+    final void cleanupMySQLDatabase() {
         try (final Connection connection = getMySQLDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("DROP DATABASE server_v5");

@@ -1,4 +1,4 @@
-package co.ecso.dacato.postgresql.cached;
+package co.ecso.dacato.postgresql;
 
 import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.config.ApplicationConfig;

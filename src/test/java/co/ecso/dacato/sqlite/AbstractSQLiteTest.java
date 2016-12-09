@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
  * @version $Id:$
  * @since 10.10.16
  */
-public abstract class AbstractSQLiteTest extends AbstractTest {
+abstract class AbstractSQLiteTest extends AbstractTest {
 
-    protected final void setUpSQLiteDatabase() throws Exception {
+    final void setUpSQLiteDatabase() throws Exception {
         final String lines = Files.readAllLines(Paths.get("test.sql"))
                 .stream()
                 .filter(CreateTableOnlyFilter::filter)

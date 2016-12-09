@@ -3,6 +3,7 @@ package co.ecso.dacato.postgresql;
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.DatabaseTable;
 import co.ecso.dacato.database.querywrapper.*;
+import co.ecso.dacato.database.transaction.Transaction;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -95,4 +96,13 @@ final class PSQLCustomers implements DatabaseTable<Long, PSQLCustomer> {
                 new PSQLCustomer(this.config(), newId.resultValue()));
     }
 
+    public CompletableFuture<PSQLCustomer> create(final String firstName, final Long number,
+                                                  final Transaction transaction) {
+        final InsertQuery<Long> query = new InsertQuery<>(
+                "INSERT INTO customer (%s, %s) VALUES (?, ?)", PSQLCustomer.Fields.ID);
+        query.add(PSQLCustomer.Fields.FIRST_NAME, firstName);
+        query.add(PSQLCustomer.Fields.NUMBER, number);
+        return this.add(query, transaction).thenApply(newId ->
+                new PSQLCustomer(this.config(), newId.resultValue()));
+    }
 }

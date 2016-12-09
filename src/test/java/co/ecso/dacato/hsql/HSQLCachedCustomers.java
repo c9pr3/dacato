@@ -1,4 +1,4 @@
-package co.ecso.dacato.hsql.cached;
+package co.ecso.dacato.hsql;
 
 import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.config.ApplicationConfig;

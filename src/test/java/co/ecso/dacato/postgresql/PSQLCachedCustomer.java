@@ -1,4 +1,4 @@
-package co.ecso.dacato.h2.cached;
+package co.ecso.dacato.postgresql;
 
 import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.config.ApplicationConfig;
@@ -15,13 +15,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * HTwoCachedCustomer.
+ * PSQLCachedCustomer.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 17.09.16
  */
-final class HTwoCachedCustomer implements CachedDatabaseEntity<Long> {
+final class PSQLCachedCustomer implements CachedDatabaseEntity<Long> {
 
     private static final String TABLE_NAME = "customer";
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
@@ -29,7 +29,7 @@ final class HTwoCachedCustomer implements CachedDatabaseEntity<Long> {
     private final Long id;
     private final AtomicBoolean objectValid = new AtomicBoolean(true);
 
-    HTwoCachedCustomer(final ApplicationConfig config, final Long id) {
+    PSQLCachedCustomer(final ApplicationConfig config, final Long id) {
         this.config = config;
         this.id = id;
     }
@@ -45,10 +45,10 @@ final class HTwoCachedCustomer implements CachedDatabaseEntity<Long> {
     }
 
     @Override
-    public CompletableFuture<HTwoCachedCustomer> save(final ColumnList columnValuesToSet) {
+    public CompletableFuture<PSQLCachedCustomer> save(final ColumnList columnValuesToSet) {
         return this.update(new SingleColumnUpdateQuery<>("UPDATE " + TABLE_NAME + " SET %s WHERE %%s = ?",
                 Fields.ID, this.id, columnValuesToSet), () -> objectValid).thenApply(rowsAffected ->
-                new HTwoCachedCustomer(config, id));
+                new PSQLCachedCustomer(config, id));
     }
 
     @Override

@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * @version $Id:$
  * @since 08.10.16
  */
-public abstract class AbstractPSQLTest extends AbstractTest {
+abstract class AbstractPSQLTest extends AbstractTest {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractPSQLTest.class.getName());
     private static final PostgresProcess POSTGRES_PROCESS;
@@ -59,7 +59,7 @@ public abstract class AbstractPSQLTest extends AbstractTest {
         }
     }
 
-    protected final void setUpPSQLDatabase() throws IOException {
+    final void setUpPSQLDatabase() throws IOException {
         final String lines = Files.readAllLines(Paths.get("test.sql"))
                 .stream()
                 .filter(CreateTableOnlyFilter::filter)
@@ -83,7 +83,7 @@ public abstract class AbstractPSQLTest extends AbstractTest {
         return dataSource;
     }
 
-    protected final void cleanupPostgreSQLDatabase() {
+    final void cleanupPostgreSQLDatabase() {
         try (final Connection connection = this.getPostgreSQLDataSource().getConnection()) {
             try (final Statement stmt = connection.createStatement()) {
                 stmt.execute("DROP TABLE customer");

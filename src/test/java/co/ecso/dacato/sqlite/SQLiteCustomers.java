@@ -3,6 +3,7 @@ package co.ecso.dacato.sqlite;
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.DatabaseTable;
 import co.ecso.dacato.database.querywrapper.*;
+import co.ecso.dacato.database.transaction.Transaction;
 
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -104,4 +105,25 @@ final class SQLiteCustomers implements DatabaseTable<Integer, SQLiteCustomer> {
         map.put(SQLiteCustomer.Fields.ID, id);
         return this.removeOne(new RemoveQuery<>("DELETE FROM customer WHERE %s = ?", () -> map));
     }
+
+    public CompletableFuture<Integer> removeOne(final Integer id, final Transaction transaction) {
+        Map<DatabaseField<?>, Object> map = new HashMap<>();
+        map.put(SQLiteCustomer.Fields.ID, id);
+        return this.removeOne(new RemoveQuery<>("DELETE FROM customer WHERE %s = ?", () -> map), transaction);
+    }
+
+    public CompletableFuture<SQLiteCustomer> create(final String firstName, final Integer number,
+                                                    final Transaction transaction) {
+        final InsertQuery<Integer> query = new InsertQuery<>(
+                "INSERT INTO customer (%s, %s) VALUES (?, ?)", SQLiteCustomer.Fields.ID);
+        query.add(SQLiteCustomer.Fields.FIRST_NAME, firstName);
+        query.add(SQLiteCustomer.Fields.NUMBER, number);
+        return this.add(query, transaction).thenApply(newId -> {
+            if (newId == null) {
+                throw new RuntimeException("NEWID NULL");
+            }
+            return new SQLiteCustomer(config, newId.resultValue());
+        });
+    }
+
 }

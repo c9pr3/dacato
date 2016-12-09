@@ -34,6 +34,7 @@ public interface CachedEntityFinder extends EntityFinder, CacheGetter, CacheKeyG
             final Cache cache = cache();
             return cache.get(getCacheKey(query), () -> EntityFinder.super.findMany(query, validityCallback));
         } catch (final ExecutionException e) {
+            e.printStackTrace();
             final CompletableFuture<List<DatabaseResultField<S>>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);
             return rval;

@@ -4,6 +4,7 @@ import co.ecso.dacato.config.ConfigGetter;
 import co.ecso.dacato.database.querywrapper.DatabaseField;
 import co.ecso.dacato.database.querywrapper.DatabaseResultField;
 import co.ecso.dacato.database.querywrapper.InsertQuery;
+import co.ecso.dacato.database.transaction.Transaction;
 
 import java.sql.*;
 import java.util.LinkedList;
@@ -30,6 +31,10 @@ public interface Inserter<T> extends ConfigGetter, StatementPreparer {
         };
     }
 
+    default Transaction transaction() {
+        return null;
+    }
+
     /**
      * Add.
      *
@@ -45,30 +50,51 @@ public interface Inserter<T> extends ConfigGetter, StatementPreparer {
             }
             keys.addAll(query.values().keySet());
             final String finalQuery = String.format(query.query(), keys.toArray());
-            try (final Connection c = config().databaseConnectionPool().getConnection()) {
+            Connection c = null;
+            DatabaseResultField<T> result = null;
+            try {
+                c = connection();
+                if (c == null) {
+                    throw new SQLException("Could not obtain connection");
+                }
                 final int returnGenerated = query.returnGeneratedKey() ? Statement.RETURN_GENERATED_KEYS : 0;
                 if (returnGenerated > 0) {
                     try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, returnGenerated)) {
                         statementFiller().fillStatement(finalQuery, new LinkedList<>(query.values().keySet()),
                                 new LinkedList<>(query.values().values()), stmt);
-                        final DatabaseResultField<T> result = getResult(finalQuery, query.columnToReturn(), stmt,
+                        result = getResult(finalQuery, query.columnToReturn(), stmt,
                                 query.returnGeneratedKey());
                         returnValueFuture.complete(result);
                     }
                 } else {
                     try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, statementOptions())) {
-                        returnValueFuture.complete(getResult(finalQuery, query.columnToReturn(),
-                                statementFiller().fillStatement(finalQuery, new LinkedList<>(query.values().keySet()),
-                                        new LinkedList<>(query.values().values()), stmt),
-                                query.returnGeneratedKey()));
+                        statementFiller().fillStatement(finalQuery, new LinkedList<>(query.values().keySet()),
+                                new LinkedList<>(query.values().values()), stmt);
+                        result = getResult(finalQuery, query.columnToReturn(), stmt,
+                                query.returnGeneratedKey());
                     }
                 }
-            } catch (final SQLException e) {
+            } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
+            } finally {
+                if (c != null && transaction() == null) {
+                    try {
+                        c.close();
+                    } catch (final SQLException e) {
+                        returnValueFuture.completeExceptionally(e);
+                    }
+                }
+                if (!returnValueFuture.isCompletedExceptionally()) {
+                    returnValueFuture.complete(result);
+                }
             }
         }, config().threadPool());
 
         return returnValueFuture;
+    }
+
+    default Connection connection() throws SQLException {
+        return config().databaseConnectionPool().getConnection();
     }
 
     int statementOptions();
@@ -94,7 +120,8 @@ public interface Inserter<T> extends ConfigGetter, StatementPreparer {
                     return new DatabaseResultField<>(columnToSelect, null);
                 }
                 return getGeneratedKeys(finalQuery, columnToSelect, stmt);
-            } catch (final SQLException e) {
+            } catch (final Exception e) {
+                e.printStackTrace();
                 throw new SQLException(String.format("%s, query %s", e.getMessage(), finalQuery), e);
             }
         }

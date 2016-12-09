@@ -1,18 +1,13 @@
-package co.ecso.dacato.h2.cached;
+package co.ecso.dacato.sqlite;
 
 import co.ecso.dacato.TestApplicationCache;
 import co.ecso.dacato.database.cache.Cache;
 import co.ecso.dacato.database.cache.CacheKey;
-import co.ecso.dacato.database.querywrapper.DatabaseField;
-import co.ecso.dacato.database.querywrapper.DatabaseResultField;
-import co.ecso.dacato.h2.AbstractHTwoTest;
-import co.ecso.dacato.h2.HTwoTestApplicationConfig;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.Types;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -20,57 +15,56 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * HTwoCachedDatabaseTableTest.
+ * SQLiteCachedDatabaseTableTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 06.09.16
  */
-public final class HTwoCachedDatabaseTableTest extends AbstractHTwoTest {
+public final class SQLiteCachedDatabaseTableTest extends AbstractSQLiteTest {
 
-    private HTwoCachedCustomers customers = null;
+    private SQLiteCachedCustomers customers = null;
 
     @Before
     public void setUp() throws Exception {
-        this.setUpHTwoDatabase();
-        this.customers = new HTwoCachedCustomers(new HTwoTestApplicationConfig());
+        this.setUpSQLiteDatabase();
+        this.customers = new SQLiteCachedCustomers(new SQLiteTestApplicationConfig());
     }
 
     @After
     public void tearDown() throws Exception {
-        this.cleanupHTwoDatabase();
+        this.cleanupMySQLiteDatabase();
     }
 
     @Test
     public void testAdd() throws Exception {
-        final HTwoCachedCustomer newCustomer = this.customers.create("foo1", 12345L).get(10, TimeUnit.SECONDS);
+        final SQLiteCachedCustomer newCustomer = this.customers.create("foo1", 12345).get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
         Assert.assertEquals("foo1", newCustomer.firstName().get().resultValue());
     }
 
     @Test
     public void testFindOne() throws Exception {
-        final HTwoCachedCustomer newCustomer = this.customers.create("foo1", 12345L)
-                .get(10, TimeUnit.SECONDS);
+        final SQLiteCachedCustomer newCustomer = this.customers.create("foo1", 12345).get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(newCustomer);
 
-        final HTwoCachedCustomer foundCustomer1 = this.customers.findOne(newCustomer.primaryKey())
+        final SQLiteCachedCustomer foundCustomer1 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(foundCustomer1);
         Assert.assertEquals("foo1", foundCustomer1.firstName().get().resultValue());
-        Assert.assertEquals(Long.valueOf(12345L), foundCustomer1.number().get().resultValue());
+        Assert.assertEquals(Integer.valueOf(12345), foundCustomer1.number().get().resultValue());
 
 //        System.out.println("Getting by cache...");
 
-        final HTwoCachedCustomer foundCustomer2 = this.customers.findOne(newCustomer.primaryKey())
+        final SQLiteCachedCustomer foundCustomer2 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final HTwoCachedCustomer foundCustomer3 = this.customers.findOne(newCustomer.primaryKey())
+        final SQLiteCachedCustomer foundCustomer3 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final HTwoCachedCustomer foundCustomer4 = this.customers.findOne(newCustomer.primaryKey())
+        final SQLiteCachedCustomer foundCustomer4 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final HTwoCachedCustomer foundCustomer5 = this.customers.findOne(newCustomer.primaryKey())
+        final SQLiteCachedCustomer foundCustomer5 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
-        final HTwoCachedCustomer foundCustomer6 = this.customers.findOne(newCustomer.primaryKey())
+        final SQLiteCachedCustomer foundCustomer6 = this.customers.findOne(newCustomer.primaryKey())
                 .get(10, TimeUnit.SECONDS);
 
         Assert.assertEquals(foundCustomer1.primaryKey(), foundCustomer2.primaryKey());
@@ -84,16 +78,16 @@ public final class HTwoCachedDatabaseTableTest extends AbstractHTwoTest {
     @Test
     public void testCache() throws ExecutionException, InterruptedException, TimeoutException {
         final Cache myCache = new TestApplicationCache();
-        final Long longValue = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
-                .get(10, TimeUnit.SECONDS).resultValue();
+        final Long longValue  = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+                .get(10, TimeUnit.SECONDS);
         final Long longValue2 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
-                .get(10, TimeUnit.SECONDS).resultValue();
+                .get(10, TimeUnit.SECONDS);
         final Long longValue3 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
-                .get(10, TimeUnit.SECONDS).resultValue();
+                .get(10, TimeUnit.SECONDS);
         final Long longValue4 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
-                .get(10, TimeUnit.SECONDS).resultValue();
+                .get(10, TimeUnit.SECONDS);
         final Long longValue5 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
-                .get(10, TimeUnit.SECONDS).resultValue();
+                .get(10, TimeUnit.SECONDS);
 
         Assert.assertEquals(longValue, longValue2);
         Assert.assertEquals(longValue, longValue3);
@@ -101,13 +95,12 @@ public final class HTwoCachedDatabaseTableTest extends AbstractHTwoTest {
         Assert.assertEquals(longValue, longValue5);
     }
 
-    private CompletableFuture<DatabaseResultField<Long>> getLong() {
-        final CompletableFuture<DatabaseResultField<Long>> c = new CompletableFuture<>();
+    private CompletableFuture<Long> getLong() {
+        final CompletableFuture<Long> c = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             try {
                 TimeUnit.SECONDS.sleep(5);
-                final DatabaseField<Long> field = new DatabaseField<>("none", Long.class, Types.BIGINT);
-                c.complete(new DatabaseResultField<>(field, System.currentTimeMillis()));
+                c.complete(System.currentTimeMillis());
             } catch (final InterruptedException ignored) {
             }
         });
@@ -117,14 +110,18 @@ public final class HTwoCachedDatabaseTableTest extends AbstractHTwoTest {
     @SuppressWarnings("Duplicates")
     @Test
     public void testFindAll() throws Exception {
-        Assert.assertEquals(Integer.valueOf(0), this.customers.findAll().thenApply(List::size).get());
+        Assert.assertEquals(Integer.valueOf(0),
+                this.customers
+                        .findAll()
+                        .thenApply(List::size)
+                        .get());
 
         CompletableFuture.allOf(
-                this.customers.create("foo1", 12345L),
-                this.customers.create("foo1", 12345L),
-                this.customers.create("foo1", 12345L),
-                this.customers.create("foo1", 12345L),
-                this.customers.create("foo1", 12345L)
+                this.customers.create("foo1", 12345),
+                this.customers.create("foo1", 12345),
+                this.customers.create("foo1", 12345),
+                this.customers.create("foo1", 12345),
+                this.customers.create("foo1", 12345)
         ).get(10, TimeUnit.SECONDS);
 
         Assert.assertEquals(5, this.customers.findAll().get().size());

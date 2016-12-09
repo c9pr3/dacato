@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  * @version $Id:$
  * @since 06.09.16
  */
-public final class SQLiteTestApplicationConfig implements ApplicationConfig {
+final class SQLiteTestApplicationConfig implements ApplicationConfig {
     private static volatile snaq.db.ConnectionPool connectionPool = null;
     private static volatile ExecutorService threadPool = null;
 
@@ -42,7 +42,7 @@ public final class SQLiteTestApplicationConfig implements ApplicationConfig {
 
     @Override
     public long databasePoolIdleTimeout() {
-        return 1000;
+        return 100;
     }
 
     @Override
@@ -53,13 +53,14 @@ public final class SQLiteTestApplicationConfig implements ApplicationConfig {
     @Override
     public ExecutorService threadPool() {
         if (threadPool == null) {
-            threadPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+            threadPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<>());
         }
         return threadPool;
     }
 
     @Override
-    public synchronized ConnectionPool<Connection> databaseConnectionPool() {
+    public ConnectionPool<Connection> databaseConnectionPool() {
         if (connectionPool == null) {
             connectionPool = new snaq.db.ConnectionPool(databasePoolName(), databasePoolMin(),
                     databasePoolMax(), databasePoolMaxSize(), databasePoolIdleTimeout(),

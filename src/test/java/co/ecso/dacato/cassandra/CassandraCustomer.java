@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * HSQLCustomer.
+ * Customer.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$

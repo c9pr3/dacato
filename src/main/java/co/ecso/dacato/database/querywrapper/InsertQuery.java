@@ -124,4 +124,14 @@ public final class InsertQuery<T> implements Query<T> {
     public boolean returnGeneratedKey() {
         return this.returnGeneratedKey;
     }
+
+    @Override
+    public String toString() {
+        return "InsertQuery{" +
+                "query='" + query + '\'' +
+                ", columnValueMap=" + columnValueMap +
+                ", columnToReturn=" + columnToReturn +
+                ", returnGeneratedKey=" + returnGeneratedKey +
+                '}';
+    }
 }

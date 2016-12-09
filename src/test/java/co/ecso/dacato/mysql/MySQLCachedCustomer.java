@@ -1,4 +1,4 @@
-package co.ecso.dacato.sqlite.cached;
+package co.ecso.dacato.mysql;
 
 import co.ecso.dacato.AbstractTest;
 import co.ecso.dacato.config.ApplicationConfig;
@@ -10,27 +10,26 @@ import co.ecso.dacato.database.querywrapper.DatabaseResultField;
 import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
 import co.ecso.dacato.database.querywrapper.SingleColumnUpdateQuery;
 
-import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * SQLiteCachedCustomer.
+ * MySQLCachedCustomer.
  *
  * @author Christian Senkowski (cs@2scale.net)
  * @version $Id:$
  * @since 17.09.16
  */
-final class SQLiteCachedCustomer implements CachedDatabaseEntity<Integer> {
+final class MySQLCachedCustomer implements CachedDatabaseEntity<Long> {
 
     private static final String TABLE_NAME = "customer";
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
     private final ApplicationConfig config;
-    private final Integer id;
+    private final Long id;
     private final AtomicBoolean objectValid = new AtomicBoolean(true);
 
-    SQLiteCachedCustomer(final ApplicationConfig config, final Integer id) {
+    MySQLCachedCustomer(final ApplicationConfig config, final Long id) {
         this.config = config;
         this.id = id;
     }
@@ -41,15 +40,15 @@ final class SQLiteCachedCustomer implements CachedDatabaseEntity<Integer> {
     }
 
     @Override
-    public Integer primaryKey() {
+    public Long primaryKey() {
         return id;
     }
 
     @Override
-    public CompletableFuture<SQLiteCachedCustomer> save(final ColumnList columnValuesToSet) {
+    public CompletableFuture<MySQLCachedCustomer> save(final ColumnList columnValuesToSet) {
         return this.update(new SingleColumnUpdateQuery<>("UPDATE " + TABLE_NAME + " SET %s WHERE %%s = ?",
                 Fields.ID, this.id, columnValuesToSet), () -> objectValid).thenApply(rowsAffected ->
-                new SQLiteCachedCustomer(config, id));
+                new MySQLCachedCustomer(config, id));
     }
 
     @Override
@@ -62,21 +61,16 @@ final class SQLiteCachedCustomer implements CachedDatabaseEntity<Integer> {
                 this.objectValid);
     }
 
-    public CompletableFuture<DatabaseResultField<Integer>> number() {
+    public CompletableFuture<DatabaseResultField<Long>> number() {
         return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()), () ->
                 this.objectValid);
-    }
-
-    @Override
-    public int statementOptions() {
-        return ResultSet.CLOSE_CURSORS_AT_COMMIT;
     }
 
     public static final class Fields {
         public static final DatabaseField<String> FIRST_NAME =
                 new DatabaseField<>("customer_first_name", String.class, Types.VARCHAR);
-        static final DatabaseField<Integer> ID = new DatabaseField<>("id", Integer.class, Types.INTEGER);
-        static final DatabaseField<Integer> NUMBER =
-                new DatabaseField<>("customer_number", Integer.class, Types.INTEGER);
+        static final DatabaseField<Long> ID = new DatabaseField<>("id", Long.class, Types.BIGINT);
+        static final DatabaseField<Long> NUMBER =
+                new DatabaseField<>("customer_number", Long.class, Types.BIGINT);
     }
 }
