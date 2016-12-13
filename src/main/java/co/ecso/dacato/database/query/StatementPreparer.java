@@ -17,17 +17,17 @@ public interface StatementPreparer {
      * Prepare a statement.
      *
      * @param finalQuery Query to prepare.
-     * @param connection Connection.
+     * @param c Connection.
      * @return PreparedStatement.
      * @throws SQLException if SQL fails.
      */
-    default PreparedStatement prepareStatement(String finalQuery, Connection connection, int option)
+    default PreparedStatement prepareStatement(final String finalQuery, final Connection c, final int option)
             throws SQLException {
-        synchronized (finalQuery) {
+        synchronized (c) {
             if (option > 0) {
-                return connection.prepareStatement(finalQuery, option);
+                return c.prepareStatement(finalQuery, option);
             } else {
-                return connection.prepareStatement(finalQuery);
+                return c.prepareStatement(finalQuery);
             }
         }
     }

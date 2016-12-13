@@ -71,7 +71,7 @@ public interface Updater<T> extends ConfigGetter, StatementPreparer {
                     query.columnValuesToSet().values().forEach(values::add);
                     values.add(query.whereValue());
                     result = getResult(finalQuery,
-                            statementFiller().fillStatement(finalQuery, newArr, values, stmt));
+                            statementFiller().fillStatement(finalQuery, newArr, values, stmt, c), c);
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
@@ -105,11 +105,13 @@ public interface Updater<T> extends ConfigGetter, StatementPreparer {
      * Get result.
      *
      * @param stmt Statement.
+     * @param c Connection.
      * @return Result.
      * @throws SQLException if query fails.
      */
-    default int getResult(final String finalQuery, final PreparedStatement stmt) throws SQLException {
-        synchronized (stmt) {
+    default int getResult(final String finalQuery, final PreparedStatement stmt, final Connection c)
+            throws SQLException {
+        synchronized (c) {
             if (stmt.isClosed()) {
                 throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
             }

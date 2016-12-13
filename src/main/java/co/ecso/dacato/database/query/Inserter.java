@@ -41,15 +41,17 @@ public interface Inserter<T> extends ConfigGetter, StatementPreparer {
      * @param query Query.
      * @return DatabaseResultField of type T.
      */
-    default CompletableFuture<DatabaseResultField<T>> add(InsertQuery<T> query) {
+    default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query) {
         final CompletableFuture<DatabaseResultField<T>> returnValueFuture = new CompletableFuture<>();
+        final int returnGenerated = query.returnGeneratedKey() ? Statement.RETURN_GENERATED_KEYS : 0;
+        final List<DatabaseField<?>> keys = new LinkedList<>();
+        if (query.returnGeneratedKey() && query.query().split("%s").length - 1 > query.values().keySet().size()) {
+            keys.add(query.columnToReturn());
+        }
+        keys.addAll(query.values().keySet());
+        final String finalQuery = String.format(query.query(), keys.toArray());
+
         CompletableFuture.runAsync(() -> {
-            final List<DatabaseField<?>> keys = new LinkedList<>();
-            if (query.returnGeneratedKey() && query.query().split("%s").length - 1 > query.values().keySet().size()) {
-                keys.add(query.columnToReturn());
-            }
-            keys.addAll(query.values().keySet());
-            final String finalQuery = String.format(query.query(), keys.toArray());
             Connection c = null;
             DatabaseResultField<T> result = null;
             try {
@@ -57,21 +59,20 @@ public interface Inserter<T> extends ConfigGetter, StatementPreparer {
                 if (c == null) {
                     throw new SQLException("Could not obtain connection");
                 }
-                final int returnGenerated = query.returnGeneratedKey() ? Statement.RETURN_GENERATED_KEYS : 0;
                 if (returnGenerated > 0) {
                     try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, returnGenerated)) {
                         statementFiller().fillStatement(finalQuery, new LinkedList<>(query.values().keySet()),
-                                new LinkedList<>(query.values().values()), stmt);
+                                new LinkedList<>(query.values().values()), stmt, c);
                         result = getResult(finalQuery, query.columnToReturn(), stmt,
-                                query.returnGeneratedKey());
+                                query.returnGeneratedKey(), c);
                         returnValueFuture.complete(result);
                     }
                 } else {
                     try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, statementOptions())) {
                         statementFiller().fillStatement(finalQuery, new LinkedList<>(query.values().keySet()),
-                                new LinkedList<>(query.values().values()), stmt);
+                                new LinkedList<>(query.values().values()), stmt, c);
                         result = getResult(finalQuery, query.columnToReturn(), stmt,
-                                query.returnGeneratedKey());
+                                query.returnGeneratedKey(), c);
                     }
                 }
             } catch (final Exception e) {
@@ -105,12 +106,14 @@ public interface Inserter<T> extends ConfigGetter, StatementPreparer {
      * @param finalQuery     Final query.
      * @param columnToSelect Column to select.
      * @param stmt           Statement.
+     * @param c              Connection.
      * @return DatabaseResultField of type T.
      * @throws SQLException if sql fails.
      */
-    default DatabaseResultField<T> getResult(String finalQuery, DatabaseField<T> columnToSelect, PreparedStatement stmt,
-                                             boolean returnGeneratedKey) throws SQLException {
-        synchronized (stmt) {
+    default DatabaseResultField<T> getResult(final String finalQuery, final DatabaseField<T> columnToSelect,
+                                             final PreparedStatement stmt, final boolean returnGeneratedKey,
+                                             final Connection c) throws SQLException {
+        synchronized (c) {
             try {
                 if (stmt.isClosed()) {
                     throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
@@ -119,7 +122,7 @@ public interface Inserter<T> extends ConfigGetter, StatementPreparer {
                 if (!returnGeneratedKey) {
                     return new DatabaseResultField<>(columnToSelect, null);
                 }
-                return getGeneratedKeys(finalQuery, columnToSelect, stmt);
+                return getGeneratedKeys(finalQuery, columnToSelect, stmt, c);
             } catch (final Exception e) {
                 e.printStackTrace();
                 throw new SQLException(String.format("%s, query %s", e.getMessage(), finalQuery), e);
@@ -127,9 +130,10 @@ public interface Inserter<T> extends ConfigGetter, StatementPreparer {
         }
     }
 
-    default DatabaseResultField<T> getGeneratedKeys(String finalQuery, DatabaseField<T> columnToSelect,
-                                                    PreparedStatement stmt) throws SQLException {
-        synchronized (stmt) {
+    default DatabaseResultField<T> getGeneratedKeys(final String finalQuery, final DatabaseField<T> columnToSelect,
+                                                    final PreparedStatement stmt, final Connection c)
+            throws SQLException {
+        synchronized (c) {
             if (stmt.isClosed()) {
                 throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
             }

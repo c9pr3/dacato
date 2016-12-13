@@ -74,9 +74,8 @@ public final class SQLiteTransactionTest extends AbstractSQLiteTest {
 
     @Test
     public void testTransactionRollback() throws Exception {
-        this.customers.removeAll().get(10, TimeUnit.SECONDS);
 
-        System.out.println("MOVE ON");
+        this.customers.removeAll().get(10, TimeUnit.SECONDS);
 
         Connection connection = new SQLiteTestApplicationConfig().databaseConnectionPool().getConnection();
         Assert.assertNotNull(connection);

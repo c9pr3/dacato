@@ -32,7 +32,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param returnValueFuture ReturnValue to complete exceptionally if validity fails.
      * @return true or false for early return purposes.
      */
-    default boolean validityFails(Callable<AtomicBoolean> validityCheck, CompletableFuture<?> returnValueFuture) {
+    default boolean validityFails(final Callable<AtomicBoolean> validityCheck,
+                                  final CompletableFuture<?> returnValueFuture) {
         try {
             if (!validityCheck.call().get()) {
                 returnValueFuture.completeExceptionally(new IllegalArgumentException("Object already destroyed"));
@@ -53,8 +54,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param <S>           Type to return, p.e. String in select x from y where name = z.
      * @return DatabaseResultField with type to select (S), p.e. String
      */
-    default <S> CompletableFuture<DatabaseResultField<S>> findOne(MultiColumnQuery<S> query,
-                                                                  Callable<AtomicBoolean> validityCheck) {
+    default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query,
+                                                                  final Callable<AtomicBoolean> validityCheck) {
 
         final CompletableFuture<DatabaseResultField<S>> returnValueFuture = new CompletableFuture<>();
 
@@ -70,6 +71,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         final String finalQuery = String.format(query.query(), format.toArray());
 
         CompletableFuture.runAsync(() -> {
+            DatabaseResultField<S> singleRowResult = null;
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 if (c == null) {
                     throw new SQLException("Could not obtain connection");
@@ -77,13 +79,16 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
-                            new LinkedList<>(valuesWhere.values().values()), stmt);
-                    final DatabaseResultField<S> singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
-                            filledStatement, valuesWhere.values().keySet(), valuesWhere.values().values());
-                    returnValueFuture.complete(singleRowResult);
+                            new LinkedList<>(valuesWhere.values().values()), stmt, c);
+                    singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
+                            filledStatement, valuesWhere.values().keySet(), valuesWhere.values().values(), c);
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
+            } finally {
+                if (!returnValueFuture.isCompletedExceptionally()) {
+                    returnValueFuture.complete(singleRowResult);
+                }
             }
         }, config().threadPool());
 
@@ -100,8 +105,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param validityCheck Validity check callback.
      * @return DatabaseResultField with type to select (W), p.e. String
      */
-    default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(SingleColumnQuery<S, W> query,
-                                                                     Callable<AtomicBoolean> validityCheck) {
+    default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query,
+                                                                     final Callable<AtomicBoolean> validityCheck) {
 
         final CompletableFuture<DatabaseResultField<S>> returnValueFuture = new CompletableFuture<>();
 
@@ -119,6 +124,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
 
 //        System.out.println("FINDING: " + finalQuery + ", " + columnWhere.toString() + " = " + whereValueToFind);
         CompletableFuture.runAsync(() -> {
+            DatabaseResultField<S> singleRowResult = null;
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 if (c == null) {
                     throw new SQLException("Could not obtain connection");
@@ -126,14 +132,17 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             Collections.singletonList(columnWhere),
-                            Collections.singletonList(whereValueToFind), stmt);
-                    final DatabaseResultField<S> singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
+                            Collections.singletonList(whereValueToFind), stmt, c);
+                    singleRowResult = getSingleRowResult(finalQuery, columnToSelect,
                             filledStatement, Collections.singleton(columnWhere),
-                            Collections.singleton(whereValueToFind));
-                    returnValueFuture.complete(singleRowResult);
+                            Collections.singleton(whereValueToFind), c);
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
+            } finally {
+                if (!returnValueFuture.isCompletedExceptionally()) {
+                    returnValueFuture.complete(singleRowResult);
+                }
             }
         }, config().threadPool());
         return returnValueFuture;
@@ -146,8 +155,9 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param validityCheck Validity Check.
      * @return List of DatabaseResultFields.
      */
-    default CompletableFuture<Map<DatabaseField, DatabaseResultField>> findOne(MultiColumnSelectQuery<?> query,
-                                                                               Callable<AtomicBoolean> validityCheck) {
+    default CompletableFuture<Map<DatabaseField, DatabaseResultField>> findOne(final MultiColumnSelectQuery<?> query,
+                                                                               final Callable<AtomicBoolean>
+                                                                                       validityCheck) {
 
         final CompletableFuture<Map<DatabaseField, DatabaseResultField>> returnValueFuture =
                 new CompletableFuture<>();
@@ -164,6 +174,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         final String finalQuery = String.format(query.query(), format.toArray());
 
         CompletableFuture.runAsync(() -> {
+            Map<DatabaseField, DatabaseResultField> listRowResult = null;
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 if (c == null) {
                     throw new SQLException("Could not obtain connection");
@@ -171,14 +182,15 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
-                            new LinkedList<>(valuesWhere.values().values()), stmt);
-
-                    final Map<DatabaseField, DatabaseResultField> listRowResult = getMapRowResult(finalQuery,
-                            columnsToSelect, filledStatement);
-                    returnValueFuture.complete(listRowResult);
+                            new LinkedList<>(valuesWhere.values().values()), stmt, c);
+                    listRowResult = getMapRowResult(finalQuery, columnsToSelect, filledStatement, c);
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
+            } finally {
+                if (!returnValueFuture.isCompletedExceptionally()) {
+                    returnValueFuture.complete(listRowResult);
+                }
             }
         }, config().threadPool());
 
@@ -212,6 +224,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         final String finalQuery = String.format(query.query(), format.toArray());
 
         CompletableFuture.runAsync(() -> {
+            List<Map<DatabaseField, DatabaseResultField>> listRowResult = null;
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 if (c == null) {
                     throw new SQLException("Could not obtain connection");
@@ -219,14 +232,15 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
-                            new LinkedList<>(valuesWhere.values().values()), stmt);
-
-                    final List<Map<DatabaseField, DatabaseResultField>> listRowResult =
-                            getListMapRowResult(columnsToSelect, filledStatement);
-                    returnValueFuture.complete(listRowResult);
+                            new LinkedList<>(valuesWhere.values().values()), stmt, c);
+                    listRowResult = getListMapRowResult(columnsToSelect, filledStatement, c);
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
+            } finally {
+                if (!returnValueFuture.isCompletedExceptionally()) {
+                    returnValueFuture.complete(listRowResult);
+                }
             }
         }, config().threadPool());
 
@@ -258,27 +272,32 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                 columnWhere != null ? columnWhere.name() : null);
 
         CompletableFuture.runAsync(() -> {
+            List<DatabaseResultField<S>> listRowResult = null;
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 if (c == null) {
                     throw new SQLException("Could not obtain connection");
                 }
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
-                    final List<DatabaseResultField<S>> result = getListRowResult(columnToSelect,
-                            statementFiller().fillStatement(finalQuery, Collections.singletonList(columnWhere),
-                                    Collections.singletonList(query.columnWhereValue()), stmt));
-                    returnValueFuture.complete(result);
+                    listRowResult = getListRowResult(columnToSelect, statementFiller().fillStatement(finalQuery,
+                            Collections.singletonList(columnWhere), Collections.singletonList(query.columnWhereValue()),
+                            stmt, c), c);
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
+            } finally {
+                if (!returnValueFuture.isCompletedExceptionally()) {
+                    returnValueFuture.complete(listRowResult);
+                }
             }
         }, config().threadPool());
         return returnValueFuture;
     }
 
-    default Map<DatabaseField, DatabaseResultField> getMapRowResult(String finalQuery,
-                                                                    List<DatabaseField> columnsToSelect,
-                                                                    PreparedStatement stmt) throws SQLException {
-        synchronized (stmt) {
+    default Map<DatabaseField, DatabaseResultField> getMapRowResult(final String finalQuery,
+                                                                    final List<DatabaseField> columnsToSelect,
+                                                                    final PreparedStatement stmt, final Connection c)
+            throws SQLException {
+        synchronized (c) {
             final Map<DatabaseField, DatabaseResultField> result = new LinkedHashMap<>();
             if (stmt.isClosed()) {
                 throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
@@ -287,16 +306,16 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                 if (!rs.next()) {
                     throw new SQLNoResultException(String.format("No Results for %s", finalQuery));
                 }
-                listMapColumns(columnsToSelect, rs, result);
+                listMapColumns(columnsToSelect, rs, result, c);
             }
             return result;
         }
     }
 
-    default List<Map<DatabaseField, DatabaseResultField>> getListMapRowResult(List<DatabaseField> columnsToSelect,
-                                                                              PreparedStatement stmt)
-            throws SQLException {
-        synchronized (stmt) {
+    default List<Map<DatabaseField, DatabaseResultField>> getListMapRowResult(final List<DatabaseField> columnsToSelect,
+                                                                              final PreparedStatement stmt,
+                                                                              final Connection c) throws SQLException {
+        synchronized (c) {
             final List<Map<DatabaseField, DatabaseResultField>> result = new LinkedList<>();
             if (stmt.isClosed()) {
                 throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
@@ -304,7 +323,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
             try (final ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Map<DatabaseField, DatabaseResultField> map = new HashMap<>();
-                    listMapColumns(columnsToSelect, rs, map);
+                    listMapColumns(columnsToSelect, rs, map, c);
                     result.add(map);
                 }
             }
@@ -312,15 +331,17 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         }
     }
 
-    default void listMapColumns(List<DatabaseField> columnsToSelect, ResultSet rs,
-                                Map<DatabaseField, DatabaseResultField> map) throws SQLException {
-        synchronized (rs) {
+    default void listMapColumns(final List<DatabaseField> columnsToSelect, final ResultSet rs,
+                                final Map<DatabaseField, DatabaseResultField> map, final Connection c)
+            throws SQLException {
+        synchronized (c) {
             for (final DatabaseField column : columnsToSelect) {
                 Object rval;
                 try {
                     if (rs.getClass().getMethod("getObject", int.class, Class.class) == null) {
                         throw new NoSuchMethodError("Driver does not support getObject with class");
                     }
+                    //noinspection unchecked
                     rval = rs.getObject(column.name(), column.valueClass());
                     if (rval == null) {
                         throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
@@ -343,16 +364,18 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
     /**
      * Get list row result.
      *
+     * @param <R>            Type to return, p.e. String. Must match Type of columnToSelect.
      * @param columnToSelect Column to select.
      * @param stmt           Statement.
-     * @param <R>            Type to return, p.e. String. Must match Type of columnToSelect.
+     * @param c              Connection.
      * @return List of DatabaseResultFields with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */
     @SuppressWarnings("Duplicates")
-    default <R> List<DatabaseResultField<R>> getListRowResult(DatabaseField<R> columnToSelect, PreparedStatement stmt)
+    default <R> List<DatabaseResultField<R>> getListRowResult(final DatabaseField<R> columnToSelect,
+                                                              final PreparedStatement stmt, final Connection c)
             throws SQLException {
-        synchronized (stmt) {
+        synchronized (c) {
             final List<DatabaseResultField<R>> result = new LinkedList<>();
             if (stmt.isClosed()) {
                 throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
@@ -392,15 +415,19 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param columnToSelect Which column to select.
      * @param stmt           Statement.
      * @param databaseFields Database fields to find.
-     * @param values         Values to find
+     * @param values         Values to find.
+     * @param c              Connection.
      * @return DatabaseResultField with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */
     @SuppressWarnings("Duplicates")
-    default <R> DatabaseResultField<R> getSingleRowResult(String finalQuery, DatabaseField<R> columnToSelect,
-                                                          PreparedStatement stmt, Set<DatabaseField<?>> databaseFields,
-                                                          Collection<?> values) throws SQLException {
-        synchronized (stmt) {
+    default <R> DatabaseResultField<R> getSingleRowResult(final String finalQuery,
+                                                          final DatabaseField<R> columnToSelect,
+                                                          final PreparedStatement stmt,
+                                                          final Set<DatabaseField<?>> databaseFields,
+                                                          final Collection<?> values, final Connection c)
+            throws SQLException {
+        synchronized (c) {
             final DatabaseResultField<R> result;
             if (stmt.isClosed()) {
                 throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
@@ -445,7 +472,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param databaseValue  Value from database.
      * @param valueClass     Value class.
      */
-    default <R> DatabaseResultField<R> castResultValue(DatabaseField<R> columnToSelect, R databaseValue,
+    default <R> DatabaseResultField<R> castResultValue(final DatabaseField<R> columnToSelect, final R databaseValue,
                                                        final Class valueClass) {
         final DatabaseResultField<R> result;
         if (valueClass == String.class) {

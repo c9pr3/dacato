@@ -3,6 +3,7 @@ package co.ecso.dacato.database.query;
 import co.ecso.dacato.database.querywrapper.DatabaseField;
 
 import java.lang.reflect.Field;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -24,12 +25,14 @@ public interface StatementFiller {
      * @param columnsWhere Where columns.
      * @param valuesWhere  Where columnValuesToSet.
      * @param stmt         Statement.
+     * @param c            Connection.
      * @return Prepared statement.
      * @throws SQLException if fill fails.
      */
-    default PreparedStatement fillStatement(String query, List<DatabaseField<?>> columnsWhere,
-                                            List<?> valuesWhere, PreparedStatement stmt) throws SQLException {
-        synchronized (stmt) {
+    default PreparedStatement fillStatement(final String query, final List<DatabaseField<?>> columnsWhere,
+                                            final List<?> valuesWhere, final PreparedStatement stmt,
+                                            final Connection c) throws SQLException {
+        synchronized (c) {
             int questionCount = 0;
             for (int i = 0; i < query.length(); i++) {
                 if (query.charAt(i) == '?') {

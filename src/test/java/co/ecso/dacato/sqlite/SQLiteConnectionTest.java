@@ -28,8 +28,8 @@ public final class SQLiteConnectionTest extends AbstractSQLiteTest {
 
     @Test
     public void testConnection() throws Exception {
-        final Connection c = new SQLiteTestApplicationConfig().databaseConnectionPool().getConnection();
-        Assert.assertNotNull(c);
-        c.close();
+        try (final Connection c = new SQLiteTestApplicationConfig().databaseConnectionPool().getConnection()) {
+            Assert.assertNotNull(c);
+        }
     }
 }

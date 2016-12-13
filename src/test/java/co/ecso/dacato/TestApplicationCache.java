@@ -37,6 +37,7 @@ public final class TestApplicationCache implements Cache {
             }
         }
 
+        //noinspection unchecked
         return CompletableFuture.completedFuture((V) APPLICATION_CACHE.get(key));
     }
 

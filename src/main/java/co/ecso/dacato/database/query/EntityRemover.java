@@ -47,8 +47,8 @@ public interface EntityRemover extends ConfigGetter, StatementPreparer {
                 try (final PreparedStatement stmt = this.prepareStatement(finalQuery, c, this.statementOptions())) {
                     final PreparedStatement filledStatement = statementFiller().fillStatement(finalQuery,
                             new LinkedList<>(valuesWhere.values().keySet()),
-                            new LinkedList<>(valuesWhere.values().values()), stmt);
-                    singleRowResult = getSingleRowResult(filledStatement);
+                            new LinkedList<>(valuesWhere.values().values()), stmt, c);
+                    singleRowResult = getSingleRowResult(filledStatement, c);
                 }
             } catch (final Exception e) {
                 returnValueFuture.completeExceptionally(e);
@@ -79,11 +79,12 @@ public interface EntityRemover extends ConfigGetter, StatementPreparer {
      * Get single row result.
      *
      * @param stmt Statement.
+     * @param c Connection.
      * @return DatabaseResultField with type W, p.e. String.
      * @throws SQLException if SQL fails.
      */
-    default Integer getSingleRowResult(PreparedStatement stmt) throws SQLException {
-        synchronized (stmt) {
+    default Integer getSingleRowResult(final PreparedStatement stmt, final Connection c) throws SQLException {
+        synchronized (c) {
             if (stmt.isClosed()) {
                 throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
             }

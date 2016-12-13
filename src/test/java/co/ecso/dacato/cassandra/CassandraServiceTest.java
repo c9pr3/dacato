@@ -25,7 +25,6 @@ public final class CassandraServiceTest extends AbstractCassandraTest {
                     try {
                         return new FileInputStream(SRC_TEST_CONFIG_EXTENDED_DATA_SET_XML);
                     } catch (final FileNotFoundException e) {
-                        e.printStackTrace();
                         return null;
                     }
                 }

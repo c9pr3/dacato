@@ -5,10 +5,7 @@ import co.ecso.dacato.database.transaction.Transaction;
 import co.ecso.dacato.helpers.Customer;
 import co.ecso.dacato.helpers.Customers;
 import co.ecso.dacato.helpers.Products;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
