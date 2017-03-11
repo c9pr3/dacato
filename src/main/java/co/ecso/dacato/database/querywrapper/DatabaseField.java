@@ -8,22 +8,13 @@ import java.util.Objects;
  *
  * @param <T> Type of field, for "id" p.e. Long, for "name" String etc.
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 09.09.16
  */
 public final class DatabaseField<T> implements Serializable {
 
-    /**
-     * Field name.
-     */
+    private static final long serialVersionUID = -7573737740393648299L;
     private final String name;
-    /**
-     * Field value class.
-     */
     private final Class<T> valueClass;
-    /**
-     * Field SQL Type.
-     */
     private final int sqlType;
 
     /**

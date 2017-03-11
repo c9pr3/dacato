@@ -47,8 +47,7 @@ public interface CachedEntityFinder extends EntityFinder, CacheGetter, CacheKeyG
                                                                   final Callable<AtomicBoolean> validityCallback) {
         try {
             final Cache cache = cache();
-            return cache.get(getCacheKey(query), () -> (CompletableFuture<DatabaseResultField<S>>)
-                    EntityFinder.super.findOne(query, validityCallback));
+            return cache.get(getCacheKey(query), () -> EntityFinder.super.findOne(query, validityCallback));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);

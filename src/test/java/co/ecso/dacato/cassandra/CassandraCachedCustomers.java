@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
  * HSQLCachedCustomers.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 17.09.16
  */
 final class CassandraCachedCustomers implements CachedDatabaseTable<Long, CassandraCachedCustomer> {

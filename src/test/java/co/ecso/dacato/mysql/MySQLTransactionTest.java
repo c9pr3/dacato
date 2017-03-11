@@ -44,9 +44,9 @@ public final class MySQLTransactionTest extends AbstractMySQLTest {
     public void testTransaction() throws Exception {
         this.customers.removeAll().get(10, TimeUnit.SECONDS);
 
-        Connection connection = new MySQLTestApplicationConfig().databaseConnectionPool().getConnection();
-        ConcurrentLinkedQueue<CompletableFuture<?>> queue = new ConcurrentLinkedQueue<>();
-        Transaction transaction = new Transaction() {
+        final Connection connection = new MySQLTestApplicationConfig().databaseConnectionPool().getConnection();
+        final ConcurrentLinkedQueue<CompletableFuture<?>> queue = new ConcurrentLinkedQueue<>();
+        final Transaction transaction = new Transaction() {
 
             @Override
             public Connection connection() throws SQLException {
@@ -74,7 +74,6 @@ public final class MySQLTransactionTest extends AbstractMySQLTest {
 
         final List<Customer> all = this.customers.findAll().get(10, TimeUnit.SECONDS);
         Assert.assertFalse(all.isEmpty());
-
     }
 
     @Test
@@ -110,7 +109,6 @@ public final class MySQLTransactionTest extends AbstractMySQLTest {
 
         final List<Customer> all = this.customers.findAll().get(10, TimeUnit.SECONDS);
         Assert.assertTrue(all.isEmpty());
-
     }
 
 }

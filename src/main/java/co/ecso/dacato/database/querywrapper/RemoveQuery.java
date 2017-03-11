@@ -10,18 +10,12 @@ import java.util.Objects;
  *
  * @param <T> Type of Query, p.e. Long.
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 01.10.16
  */
 public final class RemoveQuery<T> implements Query<T> {
 
-    /**
-     * Query string.
-     */
+    private static final long serialVersionUID = -7975766286210264241L;
     private final String query;
-    /**
-     * Where columns and values.
-     */
     private final ColumnList whereColumnValues;
 
     /**

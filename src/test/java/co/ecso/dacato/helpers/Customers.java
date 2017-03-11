@@ -55,18 +55,18 @@ public final class Customers implements DatabaseTable<Long, Customer> {
                 list.stream().map(l -> new Customer(config, l.resultValue())).collect(Collectors.toList()));
     }
 
-    public CompletableFuture<Map<DatabaseField, DatabaseResultField>> findFirstNameById(final Long id) {
+    public CompletableFuture<Map<DatabaseField<?>, DatabaseResultField<?>>> findFirstNameById(final Long id) {
         final String queryStr = "SELECT %s FROM customer WHERE %s = ?";
-        final List<DatabaseField> columnsToSelect = new LinkedList<>();
+        final List<DatabaseField<?>> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(Customer.Fields.FIRST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(Customer.Fields.ID, id);
         return findOne(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
     }
 
-    public CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findManyFirstName() {
+    public CompletableFuture<List<Map<DatabaseField<?>, DatabaseResultField<?>>>> findManyFirstName() {
         final String queryStr = "SELECT %s FROM customer";
-        final List<DatabaseField> columnsToSelect = new LinkedList<>();
+        final List<DatabaseField<?>> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(Customer.Fields.FIRST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
         return findMany(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));

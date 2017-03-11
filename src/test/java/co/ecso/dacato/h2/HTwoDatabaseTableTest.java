@@ -78,7 +78,7 @@ public final class HTwoDatabaseTableTest extends AbstractHTwoTest {
         Assert.assertNotNull(newCustomer);
         Assert.assertNotNull(newCustomer2);
 
-        final Map<DatabaseField, DatabaseResultField> firstName = this.customers.
+        final Map<DatabaseField<?>, DatabaseResultField<?>> firstName = this.customers.
                 findFirstNameById(newCustomer.primaryKey()).get(10, TimeUnit.SECONDS);
         Assert.assertEquals(1, firstName.size());
         Assert.assertEquals("foo1", firstName.get(HTwoCustomer.Fields.FIRST_NAME).resultValue());
@@ -94,7 +94,7 @@ public final class HTwoDatabaseTableTest extends AbstractHTwoTest {
         final List<HTwoCustomer> all = this.customers.findAll().get(10, TimeUnit.SECONDS);
         Assert.assertEquals(2, all.size());
 
-        final List<Map<DatabaseField, DatabaseResultField>> firstNameAndLastName = this.customers.
+        final List<Map<DatabaseField<?>, DatabaseResultField<?>>> firstNameAndLastName = this.customers.
                 findManyFirstName().get(10, TimeUnit.SECONDS);
 
         Assert.assertEquals(2, firstNameAndLastName.size());

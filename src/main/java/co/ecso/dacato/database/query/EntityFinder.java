@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * EntityFinder.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 11.09.16
  */
 public interface EntityFinder extends ConfigGetter, StatementPreparer {
@@ -155,17 +154,17 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param validityCheck Validity Check.
      * @return List of DatabaseResultFields.
      */
-    default CompletableFuture<Map<DatabaseField, DatabaseResultField>> findOne(final MultiColumnSelectQuery<?> query,
+    default CompletableFuture<Map<DatabaseField<?>, DatabaseResultField<?>>> findOne(final MultiColumnSelectQuery<?> query,
                                                                                final Callable<AtomicBoolean>
                                                                                        validityCheck) {
 
-        final CompletableFuture<Map<DatabaseField, DatabaseResultField>> returnValueFuture =
+        final CompletableFuture<Map<DatabaseField<?>, DatabaseResultField<?>>> returnValueFuture =
                 new CompletableFuture<>();
 
         if (validityFails(validityCheck, returnValueFuture)) {
             return returnValueFuture;
         }
-        final List<DatabaseField> columnsToSelect = query.columnsToSelect();
+        final List<DatabaseField<?>> columnsToSelect = query.columnsToSelect();
         final ColumnList valuesWhere = query.values();
         final List<Object> format = new ArrayList<>();
 
@@ -174,7 +173,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         final String finalQuery = String.format(query.query(), format.toArray());
 
         CompletableFuture.runAsync(() -> {
-            Map<DatabaseField, DatabaseResultField> listRowResult = null;
+            Map<DatabaseField<?>, DatabaseResultField<?>> listRowResult = null;
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 if (c == null) {
                     throw new SQLException("Could not obtain connection");
@@ -204,18 +203,18 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param validityCheck Validity Check.
      * @return List of DatabaseResultFields.
      */
-    default CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findMany(final MultiColumnSelectQuery<?>
+    default CompletableFuture<List<Map<DatabaseField<?>, DatabaseResultField<?>>>> findMany(final MultiColumnSelectQuery<?>
                                                                                               query,
                                                                                       final Callable<AtomicBoolean>
                                                                                               validityCheck) {
 
-        final CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> returnValueFuture =
+        final CompletableFuture<List<Map<DatabaseField<?>, DatabaseResultField<?>>>> returnValueFuture =
                 new CompletableFuture<>();
 
         if (validityFails(validityCheck, returnValueFuture)) {
             return returnValueFuture;
         }
-        final List<DatabaseField> columnsToSelect = query.columnsToSelect();
+        final List<DatabaseField<?>> columnsToSelect = query.columnsToSelect();
         final ColumnList valuesWhere = query.values();
         final List<Object> format = new ArrayList<>();
 
@@ -224,7 +223,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         final String finalQuery = String.format(query.query(), format.toArray());
 
         CompletableFuture.runAsync(() -> {
-            List<Map<DatabaseField, DatabaseResultField>> listRowResult = null;
+            List<Map<DatabaseField<?>, DatabaseResultField<?>>> listRowResult = null;
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
                 if (c == null) {
                     throw new SQLException("Could not obtain connection");
@@ -293,12 +292,12 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         return returnValueFuture;
     }
 
-    default Map<DatabaseField, DatabaseResultField> getMapRowResult(final String finalQuery,
-                                                                    final List<DatabaseField> columnsToSelect,
+    default Map<DatabaseField<?>, DatabaseResultField<?>> getMapRowResult(final String finalQuery,
+                                                                    final List<DatabaseField<?>> columnsToSelect,
                                                                     final PreparedStatement stmt, final Connection c)
             throws SQLException {
         synchronized (c) {
-            final Map<DatabaseField, DatabaseResultField> result = new LinkedHashMap<>();
+            final Map<DatabaseField<?>, DatabaseResultField<?>> result = new LinkedHashMap<>();
             if (stmt.isClosed()) {
                 throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
             }
@@ -312,17 +311,17 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         }
     }
 
-    default List<Map<DatabaseField, DatabaseResultField>> getListMapRowResult(final List<DatabaseField> columnsToSelect,
+    default List<Map<DatabaseField<?>, DatabaseResultField<?>>> getListMapRowResult(final List<DatabaseField<?>> columnsToSelect,
                                                                               final PreparedStatement stmt,
                                                                               final Connection c) throws SQLException {
         synchronized (c) {
-            final List<Map<DatabaseField, DatabaseResultField>> result = new LinkedList<>();
+            final List<Map<DatabaseField<?>, DatabaseResultField<?>>> result = new LinkedList<>();
             if (stmt.isClosed()) {
                 throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
             }
             try (final ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Map<DatabaseField, DatabaseResultField> map = new HashMap<>();
+                    Map<DatabaseField<?>, DatabaseResultField<?>> map = new HashMap<>();
                     listMapColumns(columnsToSelect, rs, map, c);
                     result.add(map);
                 }
@@ -331,8 +330,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         }
     }
 
-    default void listMapColumns(final List<DatabaseField> columnsToSelect, final ResultSet rs,
-                                final Map<DatabaseField, DatabaseResultField> map, final Connection c)
+    default void listMapColumns(final List<DatabaseField<?>> columnsToSelect, final ResultSet rs,
+                                final Map<DatabaseField<?>, DatabaseResultField<?>> map, final Connection c)
             throws SQLException {
         synchronized (c) {
             for (final DatabaseField column : columnsToSelect) {
@@ -355,7 +354,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                     map.put(column, new DatabaseResultField<>(column, null));
                 } else {
                     //noinspection unchecked
-                    map.put(column, castResultValue(column, rval, column.valueClass()));
+                    DatabaseResultField<Object> value = castResultValue(column, rval, column.valueClass());
+                    map.put(column, value);
                 }
             }
         }
@@ -473,16 +473,14 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
      * @param valueClass     Value class.
      */
     default <R> DatabaseResultField<R> castResultValue(final DatabaseField<R> columnToSelect, final R databaseValue,
-                                                       final Class valueClass) {
+                                                       final Class<?> valueClass) {
         final DatabaseResultField<R> result;
         if (valueClass == String.class) {
-            result = new DatabaseResultField<>(columnToSelect,
-                    columnToSelect.valueClass().cast(databaseValue.toString().trim()));
+            result = new DatabaseResultField<>(columnToSelect, columnToSelect.valueClass().cast(databaseValue.toString().trim()));
 
         } else if (valueClass == Boolean.class) {
             final Boolean boolVal = "1".equals(databaseValue.toString().trim());
-            result = new DatabaseResultField<>(columnToSelect,
-                    columnToSelect.valueClass().cast(boolVal));
+            result = new DatabaseResultField<>(columnToSelect, columnToSelect.valueClass().cast(boolVal));
 
         } else {
             result = new DatabaseResultField<>(columnToSelect, databaseValue);

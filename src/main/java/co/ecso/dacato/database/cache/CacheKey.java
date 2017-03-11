@@ -7,22 +7,13 @@ import java.util.Objects;
  * CacheKey.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 20.09.16
  */
 public final class CacheKey implements Serializable {
 
-    /**
-     * Key.
-     */
+    private static final long serialVersionUID = -5589630047137523865L;
     private final int key;
-    /**
-     * Type Class.
-     */
     private final Class<?> type;
-    /**
-     * Textual representation.
-     */
     private final StringBuilder textKey = new StringBuilder();
 
     /**

@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
  * MySQLCustomers.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 15.03.16
  */
 final class MySQLCustomers implements DatabaseTable<Long, MySQLCustomer> {
@@ -54,18 +53,18 @@ final class MySQLCustomers implements DatabaseTable<Long, MySQLCustomer> {
                 list.stream().map(l -> new MySQLCustomer(config, l.resultValue())).collect(Collectors.toList()));
     }
 
-    CompletableFuture<Map<DatabaseField, DatabaseResultField>> findFirstNameById(final Long id) {
+    CompletableFuture<Map<DatabaseField<?>, DatabaseResultField<?>>> findFirstNameById(final Long id) {
         final String queryStr = "SELECT %s FROM customer WHERE %s = ?";
-        final List<DatabaseField> columnsToSelect = new LinkedList<>();
+        final List<DatabaseField<?>> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(MySQLCustomer.Fields.FIRST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(MySQLCustomer.Fields.ID, id);
         return findOne(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
     }
 
-    CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findManyFirstName() {
+    CompletableFuture<List<Map<DatabaseField<?>, DatabaseResultField<?>>>> findManyFirstName() {
         final String queryStr = "SELECT %s FROM customer";
-        final List<DatabaseField> columnsToSelect = new LinkedList<>();
+        final List<DatabaseField<?>> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(MySQLCustomer.Fields.FIRST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
         return findMany(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));

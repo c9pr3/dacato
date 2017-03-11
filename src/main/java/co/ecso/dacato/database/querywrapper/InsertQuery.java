@@ -9,26 +9,14 @@ import java.util.Objects;
  *
  * @param <T> Return type of query, p.e. Long for id, String for name etc.
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 12.09.16
  */
 public final class InsertQuery<T> implements Query<T> {
 
-    /**
-     * Query string.
-     */
+    private static final long serialVersionUID = -5438962181365261584L;
     private final String query;
-    /**
-     * Column and columnValueMap to insert.
-     */
     private final Map<DatabaseField<?>, Object> columnValueMap = new LinkedHashMap<>();
-    /**
-     * Column to return.
-     */
     private final DatabaseField<T> columnToReturn;
-    /**
-     * Return generated key.
-     */
     private final boolean returnGeneratedKey;
 
     /**

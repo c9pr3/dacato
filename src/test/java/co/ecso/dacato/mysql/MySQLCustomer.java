@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * MySQLCustomer.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 29.08.16
  */
 final class MySQLCustomer implements DatabaseEntity<Long> {
@@ -48,8 +47,7 @@ final class MySQLCustomer implements DatabaseEntity<Long> {
 
     @Override
     public CompletableFuture<DatabaseEntity<Long>> save(final ColumnList columnValuesToSet) {
-        final SingleColumnUpdateQuery<Long> query =
-                new SingleColumnUpdateQuery<>("UPDATE customer SET %s WHERE %%s = ?", Fields.ID, id, columnValuesToSet);
+        final SingleColumnUpdateQuery<Long> query = new SingleColumnUpdateQuery<>("UPDATE customer SET %s WHERE %%s = ?", Fields.ID, id, columnValuesToSet);
         final CompletableFuture<Integer> updated = this.update(query, () -> this.objectValid);
         this.objectValid.set(false);
         return updated.thenApply(rowsAffected -> new MySQLCustomer(config, id));

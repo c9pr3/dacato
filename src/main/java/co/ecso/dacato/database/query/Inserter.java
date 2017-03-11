@@ -16,7 +16,6 @@ import java.util.concurrent.CompletableFuture;
  *
  * @param <T> Type of insert, p.e. Long -> type to return.
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 12.09.16
  */
 public interface Inserter<T> extends ConfigGetter, StatementPreparer {

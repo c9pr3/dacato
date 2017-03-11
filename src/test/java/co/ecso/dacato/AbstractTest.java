@@ -6,7 +6,6 @@ import co.ecso.dacato.database.cache.Cache;
  * AbstractTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 17.03.16
  */
 public abstract class AbstractTest {

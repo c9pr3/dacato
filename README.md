@@ -178,8 +178,38 @@ For a more completed example, see [Dacato-Ref](http://github.com/Adar/dacato-ref
 
 ### Transactions
 
-In the current state and what this piece of software is designed for no transactions are needed (yet).
-But at some point there will be cascading updates and deletions. Working on it, though it is quite difficult to keep a transaction through asynchronicity. 
+Quite simple as well. Create a transaction, do your queries and commit (or rollback).
+
+ ```
+final Customers customers = new Customers(new MyApplicationConfig());
+final Connection connection = new MySQLTestApplicationConfig().databaseConnectionPool().getConnection();
+final ConcurrentLinkedQueue<CompletableFuture<?>> queue = new ConcurrentLinkedQueue<>();
+final Transaction transaction = new Transaction() {
+
+    @Override
+    public Connection connection() throws SQLException {
+        return connection;
+    }
+
+    @Override
+    public ConcurrentLinkedQueue<CompletableFuture<?>> futures() {
+        return queue;
+    }
+
+    @Override
+    public ApplicationConfig config() {
+        return new MyApplicationConfig();
+    }
+};
+transaction.start();
+
+CompletableFuture.allOf(
+    customers.create("foo1", 12345L, transaction)
+).get(10, TimeUnit.SECONDS);
+
+transaction.commit().get(10, TimeUnit.SECONDS);
+//transaction.rollback().get(10, TimeUnit.SECONDS);
+ ```
 
 ##Why the ... should I use DACATO? Tons of more major frameworks out there!
 

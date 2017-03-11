@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
  * MySQLDatabaseTableTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 03.09.16
  */
 public final class MySQLDatabaseTableTest extends AbstractMySQLTest {
@@ -82,8 +81,7 @@ public final class MySQLDatabaseTableTest extends AbstractMySQLTest {
         Assert.assertNotNull(newCustomer);
         Assert.assertNotNull(newCustomer2);
 
-        final Map<DatabaseField, DatabaseResultField> firstName = this.customers.
-                findFirstNameById(newCustomer.primaryKey()).get(10, TimeUnit.SECONDS);
+        final Map<DatabaseField<?>, DatabaseResultField<?>> firstName = this.customers.findFirstNameById(newCustomer.primaryKey()).get(10, TimeUnit.SECONDS);
         Assert.assertEquals(1, firstName.size());
         Assert.assertEquals("foo1", firstName.get(MySQLCustomer.Fields.FIRST_NAME).resultValue());
     }
@@ -98,7 +96,7 @@ public final class MySQLDatabaseTableTest extends AbstractMySQLTest {
         final List<MySQLCustomer> all = this.customers.findAll().get(10, TimeUnit.SECONDS);
         Assert.assertEquals(2, all.size());
 
-        final List<Map<DatabaseField, DatabaseResultField>> firstNameAndLastName = this.customers.
+        final List<Map<DatabaseField<?>, DatabaseResultField<?>>> firstNameAndLastName = this.customers.
                 findManyFirstName().get(10, TimeUnit.SECONDS);
 
         Assert.assertEquals(2, firstNameAndLastName.size());

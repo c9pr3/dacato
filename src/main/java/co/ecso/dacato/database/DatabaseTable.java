@@ -150,8 +150,7 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @param query Query.
      * @return DatabaseResultField of type S.
      */
-    default CompletableFuture<Map<DatabaseField, DatabaseResultField>> findOne(
-            final MultiColumnSelectQuery<?> query) {
+    default CompletableFuture<Map<DatabaseField<?>, DatabaseResultField<?>>> findOne(final MultiColumnSelectQuery<?> query) {
         return this.entityFinder().findOne(query, this::alwaysValid);
     }
 
@@ -173,8 +172,7 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @param query Query.
      * @return List of DatabaseResultFields of type S.
      */
-    default CompletableFuture<List<Map<DatabaseField, DatabaseResultField>>> findMany(
-            final MultiColumnSelectQuery<?> query) {
+    default CompletableFuture<List<Map<DatabaseField<?>, DatabaseResultField<?>>>> findMany(final MultiColumnSelectQuery<?> query) {
         return this.entityFinder().findMany(query, this::alwaysValid);
     }
 

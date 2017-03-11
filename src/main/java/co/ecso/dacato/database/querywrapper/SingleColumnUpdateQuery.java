@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
  *
  * @param <T> Type of query -> type of where.
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 11.09.16
  */
 public final class SingleColumnUpdateQuery<T> implements Query<T> {
 
+    private static final long serialVersionUID = 2004667026197234402L;
     private final String query;
     private final DatabaseField<T> whereColumn;
     private final T whereValue;

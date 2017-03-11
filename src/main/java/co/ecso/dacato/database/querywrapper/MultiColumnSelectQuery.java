@@ -10,13 +10,13 @@ import java.util.Objects;
  * MultiColumnSelectQuery.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 25.09.16
  */
 public final class MultiColumnSelectQuery<T> implements Query<T> {
 
+    private static final long serialVersionUID = 7418061210484515561L;
     private final String query;
-    private final List<DatabaseField> columnsToSelect;
+    private final List<DatabaseField<?>> columnsToSelect;
     private final ColumnList whereColumnValues;
 
     /**
@@ -26,7 +26,7 @@ public final class MultiColumnSelectQuery<T> implements Query<T> {
      * @param columnsToSelect   Columns to select.
      * @param whereColumnValues Column plus columnValuesToSet - map.
      */
-    public MultiColumnSelectQuery(final String query, final List<DatabaseField> columnsToSelect,
+    public MultiColumnSelectQuery(final String query, final List<DatabaseField<?>> columnsToSelect,
                                   final ColumnList whereColumnValues) {
         this.query = query;
         this.columnsToSelect = columnsToSelect;
@@ -48,7 +48,7 @@ public final class MultiColumnSelectQuery<T> implements Query<T> {
      *
      * @return Columns to select.
      */
-    public List<DatabaseField> columnsToSelect() {
+    public List<DatabaseField<?>> columnsToSelect() {
         return columnsToSelect;
     }
 

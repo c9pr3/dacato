@@ -10,22 +10,13 @@ import java.util.Objects;
  *
  * @param <T> Type of return, p.e. Long.
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 13.09.16
  */
 public final class MultiColumnQuery<T> implements Query<T> {
 
-    /**
-     * Query string.
-     */
+    private static final long serialVersionUID = -415676121639998051L;
     private final String query;
-    /**
-     * Column to select.
-     */
     private final DatabaseField<T> columnToSelect;
-    /**
-     * Where columns and values.
-     */
     private final ColumnList whereColumnValues;
 
     /**

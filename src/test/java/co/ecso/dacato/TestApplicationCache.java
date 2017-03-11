@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutionException;
  * TestApplicationCache.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 04.09.16
  */
 public final class TestApplicationCache implements Cache {

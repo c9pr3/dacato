@@ -8,18 +8,12 @@ import java.util.Objects;
  *
  * @param <T> Field type, p.e. Long or String.
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 09.09.16
  */
 public final class DatabaseResultField<T> implements Serializable {
 
-    /**
-     * Selected field.
-     */
+    private static final long serialVersionUID = -8162450174026734384L;
     private final DatabaseField<T> selectedField;
-    /**
-     * Result value.
-     */
     private final T resultValue;
 
     /**

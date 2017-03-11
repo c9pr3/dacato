@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
  * MySQLDatabaseEntityTest.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 03.09.16
  */
 public final class MySQLDatabaseEntityTest extends AbstractMySQLTest {
@@ -52,7 +51,7 @@ public final class MySQLDatabaseEntityTest extends AbstractMySQLTest {
     @Test(expected = ExecutionException.class)
     public void testSave() throws Exception {
         final Long id = this.customer.primaryKey();
-        Map<DatabaseField<?>, Object> map = new HashMap<>();
+        final Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(MySQLCustomer.Fields.FIRST_NAME, "foo1");
         this.customer.save(() -> map).get(5, TimeUnit.SECONDS);
 

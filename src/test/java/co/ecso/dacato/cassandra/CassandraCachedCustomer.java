@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * HSQLCachedCustomer.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 17.09.16
  */
 final class CassandraCachedCustomer implements CachedDatabaseEntity<Long> {

@@ -9,26 +9,14 @@ import java.util.Objects;
  * @param <S> SelectType. Type of column to select. P.e. in select first_name from xy this would be String.
  * @param <W> WhereType. Type of column where. P.e. select first_name from ... where id = x this would be Long.
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 09.09.16
  */
 public final class SingleColumnQuery<S, W> implements Query<S> {
 
-    /**
-     * Query string.
-     */
+    private static final long serialVersionUID = 5941571185193135160L;
     private final String query;
-    /**
-     * Column to select.
-     */
     private final DatabaseField<S> columnToSelect;
-    /**
-     * Column where.
-     */
     private final DatabaseField<W> columnWhere;
-    /**
-     * Where value.
-     */
     private final W columnWhereValue;
 
     /**
