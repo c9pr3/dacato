@@ -22,19 +22,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public interface CachedEntityFinder extends EntityFinder, CacheGetter, CacheKeyGetter {
 
     @Override
-    default <T> CacheKey getCacheKey(final Query<T> query) {
-        return new CacheKey(query.queryType(), query.query(), query.toString());
+    default <T> CacheKey<Object> getCacheKey(final Query<T> query) {
+        return new CacheKey<>(query.tableName(), query.queryType(), query.toString());
     }
 
     @Override
     default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findMany(final SingleColumnQuery<S, W> query,
-                                                                            final Callable<AtomicBoolean>
-                                                                                    validityCallback) {
+                                                                            final Callable<AtomicBoolean> validityCallback) {
         try {
-            final Cache cache = cache();
-            return cache.get(getCacheKey(query), () -> EntityFinder.super.findMany(query, validityCallback));
+            return cache().get(getCacheKey(query), () -> EntityFinder.super.findMany(query, validityCallback));
         } catch (final ExecutionException e) {
-            e.printStackTrace();
             final CompletableFuture<List<DatabaseResultField<S>>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);
             return rval;
@@ -46,8 +43,7 @@ public interface CachedEntityFinder extends EntityFinder, CacheGetter, CacheKeyG
     default <S> CompletableFuture<DatabaseResultField<S>> findOne(final MultiColumnQuery<S> query,
                                                                   final Callable<AtomicBoolean> validityCallback) {
         try {
-            final Cache cache = cache();
-            return cache.get(getCacheKey(query), () -> EntityFinder.super.findOne(query, validityCallback));
+            return cache().get(getCacheKey(query), () -> EntityFinder.super.findOne(query, validityCallback));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);
@@ -60,8 +56,7 @@ public interface CachedEntityFinder extends EntityFinder, CacheGetter, CacheKeyG
     default <S, W> CompletableFuture<DatabaseResultField<S>> findOne(final SingleColumnQuery<S, W> query,
                                                                      final Callable<AtomicBoolean> validityCallback) {
         try {
-            final Cache cache = cache();
-            return cache.get(getCacheKey(query), () -> EntityFinder.super.findOne(query, validityCallback));
+            return cache().get(getCacheKey(query), () -> EntityFinder.super.findOne(query, validityCallback));
         } catch (final ExecutionException e) {
             final CompletableFuture<DatabaseResultField<S>> rval = new CompletableFuture<>();
             rval.completeExceptionally(e);

@@ -27,27 +27,27 @@ final class CassandraCustomers implements DatabaseTable<byte[], CassandraCustome
 
     @Override
     public CompletableFuture<CassandraCustomer> findOne(final byte[] primaryKey) {
-        return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
+        return this.findOne(new SingleColumnQuery<>(CassandraCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ?",
                 CassandraCustomer.Fields.ID, CassandraCustomer.Fields.ID, primaryKey)).thenApply(foundId ->
                 new CassandraCustomer(config, (UUID) foundId.resultValuePOJO()));
     }
 
     @Override
     public CompletableFuture<List<CassandraCustomer>> findAll() {
-        return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", CassandraCustomer.Fields.ID))
+        return this.findAll(CassandraCustomer.TABLE_NAME, new SingleColumnQuery<>(CassandraCustomer.TABLE_NAME, "SELECT %s FROM customer", CassandraCustomer.Fields.ID))
                 .thenApply(list -> list.stream().map(foundId ->
                         new CassandraCustomer(config, (UUID) foundId.resultValuePOJO())).collect(Collectors.toList()));
     }
 
     CompletableFuture<CassandraCustomer> findOneByFirstName(final String firstName) {
-        final SingleColumnQuery<byte[], String> query = new SingleColumnQuery<>("SELECT %s FROM customer " +
+        final SingleColumnQuery<byte[], String> query = new SingleColumnQuery<>(CassandraCustomer.TABLE_NAME, "SELECT %s FROM customer " +
                 "WHERE %s = ? LIMIT 1", CassandraCustomer.Fields.ID, CassandraCustomer.Fields.FIRST_NAME, firstName);
         return this.findOne(query).thenApply(foundId ->
                 new CassandraCustomer(config, (UUID) foundId.resultValuePOJO()));
     }
 
     CompletableFuture<List<CassandraCustomer>> findAllByFirstName(final String firstName) {
-        final SingleColumnQuery<byte[], String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
+        final SingleColumnQuery<byte[], String> query = new SingleColumnQuery<>(CassandraCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ?",
                 CassandraCustomer.Fields.ID,
                 CassandraCustomer.Fields.FIRST_NAME, firstName);
         return this.findMany(query).thenApply(list ->
@@ -61,7 +61,7 @@ final class CassandraCustomers implements DatabaseTable<byte[], CassandraCustome
         columnsToSelect.add(CassandraCustomer.Fields.FIRST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(CassandraCustomer.Fields.ID, id);
-        return findOne(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
+        return findOne(new MultiColumnSelectQuery<>(CassandraCustomer.TABLE_NAME, queryStr, columnsToSelect, () -> map));
     }
 
     CompletableFuture<List<Map<DatabaseField<?>, DatabaseResultField<?>>>> findManyFirstName() {
@@ -69,11 +69,11 @@ final class CassandraCustomers implements DatabaseTable<byte[], CassandraCustome
         final List<DatabaseField<?>> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(CassandraCustomer.Fields.FIRST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
-        return findMany(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
+        return findMany(new MultiColumnSelectQuery<>(CassandraCustomer.TABLE_NAME, queryStr, columnsToSelect, () -> map));
     }
 
     CompletableFuture<Boolean> removeAll() {
-        return this.truncate("TRUNCATE customer");
+        return this.truncate(new TruncateQuery<>(CassandraCustomer.TABLE_NAME, "TRUNCATE customer"));
     }
 
     @Override
@@ -82,7 +82,7 @@ final class CassandraCustomers implements DatabaseTable<byte[], CassandraCustome
     }
 
     public CompletableFuture<CassandraCustomer> create(final String firstName, final Long number) {
-        final InsertQuery<byte[]> query = new InsertQuery<>(
+        final InsertQuery<byte[]> query = new InsertQuery<>(CassandraCustomer.TABLE_NAME,
                 "INSERT INTO customer (%s, %s, %s) VALUES (?, ?, ?)");
         final UUID uuid1 = UUID.randomUUID();
         long hi = uuid1.getMostSignificantBits();
@@ -97,12 +97,12 @@ final class CassandraCustomers implements DatabaseTable<byte[], CassandraCustome
     CompletableFuture<Integer> removeOne(final byte[] id) {
         Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(CassandraCustomer.Fields.ID, id);
-        return this.removeOne(new RemoveQuery<>("DELETE FROM customer WHERE %s = ?", () -> map));
+        return this.removeOne(new RemoveQuery<>(CassandraCustomer.TABLE_NAME, "DELETE FROM customer WHERE %s = ?", () -> map));
     }
 
     public CompletableFuture<CassandraCustomer> create(final String firstName, final Long number,
                                                        final Transaction transaction) {
-        final InsertQuery<byte[]> query = new InsertQuery<>(
+        final InsertQuery<byte[]> query = new InsertQuery<>(CassandraCustomer.TABLE_NAME,
                 "INSERT INTO customer (%s, %s, %s) VALUES (?, ?, ?)");
         final UUID uuid1 = UUID.randomUUID();
         long hi = uuid1.getMostSignificantBits();

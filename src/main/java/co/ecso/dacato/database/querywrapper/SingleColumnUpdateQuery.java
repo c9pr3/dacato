@@ -22,6 +22,7 @@ public final class SingleColumnUpdateQuery<T> implements Query<T> {
     private final DatabaseField<T> whereColumn;
     private final T whereValue;
     private final Map<DatabaseField<?>, Object> columnValuesToSet = new LinkedHashMap<>();
+    private final String tableName;
 
     /**
      * Construct.
@@ -31,18 +32,24 @@ public final class SingleColumnUpdateQuery<T> implements Query<T> {
      * @param whereValue        Where value.
      * @param columnValuesToSet Columns and values to set.
      */
-    public SingleColumnUpdateQuery(final String query, final DatabaseField<T> whereColumn, final T whereValue,
+    public SingleColumnUpdateQuery(final String tableName, final String query, final DatabaseField<T> whereColumn, final T whereValue,
                                    final ColumnList columnValuesToSet) {
         this.whereColumn = whereColumn;
         this.whereValue = whereValue;
         this.columnValuesToSet.putAll(columnValuesToSet.values());
         this.query = String.format(query, columnValuesToSet.values().keySet().stream().map(l -> "%s = ?")
                 .collect(Collectors.joining(",")));
+        this.tableName = tableName;
     }
 
     @Override
     public String query() {
         return query;
+    }
+
+    @Override
+    public String tableName() {
+        return tableName;
     }
 
     @Override

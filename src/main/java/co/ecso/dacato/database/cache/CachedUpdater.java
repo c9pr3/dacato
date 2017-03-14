@@ -20,8 +20,9 @@ public interface CachedUpdater<T> extends Updater<T>, CacheGetter {
     @Override
     default CompletableFuture<Integer> update(final SingleColumnUpdateQuery<T> query,
                                               final Callable<AtomicBoolean> validityCheck) {
-        cache().invalidateAll();
-        cache().cleanUp();
+        cache().keySet().stream()
+                .filter(k -> k.hasKey(query.tableName()))
+                .forEach(k -> cache().invalidate(k));
         return Updater.super.update(query, validityCheck);
     }
 }

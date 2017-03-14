@@ -78,15 +78,15 @@ public final class HSQLCachedDatabaseTableTest extends AbstractHSQLTest {
     @Test
     public void testCache() throws ExecutionException, InterruptedException, TimeoutException {
         final Cache myCache = new TestApplicationCache();
-        final Long longValue = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+        final Long longValue = myCache.get(new CacheKey<>(String.class, "foo"), this::getLong)
                 .get(10, TimeUnit.SECONDS);
-        final Long longValue2 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+        final Long longValue2 = myCache.get(new CacheKey<>(String.class, "foo"), this::getLong)
                 .get(10, TimeUnit.SECONDS);
-        final Long longValue3 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+        final Long longValue3 = myCache.get(new CacheKey<>(String.class, "foo"), this::getLong)
                 .get(10, TimeUnit.SECONDS);
-        final Long longValue4 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+        final Long longValue4 = myCache.get(new CacheKey<>(String.class, "foo"), this::getLong)
                 .get(10, TimeUnit.SECONDS);
-        final Long longValue5 = myCache.get(new CacheKey(String.class, "foo"), this::getLong)
+        final Long longValue5 = myCache.get(new CacheKey<>(String.class, "foo"), this::getLong)
                 .get(10, TimeUnit.SECONDS);
 
         Assert.assertEquals(longValue, longValue2);

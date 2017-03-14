@@ -6,6 +6,7 @@ import co.ecso.dacato.database.CachedDatabaseTable;
 import co.ecso.dacato.database.cache.Cache;
 import co.ecso.dacato.database.querywrapper.InsertQuery;
 import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
+import co.ecso.dacato.database.querywrapper.TruncateQuery;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +28,7 @@ final class PSQLCachedCustomers implements CachedDatabaseTable<Long, PSQLCachedC
     }
 
     public CompletableFuture<PSQLCachedCustomer> create(final String firstName, final long number) {
-        final InsertQuery<Long> query = new InsertQuery<>(
+        final InsertQuery<Long> query = new InsertQuery<>(PSQLCachedCustomer.TABLE_NAME,
                 "INSERT INTO customer (%s, %s) VALUES (?, ?)", PSQLCachedCustomer.Fields.ID);
         query.add(PSQLCachedCustomer.Fields.FIRST_NAME, firstName);
         query.add(PSQLCachedCustomer.Fields.NUMBER, number);
@@ -35,19 +36,19 @@ final class PSQLCachedCustomers implements CachedDatabaseTable<Long, PSQLCachedC
     }
 
     public CompletableFuture<Boolean> removeAll() {
-        return truncate("TRUNCATE TABLE customer");
+        return truncate(new TruncateQuery<>(PSQLCachedCustomer.TABLE_NAME, "TRUNCATE TABLE customer"));
     }
 
     @Override
     public CompletableFuture<PSQLCachedCustomer> findOne(final Long primaryKey) {
-        return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
+        return this.findOne(new SingleColumnQuery<>(PSQLCachedCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ?",
                 PSQLCachedCustomer.Fields.ID, PSQLCachedCustomer.Fields.ID, primaryKey)).thenApply(foundId ->
                 new PSQLCachedCustomer(config, foundId.resultValue()));
     }
 
     @Override
     public CompletableFuture<List<PSQLCachedCustomer>> findAll() {
-        return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", PSQLCachedCustomer.Fields.ID))
+        return this.findAll(PSQLCachedCustomer.TABLE_NAME, new SingleColumnQuery<>(PSQLCachedCustomer.TABLE_NAME, "SELECT %s FROM customer", PSQLCachedCustomer.Fields.ID))
                 .thenApply(list -> list.stream().map(foundId -> new PSQLCachedCustomer(config, foundId.resultValue()))
                         .collect(Collectors.toList()));
     }

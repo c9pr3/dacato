@@ -47,7 +47,7 @@ public final class SQLiteDatabaseEntityTest extends AbstractSQLiteTest {
         this.customer = new SQLiteCustomers(new SQLiteTestApplicationConfig()).create("firstName", 1234)
                 .get(10, TimeUnit.SECONDS);
         Assert.assertEquals(Integer.valueOf(2), this.customer.primaryKey());
-        final DatabaseResultField<Integer> res = this.customer.findOne(new SingleColumnQuery<>(
+        final DatabaseResultField<Integer> res = this.customer.findOne(new SingleColumnQuery<>(SQLiteCustomer.TABLE_NAME,
                 "SELECT %s FROM customer WHERE %s = ?", SQLiteCustomer.Fields.ID, SQLiteCustomer.Fields.ID, 2), () ->
                 new AtomicBoolean(true)).get(10, TimeUnit.SECONDS);
         Assert.assertNotNull(res);

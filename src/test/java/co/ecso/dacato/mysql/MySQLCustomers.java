@@ -27,26 +27,26 @@ final class MySQLCustomers implements DatabaseTable<Long, MySQLCustomer> {
 
     @Override
     public CompletableFuture<MySQLCustomer> findOne(final Long primaryKey) {
-        return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?", MySQLCustomer.Fields.ID,
+        return this.findOne(new SingleColumnQuery<>(MySQLCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ?", MySQLCustomer.Fields.ID,
                 MySQLCustomer.Fields.ID, primaryKey)).thenApply(foundId ->
                 new MySQLCustomer(config, foundId.resultValue()));
     }
 
     @Override
     public CompletableFuture<List<MySQLCustomer>> findAll() {
-        return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", MySQLCustomer.Fields.ID))
+        return this.findAll(MySQLCustomer.TABLE_NAME, new SingleColumnQuery<>(MySQLCustomer.TABLE_NAME, "SELECT %s FROM customer", MySQLCustomer.Fields.ID))
                 .thenApply(list -> list.stream().map(foundId -> new MySQLCustomer(config, foundId.resultValue()))
                         .collect(Collectors.toList()));
     }
 
     CompletableFuture<MySQLCustomer> findOneByFirstName(final String firstName) {
-        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ? " +
+        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>(MySQLCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ? " +
                 "LIMIT 1", MySQLCustomer.Fields.ID, MySQLCustomer.Fields.FIRST_NAME, firstName);
         return this.findOne(query).thenApply(foundId -> new MySQLCustomer(config, foundId.resultValue()));
     }
 
     CompletableFuture<List<MySQLCustomer>> findAllByFirstName(final String firstName) {
-        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
+        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>(MySQLCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ?",
                 MySQLCustomer.Fields.ID,
                 MySQLCustomer.Fields.FIRST_NAME, firstName);
         return this.findMany(query).thenApply(list ->
@@ -59,7 +59,7 @@ final class MySQLCustomers implements DatabaseTable<Long, MySQLCustomer> {
         columnsToSelect.add(MySQLCustomer.Fields.FIRST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(MySQLCustomer.Fields.ID, id);
-        return findOne(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
+        return findOne(new MultiColumnSelectQuery<>(MySQLCustomer.TABLE_NAME, queryStr, columnsToSelect, () -> map));
     }
 
     CompletableFuture<List<Map<DatabaseField<?>, DatabaseResultField<?>>>> findManyFirstName() {
@@ -67,11 +67,11 @@ final class MySQLCustomers implements DatabaseTable<Long, MySQLCustomer> {
         final List<DatabaseField<?>> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(MySQLCustomer.Fields.FIRST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
-        return findMany(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
+        return findMany(new MultiColumnSelectQuery<>(MySQLCustomer.TABLE_NAME, queryStr, columnsToSelect, () -> map));
     }
 
     public CompletableFuture<Boolean> removeAll() {
-        return this.truncate("TRUNCATE TABLE customer");
+        return this.truncate(new TruncateQuery<>(MySQLCustomer.TABLE_NAME, "TRUNCATE TABLE customer"));
     }
 
     @Override
@@ -80,7 +80,7 @@ final class MySQLCustomers implements DatabaseTable<Long, MySQLCustomer> {
     }
 
     public CompletableFuture<MySQLCustomer> create(final String firstName, final Long number) {
-        final InsertQuery<Long> query = new InsertQuery<>(
+        final InsertQuery<Long> query = new InsertQuery<>(MySQLCustomer.TABLE_NAME,
                 "INSERT INTO customer (%s, %s, %s) VALUES (?, ?, ?)", MySQLCustomer.Fields.ID);
         query.add(MySQLCustomer.Fields.ID, null);
         query.add(MySQLCustomer.Fields.FIRST_NAME, firstName);
@@ -91,6 +91,6 @@ final class MySQLCustomers implements DatabaseTable<Long, MySQLCustomer> {
     CompletableFuture<Integer> removeOne(final Long id) {
         Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(MySQLCustomer.Fields.ID, id);
-        return this.removeOne(new RemoveQuery<>("DELETE FROM customer WHERE %s = ?", () -> map));
+        return this.removeOne(new RemoveQuery<>(MySQLCustomer.TABLE_NAME, "DELETE FROM customer WHERE %s = ?", () -> map));
     }
 }

@@ -7,7 +7,6 @@ import java.io.Serializable;
  *
  * @param <T> Type of Query.
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 19.09.16
  */
 public interface Query<T> extends Serializable {
@@ -18,6 +17,13 @@ public interface Query<T> extends Serializable {
      * @return Query.
      */
     String query();
+
+    /**
+     * Get tableName.
+     *
+     * @return Table name.
+     */
+    String tableName();
 
     /**
      * Query type.

@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 11.10.16
  */
 final class SQLiteCustomer implements DatabaseEntity<Integer> {
-    private static final String TABLE_NAME = "customer";
+    static final String TABLE_NAME = "customer";
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
     private final Integer id;
     private final ApplicationConfig config;
@@ -38,19 +38,19 @@ final class SQLiteCustomer implements DatabaseEntity<Integer> {
     }
 
     public CompletableFuture<DatabaseResultField<String>> firstName() {
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.primaryKey()), () ->
+        return this.findOne(new SingleColumnQuery<>(SQLiteCustomer.TABLE_NAME, QUERY, Fields.FIRST_NAME, Fields.ID, this.primaryKey()), () ->
                 this.objectValid);
     }
 
     public CompletableFuture<DatabaseResultField<Integer>> number() {
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()), () ->
+        return this.findOne(new SingleColumnQuery<>(SQLiteCustomer.TABLE_NAME, QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()), () ->
                 this.objectValid);
     }
 
     @Override
     public CompletableFuture<DatabaseEntity<Integer>> save(final ColumnList columnValuesToSet) {
         final SingleColumnUpdateQuery<Integer> query =
-                new SingleColumnUpdateQuery<>("UPDATE customer SET %s WHERE %%s = ?", Fields.ID, id, columnValuesToSet);
+                new SingleColumnUpdateQuery<>(SQLiteCustomer.TABLE_NAME, "UPDATE customer SET %s WHERE %%s = ?", Fields.ID, id, columnValuesToSet);
         final CompletableFuture<Integer> updated = this.update(query, () -> this.objectValid);
         this.objectValid.set(false);
         return updated.thenApply(rowsAffected -> new SQLiteCustomer(config, id));

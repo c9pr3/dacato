@@ -17,8 +17,9 @@ public interface CachedEntityRemover extends EntityRemover, CacheGetter {
     @Override
     default <S> CompletableFuture<Integer> removeOne(final RemoveQuery<S> query) {
         final CompletableFuture<Integer> rVal = EntityRemover.super.removeOne(query);
-        cache().invalidateAll();
-        cache().cleanUp();
+        cache().keySet().stream()
+                .filter(k -> k.hasKey(query.tableName()))
+                .forEach(k -> cache().invalidate(k));
         return rVal;
     }
 }

@@ -17,7 +17,6 @@ import java.util.concurrent.CompletableFuture;
  * EntityRemover.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 01.10.16
  */
 public interface EntityRemover extends ConfigGetter, StatementPreparer {

@@ -18,6 +18,7 @@ public final class MultiColumnQuery<T> implements Query<T> {
     private final String query;
     private final DatabaseField<T> columnToSelect;
     private final ColumnList whereColumnValues;
+    private final String tableName;
 
     /**
      * Construct.
@@ -26,16 +27,22 @@ public final class MultiColumnQuery<T> implements Query<T> {
      * @param columnToSelect    Column to select.
      * @param whereColumnValues Column plus columnValuesToSet - map.
      */
-    public MultiColumnQuery(final String query, final DatabaseField<T> columnToSelect,
+    public MultiColumnQuery(final String tableName, final String query, final DatabaseField<T> columnToSelect,
                             final ColumnList whereColumnValues) {
         this.query = query;
         this.columnToSelect = columnToSelect;
         this.whereColumnValues = whereColumnValues;
+        this.tableName = tableName;
     }
 
     @Override
     public String query() {
         return query;
+    }
+
+    @Override
+    public String tableName() {
+        return tableName;
     }
 
     @Override

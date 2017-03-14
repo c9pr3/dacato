@@ -14,7 +14,6 @@ import java.util.List;
  * StatementFiller.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 02.09.16
  */
 public interface StatementFiller {

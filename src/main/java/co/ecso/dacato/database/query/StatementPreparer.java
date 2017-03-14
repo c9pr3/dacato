@@ -8,7 +8,6 @@ import java.sql.SQLException;
  * StatementPreparer.
  *
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 11.10.16
  */
 public interface StatementPreparer {

@@ -9,6 +9,7 @@ import co.ecso.dacato.database.query.Truncater;
 import co.ecso.dacato.database.querywrapper.DatabaseResultField;
 import co.ecso.dacato.database.querywrapper.InsertQuery;
 import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
+import co.ecso.dacato.database.querywrapper.TruncateQuery;
 import co.ecso.dacato.database.transaction.Transaction;
 
 import java.sql.Connection;
@@ -22,7 +23,6 @@ import java.util.concurrent.CompletableFuture;
  * @param <T> Type of the auto_inc field of this table, usually Long.
  * @param <E> The Entity-Class which is being used.
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 17.09.16
  */
 public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends DatabaseTable<T, E>, CacheGetter {
@@ -30,24 +30,27 @@ public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends Dat
     @Override
     default CompletableFuture<DatabaseResultField<T>> add(final InsertQuery<T> query, final Transaction transaction) {
         final CompletableFuture<DatabaseResultField<T>> rVal = DatabaseTable.super.add(query, transaction);
-        cache().invalidateAll();
-        cache().cleanUp();
+        cache().keySet().stream()
+                .filter(ck -> ck.hasKey(query.tableName()))
+                .forEach(ck -> cache().invalidate(ck));
         return rVal;
     }
 
     @Override
-    default CompletableFuture<Boolean> truncate(final String query, final Transaction transaction) {
+    default CompletableFuture<Boolean> truncate(final TruncateQuery<?> query, final Transaction transaction) {
         final CompletableFuture<Boolean> rVal = DatabaseTable.super.truncate(query, transaction);
-        cache().invalidateAll();
-        cache().cleanUp();
+        cache().keySet().stream()
+                .filter(ck -> ck.hasKey(query.tableName()))
+                .forEach(ck -> cache().invalidate(ck));
         return rVal;
     }
 
     @Override
-    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findAll(final SingleColumnQuery<S, W> query) {
+    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findAll(final String tableName, final SingleColumnQuery<S, W> query) {
         final CompletableFuture<List<DatabaseResultField<S>>> rVal = findMany(query);
-        cache().invalidateAll();
-        cache().cleanUp();
+        cache().keySet().stream()
+                .filter(ck -> ck.hasKey(tableName))
+                .forEach(ck -> cache().invalidate(ck));
         return rVal;
     }
 

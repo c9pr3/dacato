@@ -19,6 +19,6 @@ interface CacheKeyGetter {
      * @param query Query.
      * @return Cache key.
      */
-    <T> CacheKey getCacheKey(final Query<T> query);
+    <T> CacheKey<Object> getCacheKey(final Query<T> query);
 
 }

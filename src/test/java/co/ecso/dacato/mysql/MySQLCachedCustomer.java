@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 final class MySQLCachedCustomer implements CachedDatabaseEntity<Long> {
 
-    private static final String TABLE_NAME = "customer";
+    static final String TABLE_NAME = "customer";
     private static final String QUERY = String.format("SELECT %%s FROM %s WHERE id = ?", TABLE_NAME);
     private final ApplicationConfig config;
     private final Long id;
@@ -46,7 +46,7 @@ final class MySQLCachedCustomer implements CachedDatabaseEntity<Long> {
 
     @Override
     public CompletableFuture<MySQLCachedCustomer> save(final ColumnList columnValuesToSet) {
-        return this.update(new SingleColumnUpdateQuery<>("UPDATE " + TABLE_NAME + " SET %s WHERE %%s = ?",
+        return this.update(new SingleColumnUpdateQuery<>(MySQLCachedCustomer.TABLE_NAME, "UPDATE " + TABLE_NAME + " SET %s WHERE %%s = ?",
                 Fields.ID, this.id, columnValuesToSet), () -> objectValid).thenApply(rowsAffected ->
                 new MySQLCachedCustomer(config, id));
     }
@@ -57,12 +57,12 @@ final class MySQLCachedCustomer implements CachedDatabaseEntity<Long> {
     }
 
     public CompletableFuture<DatabaseResultField<String>> firstName() {
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.FIRST_NAME, Fields.ID, this.primaryKey()), () ->
+        return this.findOne(new SingleColumnQuery<>(MySQLCachedCustomer.TABLE_NAME, QUERY, Fields.FIRST_NAME, Fields.ID, this.primaryKey()), () ->
                 this.objectValid);
     }
 
     public CompletableFuture<DatabaseResultField<Long>> number() {
-        return this.findOne(new SingleColumnQuery<>(QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()), () ->
+        return this.findOne(new SingleColumnQuery<>(MySQLCachedCustomer.TABLE_NAME, QUERY, Fields.NUMBER, Fields.ID, this.primaryKey()), () ->
                 this.objectValid);
     }
 

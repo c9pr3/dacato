@@ -38,7 +38,7 @@ public final class PSQLProduct implements DatabaseEntity<Integer> {
 
     @Override
     public CompletableFuture<PSQLProduct> save(final ColumnList columnList) {
-        SingleColumnUpdateQuery<Integer> query = new SingleColumnUpdateQuery<>(
+        SingleColumnUpdateQuery<Integer> query = new SingleColumnUpdateQuery<>(PSQLProduct.TABLE_NAME,
                 String.format("UPDATE %s SET %%s WHERE %%%%s = ?", TABLE_NAME), Fields.ID, id, columnList);
         final CompletableFuture<Integer> updated = this.update(query, () -> this.objectValid);
         this.objectValid.set(false);

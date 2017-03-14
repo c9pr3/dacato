@@ -7,7 +7,6 @@ import java.sql.SQLException;
  *
  * @param <T> Type of connection, usually "java.sql.Connection".
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 26.08.16
  */
 @FunctionalInterface

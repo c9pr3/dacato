@@ -18,6 +18,7 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
     private final DatabaseField<S> columnToSelect;
     private final DatabaseField<W> columnWhere;
     private final W columnWhereValue;
+    private final String tableName;
 
     /**
      * Construct.
@@ -27,12 +28,13 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
      * @param where            Column where, p.e. "id".
      * @param columnWhereValue Where resultValue, p.e. 10.
      */
-    public SingleColumnQuery(final String query, final DatabaseField<S> select, final DatabaseField<W> where,
+    public SingleColumnQuery(final String tableName, final String query, final DatabaseField<S> select, final DatabaseField<W> where,
                              final W columnWhereValue) {
         this.query = query;
         this.columnToSelect = select;
         this.columnWhere = where;
         this.columnWhereValue = columnWhereValue;
+        this.tableName = tableName;
     }
 
     /**
@@ -41,11 +43,12 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
      * @param query  Query to execute, p.e. Select %s from table_x
      * @param select Column to select.
      */
-    public SingleColumnQuery(final String query, final DatabaseField<S> select) {
+    public SingleColumnQuery(final String tableName, final String query, final DatabaseField<S> select) {
         this.query = query;
         this.columnToSelect = select;
         this.columnWhere = null;
         this.columnWhereValue = null;
+        this.tableName = tableName;
     }
 
     /**
@@ -72,6 +75,11 @@ public final class SingleColumnQuery<S, W> implements Query<S> {
     @Override
     public String query() {
         return query;
+    }
+
+    @Override
+    public String tableName() {
+        return tableName;
     }
 
     @Override

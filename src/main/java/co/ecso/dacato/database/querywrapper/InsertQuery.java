@@ -18,16 +18,18 @@ public final class InsertQuery<T> implements Query<T> {
     private final Map<DatabaseField<?>, Object> columnValueMap = new LinkedHashMap<>();
     private final DatabaseField<T> columnToReturn;
     private final boolean returnGeneratedKey;
+    private final String tableName;
 
     /**
      * Construct.
      *
      * @param query Query to execute, p.e. insert into table_x (%s, %s, %s) columnValuesToSet (?, ?, ?)
      */
-    public InsertQuery(@SuppressWarnings("SameParameterValue") final String query) {
+    public InsertQuery(final String tableName, @SuppressWarnings("SameParameterValue") final String query) {
         this.query = query;
         this.returnGeneratedKey = false;
         this.columnToReturn = null;
+        this.tableName = tableName;
     }
 
     /**
@@ -36,10 +38,11 @@ public final class InsertQuery<T> implements Query<T> {
      * @param query          Query to execute, p.e. insert into table_x (%s, %s, %s) columnValuesToSet (?, ?, ?)
      * @param columnToReturn Column to return, mostly "id"
      */
-    public InsertQuery(final String query, final DatabaseField<T> columnToReturn) {
+    public InsertQuery(final String tableName, final String query, final DatabaseField<T> columnToReturn) {
         this.query = query;
         this.columnToReturn = columnToReturn;
         this.returnGeneratedKey = true;
+        this.tableName = tableName;
     }
 
     /**
@@ -56,6 +59,11 @@ public final class InsertQuery<T> implements Query<T> {
     @Override
     public String query() {
         return query;
+    }
+
+    @Override
+    public String tableName() {
+        return tableName;
     }
 
     @Override

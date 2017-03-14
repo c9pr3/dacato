@@ -59,7 +59,6 @@ public interface Transaction extends ConfigGetter {
 //            this.started = false;
         } catch (final SQLException e) {
             retValFuture.completeExceptionally(e);
-            e.printStackTrace();
         }
 
         return retValFuture;
@@ -87,7 +86,6 @@ public interface Transaction extends ConfigGetter {
 //                this.started = false;
             } catch (final SQLException e) {
                 retValFuture.completeExceptionally(e);
-                e.printStackTrace();
             }
         });
 

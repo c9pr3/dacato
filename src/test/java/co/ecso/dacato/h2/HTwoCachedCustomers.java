@@ -6,6 +6,7 @@ import co.ecso.dacato.database.CachedDatabaseTable;
 import co.ecso.dacato.database.cache.Cache;
 import co.ecso.dacato.database.querywrapper.InsertQuery;
 import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
+import co.ecso.dacato.database.querywrapper.TruncateQuery;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +28,7 @@ final class HTwoCachedCustomers implements CachedDatabaseTable<Long, HTwoCachedC
     }
 
     public CompletableFuture<HTwoCachedCustomer> create(final String firstName, final long number) {
-        final InsertQuery<Long> query = new InsertQuery<>(
+        final InsertQuery<Long> query = new InsertQuery<>(HTwoCachedCustomer.TABLE_NAME,
                 "INSERT INTO customer (%s, %s) VALUES (?, ?)", HTwoCachedCustomer.Fields.ID);
         query.add(HTwoCachedCustomer.Fields.FIRST_NAME, firstName);
         query.add(HTwoCachedCustomer.Fields.NUMBER, number);
@@ -35,19 +36,20 @@ final class HTwoCachedCustomers implements CachedDatabaseTable<Long, HTwoCachedC
     }
 
     public CompletableFuture<Boolean> removeAll() {
-        return truncate("TRUNCATE TABLE customer");
+        return truncate(new TruncateQuery<>(HTwoCachedCustomer.TABLE_NAME, "TRUNCATE TABLE customer"));
     }
 
     @Override
     public CompletableFuture<HTwoCachedCustomer> findOne(final Long primaryKey) {
-        return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
+        return this.findOne(new SingleColumnQuery<>(HTwoCachedCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ?",
                 HTwoCachedCustomer.Fields.ID, HTwoCachedCustomer.Fields.ID, primaryKey)).thenApply(foundId ->
                 new HTwoCachedCustomer(config, foundId.resultValue()));
     }
 
     @Override
     public CompletableFuture<List<HTwoCachedCustomer>> findAll() {
-        return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", HTwoCachedCustomer.Fields.ID))
+        return this.findAll(HTwoCachedCustomer.TABLE_NAME, new SingleColumnQuery<>(HTwoCachedCustomer.TABLE_NAME,
+                "SELECT %s FROM customer", HTwoCachedCustomer.Fields.ID))
                 .thenApply(list ->
                         list.stream().map(foundId ->
                                 new HTwoCachedCustomer(config, foundId.resultValue())).collect(Collectors.toList()));

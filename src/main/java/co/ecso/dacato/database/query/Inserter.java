@@ -123,7 +123,6 @@ public interface Inserter<T> extends ConfigGetter, StatementPreparer {
                 }
                 return getGeneratedKeys(finalQuery, columnToSelect, stmt, c);
             } catch (final Exception e) {
-                e.printStackTrace();
                 throw new SQLException(String.format("%s, query %s", e.getMessage(), finalQuery), e);
             }
         }

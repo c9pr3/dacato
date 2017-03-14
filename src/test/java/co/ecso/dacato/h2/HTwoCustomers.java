@@ -28,26 +28,26 @@ final class HTwoCustomers implements DatabaseTable<Long, HTwoCustomer> {
 
     @Override
     public CompletableFuture<HTwoCustomer> findOne(final Long primaryKey) {
-        return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?", HTwoCustomer.Fields.ID,
+        return this.findOne(new SingleColumnQuery<>(HTwoCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ?", HTwoCustomer.Fields.ID,
                 HTwoCustomer.Fields.ID, primaryKey)).thenApply(foundId ->
                 new HTwoCustomer(config, foundId.resultValue()));
     }
 
     @Override
     public CompletableFuture<List<HTwoCustomer>> findAll() {
-        return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", HTwoCustomer.Fields.ID))
+        return this.findAll(HTwoCustomer.TABLE_NAME, new SingleColumnQuery<>(HTwoCustomer.TABLE_NAME, "SELECT %s FROM customer", HTwoCustomer.Fields.ID))
                 .thenApply(list -> list.stream().map(foundId -> new HTwoCustomer(config, foundId.resultValue()))
                         .collect(Collectors.toList()));
     }
 
     CompletableFuture<HTwoCustomer> findOneByFirstName(final String firstName) {
-        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ? " +
+        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>(HTwoCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ? " +
                 "LIMIT 1", HTwoCustomer.Fields.ID, HTwoCustomer.Fields.FIRST_NAME, firstName);
         return this.findOne(query).thenApply(foundId -> new HTwoCustomer(config, foundId.resultValue()));
     }
 
     CompletableFuture<List<HTwoCustomer>> findAllByFirstName(final String firstName) {
-        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
+        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>(HTwoCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ?",
                 HTwoCustomer.Fields.ID,
                 HTwoCustomer.Fields.FIRST_NAME, firstName);
         return this.findMany(query).thenApply(list ->
@@ -60,7 +60,7 @@ final class HTwoCustomers implements DatabaseTable<Long, HTwoCustomer> {
         columnsToSelect.add(HTwoCustomer.Fields.FIRST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(HTwoCustomer.Fields.ID, id);
-        return findOne(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
+        return findOne(new MultiColumnSelectQuery<>(HTwoCustomer.TABLE_NAME, queryStr, columnsToSelect, () -> map));
     }
 
     CompletableFuture<List<Map<DatabaseField<?>, DatabaseResultField<?>>>> findManyFirstName() {
@@ -68,11 +68,11 @@ final class HTwoCustomers implements DatabaseTable<Long, HTwoCustomer> {
         final List<DatabaseField<?>> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(HTwoCustomer.Fields.FIRST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
-        return findMany(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
+        return findMany(new MultiColumnSelectQuery<>(HTwoCustomer.TABLE_NAME, queryStr, columnsToSelect, () -> map));
     }
 
     public CompletableFuture<Boolean> removeAll() {
-        return this.truncate("TRUNCATE TABLE customer");
+        return this.truncate(new TruncateQuery<>(HTwoCustomer.TABLE_NAME, "TRUNCATE TABLE customer"));
     }
 
     @Override
@@ -81,7 +81,7 @@ final class HTwoCustomers implements DatabaseTable<Long, HTwoCustomer> {
     }
 
     public CompletableFuture<HTwoCustomer> create(final String firstName, final Long number) {
-        final InsertQuery<Long> query = new InsertQuery<>(
+        final InsertQuery<Long> query = new InsertQuery<>(HTwoCustomer.TABLE_NAME,
                 "INSERT INTO customer (%s, %s) VALUES (?, ?)", HTwoCustomer.Fields.ID);
         query.add(HTwoCustomer.Fields.FIRST_NAME, firstName);
         query.add(HTwoCustomer.Fields.NUMBER, number);
@@ -91,6 +91,6 @@ final class HTwoCustomers implements DatabaseTable<Long, HTwoCustomer> {
     CompletableFuture<Integer> removeOne(final Long id) {
         Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(HTwoCustomer.Fields.ID, id);
-        return this.removeOne(new RemoveQuery<>("DELETE FROM customer WHERE %s = ?", () -> map));
+        return this.removeOne(new RemoveQuery<>(HTwoCustomer.TABLE_NAME, "DELETE FROM customer WHERE %s = ?", () -> map));
     }
 }

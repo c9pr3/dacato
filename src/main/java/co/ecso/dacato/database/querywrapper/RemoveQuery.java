@@ -17,16 +17,23 @@ public final class RemoveQuery<T> implements Query<T> {
     private static final long serialVersionUID = -7975766286210264241L;
     private final String query;
     private final ColumnList whereColumnValues;
+    private final String tableName;
 
     /**
      * Construct.
      *
-     * @param query             Query to execute, p.e. select %s from table_x where %s = ? and (%s = ? or %s = ?)
+     * @param query Query to execute, p.e. DELETE from table_x where %s = ? and (%s = ? or %s = ?)
      * @param whereColumnValues Column plus columnValuesToSet - map.
      */
-    public RemoveQuery(final String query, final ColumnList whereColumnValues) {
+    public RemoveQuery(final String tableName, final String query, final ColumnList whereColumnValues) {
         this.query = query;
         this.whereColumnValues = whereColumnValues;
+        this.tableName = tableName;
+    }
+
+    @Override
+    public String tableName() {
+        return this.tableName;
     }
 
     @Override

@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @param <T> Type of the auto_inc field of this table, usually Long.
  * @param <E> The Entity-Class which is being used.
  * @author Christian Senkowski (cs@2scale.net)
- * @version $Id:$
  * @since 03.09.16
  */
 public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGetter {
@@ -191,7 +190,7 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @param <W>   Type of where.
      * @return List of DatabaseResultFields of type S.
      */
-    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findAll(final SingleColumnQuery<S, W> query) {
+    default <S, W> CompletableFuture<List<DatabaseResultField<S>>> findAll(final String tableName, final SingleColumnQuery<S, W> query) {
         return this.findMany(query);
     }
 
@@ -235,7 +234,7 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @param query Query to execute.
      * @return True or false.
      */
-    default CompletableFuture<Boolean> truncate(final String query) {
+    default CompletableFuture<Boolean> truncate(final TruncateQuery<?> query) {
         return this.truncater(null).truncate(query);
     }
 
@@ -245,7 +244,7 @@ public interface DatabaseTable<T, E extends DatabaseEntity<T>> extends ConfigGet
      * @param query Query to execute.
      * @return True or false.
      */
-    default CompletableFuture<Boolean> truncate(final String query, final Transaction transaction) {
+    default CompletableFuture<Boolean> truncate(final TruncateQuery<?> query, final Transaction transaction) {
         return this.truncater(transaction).truncate(query);
     }
 

@@ -38,7 +38,7 @@ final class CassandraProduct implements DatabaseEntity<Integer> {
 
     @Override
     public CompletableFuture<CassandraProduct> save(final ColumnList columnList) {
-        SingleColumnUpdateQuery<Integer> query = new SingleColumnUpdateQuery<>(
+        SingleColumnUpdateQuery<Integer> query = new SingleColumnUpdateQuery<>(CassandraProduct.TABLE_NAME,
                 String.format("UPDATE %s SET %%s WHERE %%%%s = ?", TABLE_NAME), Fields.ID, id, columnList);
         final CompletableFuture<Integer> updated = this.update(query, () -> this.objectValid);
         this.objectValid.set(false);

@@ -29,26 +29,26 @@ final class PSQLCustomers implements DatabaseTable<Long, PSQLCustomer> {
 
     @Override
     public CompletableFuture<PSQLCustomer> findOne(final Long primaryKey) {
-        return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?", PSQLCustomer.Fields.ID,
+        return this.findOne(new SingleColumnQuery<>(PSQLCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ?", PSQLCustomer.Fields.ID,
                 PSQLCustomer.Fields.ID, primaryKey)).thenApply(foundId ->
                 new PSQLCustomer(config, foundId.resultValue()));
     }
 
     @Override
     public CompletableFuture<List<PSQLCustomer>> findAll() {
-        return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", PSQLCustomer.Fields.ID))
+        return this.findAll(PSQLCachedCustomer.TABLE_NAME, new SingleColumnQuery<>(PSQLCustomer.TABLE_NAME, "SELECT %s FROM customer", PSQLCustomer.Fields.ID))
                 .thenApply(list -> list.stream().map(foundId -> new PSQLCustomer(config, foundId.resultValue()))
                         .collect(Collectors.toList()));
     }
 
     public CompletableFuture<PSQLCustomer> findOneByFirstName(final String firstName) {
-        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ? " +
+        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>(PSQLCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ? " +
                 "LIMIT 1", PSQLCustomer.Fields.ID, PSQLCustomer.Fields.FIRST_NAME, firstName);
         return this.findOne(query).thenApply(foundId -> new PSQLCustomer(config, foundId.resultValue()));
     }
 
     public CompletableFuture<List<PSQLCustomer>> findAllByFirstName(final String firstName) {
-        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
+        final SingleColumnQuery<Long, String> query = new SingleColumnQuery<>(PSQLCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ?",
                 PSQLCustomer.Fields.ID,
                 PSQLCustomer.Fields.FIRST_NAME, firstName);
         return this.findMany(query).thenApply(list ->
@@ -61,7 +61,7 @@ final class PSQLCustomers implements DatabaseTable<Long, PSQLCustomer> {
         columnsToSelect.add(PSQLCustomer.Fields.FIRST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(PSQLCustomer.Fields.ID, id);
-        return findOne(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
+        return findOne(new MultiColumnSelectQuery<>(PSQLCustomer.TABLE_NAME, queryStr, columnsToSelect, () -> map));
     }
 
     public CompletableFuture<List<Map<DatabaseField<?>, DatabaseResultField<?>>>> findManyFirstName() {
@@ -69,11 +69,11 @@ final class PSQLCustomers implements DatabaseTable<Long, PSQLCustomer> {
         final List<DatabaseField<?>> columnsToSelect = new LinkedList<>();
         columnsToSelect.add(PSQLCustomer.Fields.FIRST_NAME);
         final Map<DatabaseField<?>, Object> map = new HashMap<>();
-        return findMany(new MultiColumnSelectQuery<>(queryStr, columnsToSelect, () -> map));
+        return findMany(new MultiColumnSelectQuery<>(PSQLCustomer.TABLE_NAME, queryStr, columnsToSelect, () -> map));
     }
 
     public CompletableFuture<Boolean> removeAll() {
-        return this.truncate("TRUNCATE TABLE customer");
+        return this.truncate(new TruncateQuery<>(PSQLCustomer.TABLE_NAME, "TRUNCATE TABLE customer"));
     }
 
     @Override
@@ -84,12 +84,11 @@ final class PSQLCustomers implements DatabaseTable<Long, PSQLCustomer> {
     public CompletableFuture<Integer> removeOne(final Long id) {
         Map<DatabaseField<?>, Object> map = new HashMap<>();
         map.put(PSQLCustomer.Fields.ID, id);
-        return this.removeOne(new RemoveQuery<>("DELETE FROM customer WHERE %s = ?", () -> map));
+        return this.removeOne(new RemoveQuery<>(PSQLCustomer.TABLE_NAME, "DELETE FROM customer WHERE %s = ?", () -> map));
     }
 
     public CompletableFuture<PSQLCustomer> create(final String firstName, final Long number) {
-        final InsertQuery<Long> query = new InsertQuery<>(
-                "INSERT INTO customer (%s, %s) VALUES (?, ?)", PSQLCustomer.Fields.ID);
+        final InsertQuery<Long> query = new InsertQuery<>(PSQLCustomer.TABLE_NAME, "INSERT INTO customer (%s, %s) VALUES (?, ?)", PSQLCustomer.Fields.ID);
         query.add(PSQLCustomer.Fields.FIRST_NAME, firstName);
         query.add(PSQLCustomer.Fields.NUMBER, number);
         return this.add(query).thenApply(newId ->
@@ -98,8 +97,7 @@ final class PSQLCustomers implements DatabaseTable<Long, PSQLCustomer> {
 
     public CompletableFuture<PSQLCustomer> create(final String firstName, final Long number,
                                                   final Transaction transaction) {
-        final InsertQuery<Long> query = new InsertQuery<>(
-                "INSERT INTO customer (%s, %s) VALUES (?, ?)", PSQLCustomer.Fields.ID);
+        final InsertQuery<Long> query = new InsertQuery<>(PSQLCustomer.TABLE_NAME, "INSERT INTO customer (%s, %s) VALUES (?, ?)", PSQLCustomer.Fields.ID);
         query.add(PSQLCustomer.Fields.FIRST_NAME, firstName);
         query.add(PSQLCustomer.Fields.NUMBER, number);
         return this.add(query, transaction).thenApply(newId ->

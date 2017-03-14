@@ -71,7 +71,6 @@ abstract class AbstractPSQLTest extends AbstractTest {
                 stmt.execute(lines);
             }
         } catch (final SQLException e) {
-            e.printStackTrace();
             LOGGER.warning(e.getMessage());
             throw new RuntimeException(e.getMessage(), e);
         }

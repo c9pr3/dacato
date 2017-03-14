@@ -6,6 +6,7 @@ import co.ecso.dacato.database.CachedDatabaseTable;
 import co.ecso.dacato.database.cache.Cache;
 import co.ecso.dacato.database.querywrapper.InsertQuery;
 import co.ecso.dacato.database.querywrapper.SingleColumnQuery;
+import co.ecso.dacato.database.querywrapper.TruncateQuery;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +28,7 @@ final class MySQLCachedCustomers implements CachedDatabaseTable<Long, MySQLCache
     }
 
     public CompletableFuture<MySQLCachedCustomer> create(final String firstName, final long number) {
-        final InsertQuery<Long> query = new InsertQuery<>(
+        final InsertQuery<Long> query = new InsertQuery<>(MySQLCachedCustomer.TABLE_NAME,
                 "INSERT INTO customer (%s, %s) VALUES (?, ?)", MySQLCachedCustomer.Fields.ID);
         query.add(MySQLCachedCustomer.Fields.FIRST_NAME, firstName);
         query.add(MySQLCachedCustomer.Fields.NUMBER, number);
@@ -35,19 +36,20 @@ final class MySQLCachedCustomers implements CachedDatabaseTable<Long, MySQLCache
     }
 
     public CompletableFuture<Boolean> removeAll() {
-        return truncate("TRUNCATE TABLE customer");
+        return truncate(new TruncateQuery<>(MySQLCachedCustomer.TABLE_NAME, "TRUNCATE TABLE customer"));
     }
 
     @Override
     public CompletableFuture<MySQLCachedCustomer> findOne(final Long primaryKey) {
-        return this.findOne(new SingleColumnQuery<>("SELECT %s FROM customer WHERE %s = ?",
+        return this.findOne(new SingleColumnQuery<>(MySQLCachedCustomer.TABLE_NAME, "SELECT %s FROM customer WHERE %s = ?",
                 MySQLCachedCustomer.Fields.ID, MySQLCachedCustomer.Fields.ID, primaryKey)).thenApply(foundId ->
                 new MySQLCachedCustomer(config, foundId.resultValue()));
     }
 
     @Override
     public CompletableFuture<List<MySQLCachedCustomer>> findAll() {
-        return this.findAll(new SingleColumnQuery<>("SELECT %s FROM customer", MySQLCachedCustomer.Fields.ID))
+        return this.findAll(MySQLCachedCustomer.TABLE_NAME,
+                new SingleColumnQuery<>(MySQLCachedCustomer.TABLE_NAME, "SELECT %s FROM customer", MySQLCachedCustomer.Fields.ID))
                 .thenApply(list -> list.stream().map(foundId -> new MySQLCachedCustomer(config, foundId.resultValue()))
                         .collect(Collectors.toList()));
     }
