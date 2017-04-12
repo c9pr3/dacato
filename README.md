@@ -209,7 +209,7 @@ transaction.commit().get(10, TimeUnit.SECONDS);
 //transaction.rollback().get(10, TimeUnit.SECONDS);
  ```
 
-##Why the ... should I use DACATO? Tons of more major frameworks out there!
+## Why the ... should I use DACATO? Tons of more major frameworks out there!
 
 You may say "What? Same sh\*t as anything else while Hibernate and others offer me more." - and you are right.<br/>
 DACATO is a *small* framework. It offers not much while still enough to solve *one* problem.
@@ -224,17 +224,17 @@ Pro's:
 * **Flexible** to a point where you can totally ignore what I had in mind and do your own thing. 
 
 
-##Why is the "T" silent?
+## Why is the "T" silent?
 
 DACATO does not fully transfer. It does not provide an abstraction layer for SQL - 
 but a layer upon queries themselves for typesafety reasons.
 
 
-##License
+## License
 
 This software takes the MIT license as described below:
 
-Copyright (C) 2016 by Christian Senkowski
+Copyright (C) 2016-2017 by Christian Senkowski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
