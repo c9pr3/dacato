@@ -32,7 +32,7 @@ If you use it successfully with a different database, **please let me know!**
 ## Installation
 
 <h5>pom.xml</h5>
-```
+
     <repositories>
         <repository>
             <id>dacato-mvn-repo</id>
@@ -52,7 +52,6 @@ If you use it successfully with a different database, **please let me know!**
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
-```
 
 ## Basic Usage
 
