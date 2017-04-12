@@ -19,7 +19,7 @@ A project written by [Christian Senkowski](http://e-cs.co/).
 - [Why is the "T" silent?](#why-is-the-t-silent)
 - [License](#license)
 
-##About
+## About
 
 DACATO aims to be a asynchronous, cachable data access framework/library for small to middle projects which have to interact with a **relational** database.
 While most frameworks are bloated and force the user to do things in a *specific* way, DACATO offers full flexibility. You *may* do things as provided or overwrite everything to have it *your* way.<br/>
@@ -55,7 +55,7 @@ If you use it successfully with a different database, **please let me know!**
 ```
 
 
-##Basic Usage
+## Basic Usage
 
 As in most ORMish frameworks/libs for each table you need two classes. 
 Let's assume you have a table "customer" and fields "id", "first_name", "last_name" and "customer_number".
