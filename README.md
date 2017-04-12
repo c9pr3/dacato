@@ -54,7 +54,6 @@ If you use it successfully with a different database, **please let me know!**
     </dependencies>
 ```
 
-
 ## Basic Usage
 
 As in most ORMish frameworks/libs for each table you need two classes. 
