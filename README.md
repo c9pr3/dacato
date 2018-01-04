@@ -8,12 +8,12 @@ A project written by [Christian Senkowski](http://e-cs.co/).
 - [Installation](#installation)
 - [Basic Usage](#basic-usage)
     - [Transactions](#transactions)
-    - [MySQL Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/mysql)
-    - [HSQL Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/hsql)
-    - [PostgreSQL Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/postgresql)
-    - [Cassandra Example (In development)](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/cassandra)
-    - [SQLite Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/sqlite/)
-    - [H2 Example](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/h2/)
+    - [MySQL Example](https://github.com/c9pr3/dacato/tree/master/src/test/java/co/ecso/dacato/mysql)
+    - [HSQL Example](https://github.com/c9pr3/dacato/tree/master/src/test/java/co/ecso/dacato/hsql)
+    - [PostgreSQL Example](https://github.com/c9pr3/dacato/tree/master/src/test/java/co/ecso/dacato/postgresql)
+    - [Cassandra Example (In development)](https://github.com/c9pr3/dacato/tree/master/src/test/java/co/ecso/dacato/cassandra)
+    - [SQLite Example](https://github.com/c9pr3/dacato/tree/master/src/test/java/co/ecso/dacato/sqlite/)
+    - [H2 Example](https://github.com/c9pr3/dacato/tree/master/src/test/java/co/ecso/dacato/h2/)
     - [MongoDB Example (Todo)]()
 - [Why use it?](#why-the--should-i-use-dacato-tons-of-more-major-frameworks-out-there)
 - [Why is the "T" silent?](#why-is-the-t-silent)
@@ -25,7 +25,7 @@ DACATO aims to be a asynchronous, cachable data access framework/library for sma
 While most frameworks are bloated and force the user to do things in a *specific* way, DACATO offers full flexibility. You *may* do things as provided or overwrite everything to have it *your* way.<br/>
 DACATO does not have **any** dependencies except for JDK8+.
 
-It has been tested with [MySQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/mysql), [HSQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/hsql), [PostgreSQL](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/postgresql), [SQLite](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/sqlite/), [H2](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/h2/) and currently working on [Cassandra](https://github.com/Adar/dacato/tree/master/src/test/java/co/ecso/dacato/cassandra).<br/>
+It has been tested with [MySQL](https://github.com/c9pr3/dacato/tree/master/src/test/java/co/ecso/dacato/mysql), [HSQL](https://github.com/c9pr3/dacato/tree/master/src/test/java/co/ecso/dacato/hsql), [PostgreSQL](https://github.com/c9pr3/dacato/tree/master/src/test/java/co/ecso/dacato/postgresql), [SQLite](https://github.com/c9pr3/dacato/tree/master/src/test/java/co/ecso/dacato/sqlite/), [H2](https://github.com/c9pr3/dacato/tree/master/src/test/java/co/ecso/dacato/h2/) and currently working on [Cassandra](https://github.com/c9pr3/dacato/tree/master/src/test/java/co/ecso/dacato/cassandra).<br/>
 If you use it successfully with a different database, **please let me know!**
 
 
@@ -37,7 +37,7 @@ If you use it successfully with a different database, **please let me know!**
         <repository>
             <id>dacato-mvn-repo</id>
             <name>git</name>
-            <url>https://raw.githubusercontent.com/Adar/dacato/master/mvn-repo/</url>
+            <url>https://raw.githubusercontent.com/c9pr3/dacato/master/mvn-repo/</url>
             <snapshots>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
@@ -172,7 +172,7 @@ That's it - You may now query the customer table in any way you like.<br/>
 
 Well, a class which implements ApplicationConfig is needed, too. You may use your application config and additionally implement ApplicationConfig.
 
-For a more completed example, see [Dacato-Ref](http://github.com/Adar/dacato-ref "Dacato Reference Implementation") 
+For a more completed example, see [Dacato-Ref](http://github.com/c9pr3/dacato-ref "Dacato Reference Implementation") 
 
 ### Transactions
 

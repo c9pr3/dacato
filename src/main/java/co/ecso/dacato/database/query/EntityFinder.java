@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public interface EntityFinder extends ConfigGetter, StatementPreparer {
 
+    int statementOptions();
+
     default StatementFiller statementFiller() {
         return new StatementFiller() {
         };
@@ -94,8 +96,6 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         return returnValueFuture;
     }
 
-    int statementOptions();
-
     /**
      * Find One.
      *
@@ -121,7 +121,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
         format.add(columnWhere.name());
         final String finalQuery = String.format(query.query(), format.toArray());
 
-//        System.out.println("FINDING: " + finalQuery + ", " + columnWhere.toString() + " = " + whereValueToFind);
+        // System.out.println("FINDING: " + finalQuery + ", " + columnWhere.toString() + " = " + whereValueToFind);
         CompletableFuture.runAsync(() -> {
             DatabaseResultField<S> singleRowResult = null;
             try (final Connection c = config().databaseConnectionPool().getConnection()) {
@@ -296,6 +296,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                                                                     final List<DatabaseField<?>> columnsToSelect,
                                                                     final PreparedStatement stmt, final Connection c)
             throws SQLException {
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (c) {
             final Map<DatabaseField<?>, DatabaseResultField<?>> result = new LinkedHashMap<>();
             if (stmt.isClosed()) {
@@ -314,6 +315,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
     default List<Map<DatabaseField<?>, DatabaseResultField<?>>> getListMapRowResult(final List<DatabaseField<?>> columnsToSelect,
                                                                               final PreparedStatement stmt,
                                                                               final Connection c) throws SQLException {
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (c) {
             final List<Map<DatabaseField<?>, DatabaseResultField<?>>> result = new LinkedList<>();
             if (stmt.isClosed()) {
@@ -333,6 +335,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
     default void listMapColumns(final List<DatabaseField<?>> columnsToSelect, final ResultSet rs,
                                 final Map<DatabaseField<?>, DatabaseResultField<?>> map, final Connection c)
             throws SQLException {
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (c) {
             for (final DatabaseField column : columnsToSelect) {
                 Object rval;
@@ -343,8 +346,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                     //noinspection unchecked
                     rval = rs.getObject(column.name(), column.valueClass());
                     if (rval == null) {
-                        throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
-                                "getObject(int, class)");
+                        throw new SQLFeatureNotSupportedException("Broken driver, gave back null for "
+                                + "getObject(int, class)");
                     }
                 } catch (final SQLFeatureNotSupportedException | NoSuchMethodException e) {
                     rval = rs.getObject(column.name());
@@ -375,6 +378,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
     default <R> List<DatabaseResultField<R>> getListRowResult(final DatabaseField<R> columnToSelect,
                                                               final PreparedStatement stmt, final Connection c)
             throws SQLException {
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (c) {
             final List<DatabaseResultField<R>> result = new LinkedList<>();
             if (stmt.isClosed()) {
@@ -389,8 +393,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                         }
                         rval = rs.getObject(1, columnToSelect.valueClass());
                         if (rval == null) {
-                            throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
-                                    "getObject(int, class)");
+                            throw new SQLFeatureNotSupportedException("Broken driver, gave back null for "
+                                    + "getObject(int, class)");
                         }
                     } catch (final SQLFeatureNotSupportedException | NoSuchMethodException e) {
                         //noinspection unchecked
@@ -427,6 +431,7 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                                                           final Set<DatabaseField<?>> databaseFields,
                                                           final Collection<?> values, final Connection c)
             throws SQLException {
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (c) {
             final DatabaseResultField<R> result;
             if (stmt.isClosed()) {
@@ -434,8 +439,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
             }
             try (final ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) {
-                    throw new SQLNoResultException(String.format("No Results for %s, columnToSelect: %s, " +
-                                    "columnWhere: %s, whereValueToFind: %s", finalQuery, columnToSelect.toString(),
+                    throw new SQLNoResultException(String.format("No Results for %s, columnToSelect: %s, " 
+                                    + "columnWhere: %s, whereValueToFind: %s", finalQuery, columnToSelect.toString(),
                             databaseFields.toString(), values.toString()));
                 }
 
@@ -446,8 +451,8 @@ public interface EntityFinder extends ConfigGetter, StatementPreparer {
                     }
                     rval = rs.getObject(1, columnToSelect.valueClass());
                     if (rval == null) {
-                        throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " +
-                                "getObject(int, class)");
+                        throw new SQLFeatureNotSupportedException("Broken driver, gave back null for " 
+                                + "getObject(int, class)");
                     }
                 } catch (final SQLFeatureNotSupportedException | NoSuchMethodException ignored) {
                     //noinspection unchecked

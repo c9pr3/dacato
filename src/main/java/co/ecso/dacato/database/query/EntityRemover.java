@@ -83,6 +83,7 @@ public interface EntityRemover extends ConfigGetter, StatementPreparer {
      * @throws SQLException if SQL fails.
      */
     default Integer getSingleRowResult(final PreparedStatement stmt, final Connection c) throws SQLException {
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (c) {
             if (stmt.isClosed()) {
                 throw new SQLException(String.format("Statement %s closed unexpectedly", stmt.toString()));
