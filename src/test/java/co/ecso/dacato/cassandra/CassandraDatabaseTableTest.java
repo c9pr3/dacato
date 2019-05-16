@@ -2,17 +2,15 @@ package co.ecso.dacato.cassandra;
 
 import co.ecso.dacato.database.querywrapper.DatabaseField;
 import co.ecso.dacato.database.querywrapper.DatabaseResultField;
-import org.cassandraunit.CassandraUnit;
-import org.cassandraunit.dataset.xml.AbstractXmlDataSet;
-import org.junit.*;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * PSQLDatabaseTableTest.
@@ -24,9 +22,9 @@ import java.util.concurrent.TimeUnit;
 @Ignore
 public final class CassandraDatabaseTableTest extends AbstractCassandraTest {
 
-    @Rule
+  /*  @Rule
     public final CassandraUnit cassandraUnit = new CassandraUnit(
-            new AbstractXmlDataSet(SRC_TEST_CONFIG_EXTENDED_DATA_SET_XML) {
+            new AbstractCQLDataSet(SRC_TEST_CONFIG_EXTENDED_DATA_SET_XML) {
                 @Override
                 protected InputStream getInputDataSetLocation(final String s) {
                     try {
@@ -35,7 +33,8 @@ public final class CassandraDatabaseTableTest extends AbstractCassandraTest {
                         return null;
                     }
                 }
-            });
+            });*/
+
     private CassandraCustomers customers = null;
 
     @Before
@@ -45,7 +44,7 @@ public final class CassandraDatabaseTableTest extends AbstractCassandraTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         this.cleanupCassandraDatabase();
     }
 

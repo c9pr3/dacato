@@ -2,19 +2,16 @@ package co.ecso.dacato.cassandra;
 
 import co.ecso.dacato.config.ApplicationConfig;
 import co.ecso.dacato.database.transaction.Transaction;
-import org.cassandraunit.CassandraUnit;
-import org.cassandraunit.dataset.xml.AbstractXmlDataSet;
-import org.junit.*;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * HTwoTransactionTest.
@@ -25,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Ignore
 public final class CassandraTransactionTest extends AbstractCassandraTest {
 
+/*
     @Rule
     public final CassandraUnit cassandraUnit = new CassandraUnit(
             new AbstractXmlDataSet(SRC_TEST_CONFIG_EXTENDED_DATA_SET_XML) {
@@ -37,6 +35,7 @@ public final class CassandraTransactionTest extends AbstractCassandraTest {
                     }
                 }
             });
+*/
 
     private CassandraCustomers customers = null;
     private CassandraProducts products;
@@ -49,7 +48,7 @@ public final class CassandraTransactionTest extends AbstractCassandraTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         this.cleanupCassandraDatabase();
     }
 
@@ -61,7 +60,7 @@ public final class CassandraTransactionTest extends AbstractCassandraTest {
         ConcurrentLinkedQueue<CompletableFuture<?>> queue = new ConcurrentLinkedQueue<>();
         Transaction transaction = new Transaction() {
             @Override
-            public Connection connection() throws SQLException {
+            public Connection connection() {
                 return connection;
             }
 
@@ -98,7 +97,7 @@ public final class CassandraTransactionTest extends AbstractCassandraTest {
         Transaction transaction = new Transaction() {
 
             @Override
-            public Connection connection() throws SQLException {
+            public Connection connection() {
                 return connection;
             }
 

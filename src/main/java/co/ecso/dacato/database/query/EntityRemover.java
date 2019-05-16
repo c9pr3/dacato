@@ -4,7 +4,6 @@ import co.ecso.dacato.config.ConfigGetter;
 import co.ecso.dacato.database.ColumnList;
 import co.ecso.dacato.database.querywrapper.RemoveQuery;
 import co.ecso.dacato.database.transaction.Transaction;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -30,9 +29,8 @@ public interface EntityRemover extends ConfigGetter, StatementPreparer {
         final CompletableFuture<Integer> returnValueFuture = new CompletableFuture<>();
 
         final ColumnList valuesWhere = query.values();
-        final List<Object> format = new ArrayList<>();
 
-        format.addAll(valuesWhere.values().keySet());
+        final List<Object> format = new ArrayList<>(valuesWhere.values().keySet());
         final String finalQuery = String.format(query.query(), format.toArray());
 
         CompletableFuture.runAsync(() -> {
