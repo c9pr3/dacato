@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Truncater.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 11.09.16
  */
 public interface Truncater extends ConfigGetter, StatementPreparer {

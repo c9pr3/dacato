@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * StatementFiller.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 02.09.16
  */
 public interface StatementFiller {

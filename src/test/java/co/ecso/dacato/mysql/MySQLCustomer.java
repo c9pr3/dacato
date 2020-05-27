@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * MySQLCustomer.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 29.08.16
  */
 final class MySQLCustomer implements DatabaseEntity<Long> {

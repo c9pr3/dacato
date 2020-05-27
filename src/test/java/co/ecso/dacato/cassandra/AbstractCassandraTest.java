@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * AbstractCassandraTest.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 08.10.16
  */
 abstract class AbstractCassandraTest extends AbstractTest {

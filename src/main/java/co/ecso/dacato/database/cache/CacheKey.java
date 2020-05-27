@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * CacheKey.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 01.03.17
  */
 public final class CacheKey<T> implements Serializable {

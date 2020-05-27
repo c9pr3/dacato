@@ -7,7 +7,7 @@ import org.junit.Test;
 /**
  * HTwoConnectionTest
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @version $Id:$
  * @since 07.10.16
  */

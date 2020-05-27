@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * MultiColumnSelectQuery.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 25.09.16
  */
 public final class MultiColumnSelectQuery<T> implements Query<T> {

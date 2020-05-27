@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * MySQLCustomers.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 15.03.16
  */
 final class MySQLCustomers implements DatabaseTable<Long, MySQLCustomer> {

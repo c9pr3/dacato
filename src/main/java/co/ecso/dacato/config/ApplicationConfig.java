@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * ApplicationConfig.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 25.08.16
  */
 public interface ApplicationConfig {

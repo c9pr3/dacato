@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Query.
  *
  * @param <T> Type of Query.
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 19.09.16
  */
 public interface Query<T> extends Serializable {

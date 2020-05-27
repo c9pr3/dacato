@@ -15,7 +15,7 @@ import org.junit.Test;
 /**
  * PSQLDatabaseTableTest.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @version $Id:$
  * @since 03.09.16
  */

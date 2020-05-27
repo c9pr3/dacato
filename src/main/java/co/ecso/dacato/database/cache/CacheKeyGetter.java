@@ -5,7 +5,7 @@ import co.ecso.dacato.database.querywrapper.Query;
 /**
  * CacheKeyGetter.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @version $Id:$
  * @since 21.09.16
  */

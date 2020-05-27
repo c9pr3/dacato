@@ -7,7 +7,7 @@ import java.util.Objects;
  * DatabaseField.
  *
  * @param <T> Type of field, for "id" p.e. Long, for "name" String etc.
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 09.09.16
  */
 public final class DatabaseField<T> implements Serializable {

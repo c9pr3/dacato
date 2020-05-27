@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Updater.
  *
  * @param <T> Type of update, p.e. Long -> Type of query.
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 11.09.16
  */
 public interface Updater<T> extends ConfigGetter, StatementPreparer {

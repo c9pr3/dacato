@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * TestApplicationCache.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 04.09.16
  */
 public final class TestApplicationCache implements Cache {

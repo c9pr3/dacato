@@ -8,7 +8,7 @@ import java.util.Objects;
  * InsertQuery.
  *
  * @param <T> Return type of query, p.e. Long for id, String for name etc.
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 12.09.16
  */
 public final class InsertQuery<T> implements Query<T> {

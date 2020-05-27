@@ -16,7 +16,7 @@ import org.junit.Test;
 /**
  * HTwoTransactionTest.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 08.12.16
  */
 @Ignore

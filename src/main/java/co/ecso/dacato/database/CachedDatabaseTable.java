@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @param <T> Type of the auto_inc field of this table, usually Long.
  * @param <E> The Entity-Class which is being used.
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 17.09.16
  */
 public interface CachedDatabaseTable<T, E extends DatabaseEntity<T>> extends DatabaseTable<T, E>, CacheGetter {

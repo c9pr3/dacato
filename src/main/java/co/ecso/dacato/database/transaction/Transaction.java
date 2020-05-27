@@ -11,7 +11,7 @@ import java.util.concurrent.*;
 /**
  * Transaction.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 02.12.16
  */
 public interface Transaction extends ConfigGetter {

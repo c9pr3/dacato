@@ -8,7 +8,7 @@ import java.util.Objects;
  *
  * @param <S> SelectType. Type of column to select. P.e. in select first_name from xy this would be String.
  * @param <W> WhereType. Type of column where. P.e. select first_name from ... where id = x this would be Long.
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 09.09.16
  */
 public final class SingleColumnQuery<S, W> implements Query<S> {

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * HTwoCustomers.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @version $Id:$
  * @since 15.03.16
  */

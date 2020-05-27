@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  * SingleColumnUpdateQuery.
  *
  * @param <T> Type of query -> type of where.
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 11.09.16
  */
 public final class SingleColumnUpdateQuery<T> implements Query<T> {

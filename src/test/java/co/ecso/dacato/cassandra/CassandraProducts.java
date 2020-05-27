@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * CassandraProducts.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @version $Id:$
  * @since 24.09.16
  */

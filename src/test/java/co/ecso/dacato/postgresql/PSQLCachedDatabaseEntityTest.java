@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * PSQLCachedDatabaseEntityTest.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @version $Id:$
  * @since 06.09.16
  */

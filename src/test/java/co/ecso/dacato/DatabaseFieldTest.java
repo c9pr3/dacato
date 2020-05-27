@@ -9,7 +9,7 @@ import java.sql.Types;
 /**
  * DatabaseFieldTest.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 18.08.16
  */
 public final class DatabaseFieldTest {

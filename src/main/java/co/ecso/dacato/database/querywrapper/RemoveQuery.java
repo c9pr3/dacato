@@ -9,7 +9,7 @@ import java.util.Objects;
  * RemoveQuery.
  *
  * @param <T> Type of Query, p.e. Long.
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 01.10.16
  */
 public final class RemoveQuery<T> implements Query<T> {

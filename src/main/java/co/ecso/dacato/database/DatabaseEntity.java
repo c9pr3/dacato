@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * DatabaseEntity.
  *
  * @param <T> Type of the auto_inc (primary) field of this entity, usually Long.
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 08.08.16
  */
 public interface DatabaseEntity<T> extends ConfigGetter {

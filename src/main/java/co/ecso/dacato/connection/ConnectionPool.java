@@ -6,7 +6,7 @@ import java.sql.SQLException;
  * ConnectionPool.
  *
  * @param <T> Type of connection, usually "java.sql.Connection".
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 26.08.16
  */
 @FunctionalInterface

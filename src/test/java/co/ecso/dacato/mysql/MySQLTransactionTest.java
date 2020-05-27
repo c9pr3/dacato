@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * HTwoTransactionTest.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 08.12.16
  */
 public final class MySQLTransactionTest extends AbstractMySQLTest {

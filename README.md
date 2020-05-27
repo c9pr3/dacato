@@ -1,7 +1,7 @@
 ## DACATO Data access- and transfer object library
 (the "T" is quite silent...)
 
-A project written by [Christian Senkowski](http://e-cs.co/).
+A project written by [Christian Scharmach](http://e-cs.co/).
 
 # Table of Contents
 - [About](#about)
@@ -234,7 +234,7 @@ but a layer upon queries themselves for typesafety reasons.
 
 This software takes the MIT license as described below:
 
-Copyright (C) 2016-2017 by Christian Senkowski
+Copyright (C) 2016-2017 by Christian Scharmach
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

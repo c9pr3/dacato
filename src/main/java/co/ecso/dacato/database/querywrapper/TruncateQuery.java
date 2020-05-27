@@ -6,7 +6,7 @@ import java.util.Objects;
 /**
  * TruncateQuery.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 14.03.17
  */
 public final class TruncateQuery<T> implements Query<T> {

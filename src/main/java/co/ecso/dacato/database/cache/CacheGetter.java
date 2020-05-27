@@ -3,7 +3,7 @@ package co.ecso.dacato.database.cache;
 /**
  * CacheGetter.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 21.09.16
  */
 @FunctionalInterface

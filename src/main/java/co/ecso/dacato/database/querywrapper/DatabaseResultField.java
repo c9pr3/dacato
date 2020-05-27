@@ -7,7 +7,7 @@ import java.util.Objects;
  * DatabaseResultField.
  *
  * @param <T> Field type, p.e. Long or String.
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 09.09.16
  */
 public final class DatabaseResultField<T> implements Serializable {

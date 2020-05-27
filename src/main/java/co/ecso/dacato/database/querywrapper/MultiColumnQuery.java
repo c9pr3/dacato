@@ -9,7 +9,7 @@ import java.util.Objects;
  * MultiColumnQuery.
  *
  * @param <T> Type of return, p.e. Long.
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @since 13.09.16
  */
 public final class MultiColumnQuery<T> implements Query<T> {

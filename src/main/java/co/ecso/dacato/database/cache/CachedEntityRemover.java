@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * CachedEntityRemover.
  *
- * @author Christian Senkowski (cs@2scale.net)
+ * @author Christian Scharmach (cs@e-cs.co)
  * @version $Id:$
  * @since 04.10.16
  */
